@@ -153,7 +153,7 @@ This is the initial stable release of the Firebase Genkit plugin for Claude Code
 **Getting Started:**
 ```bash
 # Install the plugin
-/plugin marketplace add amitpatole/claude-genkit-plugin
+/plugin marketplace add https://github.com/amitpatole/claude-genkit-plugin.git
 /plugin install genkit
 
 # Create your first project

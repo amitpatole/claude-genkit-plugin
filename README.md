@@ -64,7 +64,7 @@ A comprehensive Claude Code plugin that streamlines Firebase Genkit development 
 
 1. **Add the marketplace:**
    ```
-   /plugin marketplace add amitpatole/claude-genkit-plugin
+   /plugin marketplace add https://github.com/amitpatole/claude-genkit-plugin.git
    ```
 
 2. **Install the plugin:**
