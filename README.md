@@ -1,11 +1,11 @@
-# Firebase Genkit Plugin for Claude Code
+# Genkit Plugin for Claude Code
 
-> Build production-ready AI applications with Firebase Genkit directly from Claude Code
+> Build production-ready AI applications with Genkit directly from Claude Code
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blue.svg)](https://claude.com/claude-code)
 
-A comprehensive Claude Code plugin that streamlines Firebase Genkit development with intelligent commands, templates, and an AI assistant specialized in Genkit best practices.
+A comprehensive Claude Code plugin that streamlines Genkit development with intelligent commands, templates, and an AI assistant specialized in Genkit best practices.
 
 ## Features
 
@@ -379,7 +379,7 @@ Contributions are welcome! Please:
 
 ## Resources
 
-- [Firebase Genkit Documentation](https://firebase.google.com/docs/genkit)
+- [Genkit Documentation]([https://firebase.google.com/docs/genkit](https://genkit.dev/docs/get-started/))
 - [Claude Code Documentation](https://docs.claude.com/claude-code)
 - [Anthropic API Reference](https://docs.anthropic.com/)
 - [Plugin Source Code](https://github.com/amitpatole/claude-genkit-plugin)
@@ -396,7 +396,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ## Acknowledgments
 
-- Firebase Genkit Team at Google
+- Genkit Team at Google
 - Anthropic for Claude AI
 - Claude Code Team at Anthropic
 
@@ -404,4 +404,4 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 **Made with ❤️ for the AI developer community**
 
-*Build amazing AI applications with Firebase Genkit and Claude Code!*
+*Build amazing AI applications with Genkit and Claude Code!*
