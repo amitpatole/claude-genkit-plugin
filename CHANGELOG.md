@@ -5,6 +5,33 @@ All notable changes to the Firebase Genkit plugin for Claude Code will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-10-10
+
+### Added
+- 🎉 **Expanded to multi-plugin marketplace** with 4 new specialized plugins
+- **genkit-test-writer** - Automatically generate comprehensive tests for Genkit flows
+  - `/genkit-test-generate` - Generate unit, integration, and e2e tests
+  - `/genkit-test-run` - Run tests with coverage reporting
+  - `@test-writer` agent for test writing assistance
+- **genkit-monitor** - Real-time monitoring and observability
+  - `/genkit-monitor-setup` - Setup logging and telemetry
+  - `/genkit-monitor-dashboard` - View real-time metrics
+  - `/genkit-monitor-logs` - Stream and analyze flow logs
+  - `@monitor-expert` agent for observability guidance
+- **genkit-cost-tracker** - Track and optimize AI API costs
+  - `/genkit-cost-report` - Generate cost analysis reports
+  - `/genkit-cost-optimize` - Get cost optimization recommendations
+  - `@cost-optimizer` agent for cost reduction strategies
+- **genkit-security-auditor** - Security auditing and best practices
+  - `/genkit-security-audit` - Run comprehensive security audit
+  - `/genkit-security-fix` - Apply security fixes automatically
+  - `@security-expert` agent for secure AI practices
+
+### Changed
+- Restructured repository to support multiple plugins in `plugins/` directory
+- Main Genkit plugin now at root with additional plugins in subdirectories
+- Marketplace now offers 5 total plugins (1 core + 4 specialized)
+
 ## [1.1.0] - 2025-10-10
 
 ### Added

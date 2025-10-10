@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "genkit-marketplace",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Firebase Genkit plugins for Claude Code",
   "owner": {
     "name": "Amit Patole",
@@ -12,7 +12,7 @@
       "name": "genkit",
       "description": "Build production-ready AI applications with Firebase Genkit. Includes project initialization, flow templates, deployment tools, and an AI assistant specialized in Genkit development.",
       "source": "./",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "Amit Patole",
         "email": "support@example.com"
@@ -32,6 +32,91 @@
         "generative-ai",
         "rag",
         "deployment"
+      ]
+    },
+    {
+      "name": "genkit-test-writer",
+      "description": "Automatically generate comprehensive tests for Genkit flows with support for unit tests, integration tests, and end-to-end testing",
+      "source": "./plugins/genkit-test-writer",
+      "version": "1.0.0",
+      "author": {
+        "name": "Amit Patole",
+        "email": "support@example.com"
+      },
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-test-writer",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": [
+        "genkit",
+        "testing",
+        "unit-tests",
+        "integration-tests",
+        "test-automation"
+      ]
+    },
+    {
+      "name": "genkit-monitor",
+      "description": "Real-time monitoring, logging, and observability for Genkit applications with metrics, traces, and alerts",
+      "source": "./plugins/genkit-monitor",
+      "version": "1.0.0",
+      "author": {
+        "name": "Amit Patole",
+        "email": "support@example.com"
+      },
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-monitor",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": [
+        "genkit",
+        "monitoring",
+        "observability",
+        "logging",
+        "metrics",
+        "tracing"
+      ]
+    },
+    {
+      "name": "genkit-cost-tracker",
+      "description": "Track, analyze, and optimize AI API costs for Genkit applications with detailed usage reports and budget alerts",
+      "source": "./plugins/genkit-cost-tracker",
+      "version": "1.0.0",
+      "author": {
+        "name": "Amit Patole",
+        "email": "support@example.com"
+      },
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-cost-tracker",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": [
+        "genkit",
+        "cost-tracking",
+        "budget",
+        "optimization",
+        "analytics"
+      ]
+    },
+    {
+      "name": "genkit-security-auditor",
+      "description": "Security auditing and best practices enforcement for Genkit applications including input validation, prompt injection detection, and secure deployment",
+      "source": "./plugins/genkit-security-auditor",
+      "version": "1.0.0",
+      "author": {
+        "name": "Amit Patole",
+        "email": "support@example.com"
+      },
+      "category": "security",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-security-auditor",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": [
+        "genkit",
+        "security",
+        "audit",
+        "vulnerability",
+        "best-practices"
       ]
     }
   ]

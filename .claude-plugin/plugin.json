@@ -1,6 +1,6 @@
 {
   "name": "genkit",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Firebase Genkit integration for building AI-powered applications with Claude, Gemini, and other AI models",
   "author": "Amit Patole",
   "homepage": "https://github.com/amitpatole/claude-genkit-plugin",

@@ -1,0 +1,45 @@
+{
+  "name": "genkit-monitor",
+  "version": "1.0.0",
+  "description": "Real-time monitoring, logging, and observability for Genkit applications with metrics, traces, and alerts",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-monitor",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": [
+    "genkit",
+    "monitoring",
+    "observability",
+    "logging",
+    "metrics",
+    "tracing"
+  ],
+  "commands": [
+    {
+      "name": "genkit-monitor-setup",
+      "description": "Setup monitoring and observability for Genkit project",
+      "script": "commands/genkit-monitor-setup.sh"
+    },
+    {
+      "name": "genkit-monitor-dashboard",
+      "description": "View real-time monitoring dashboard",
+      "script": "commands/genkit-monitor-dashboard.sh"
+    },
+    {
+      "name": "genkit-monitor-logs",
+      "description": "View and analyze Genkit flow logs",
+      "script": "commands/genkit-monitor-logs.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "monitor-expert",
+      "description": "AI assistant specialized in Genkit monitoring and observability",
+      "config": "agents/monitor-expert.json"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

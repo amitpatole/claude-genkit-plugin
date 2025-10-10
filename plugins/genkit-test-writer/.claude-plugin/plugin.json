@@ -1,0 +1,39 @@
+{
+  "name": "genkit-test-writer",
+  "version": "1.0.0",
+  "description": "Automatically generate comprehensive tests for Genkit flows with support for unit tests, integration tests, and end-to-end testing",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-test-writer",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": [
+    "genkit",
+    "testing",
+    "unit-tests",
+    "integration-tests",
+    "test-automation"
+  ],
+  "commands": [
+    {
+      "name": "genkit-test-generate",
+      "description": "Generate tests for Genkit flows",
+      "script": "commands/genkit-test-generate.sh"
+    },
+    {
+      "name": "genkit-test-run",
+      "description": "Run all Genkit tests with coverage",
+      "script": "commands/genkit-test-run.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "test-writer",
+      "description": "AI assistant specialized in writing comprehensive tests for Genkit flows",
+      "config": "agents/test-writer.json"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

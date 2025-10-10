@@ -1,0 +1,38 @@
+{
+  "name": "genkit-security-auditor",
+  "version": "1.0.0",
+  "description": "Security auditing and best practices enforcement for Genkit applications including input validation, prompt injection detection, and secure deployment",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-security-auditor",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": [
+    "genkit",
+    "security",
+    "audit",
+    "vulnerability",
+    "best-practices"
+  ],
+  "commands": [
+    {
+      "name": "genkit-security-audit",
+      "description": "Run security audit on Genkit project",
+      "script": "commands/genkit-security-audit.sh"
+    },
+    {
+      "name": "genkit-security-fix",
+      "description": "Apply security fixes and recommendations",
+      "script": "commands/genkit-security-fix.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "security-expert",
+      "description": "AI assistant specialized in Genkit security and secure AI practices",
+      "config": "agents/security-expert.json"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0"
+  }
+}

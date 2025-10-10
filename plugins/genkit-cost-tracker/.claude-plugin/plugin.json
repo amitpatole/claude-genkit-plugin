@@ -1,0 +1,38 @@
+{
+  "name": "genkit-cost-tracker",
+  "version": "1.0.0",
+  "description": "Track, analyze, and optimize AI API costs for Genkit applications with detailed usage reports and budget alerts",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-cost-tracker",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": [
+    "genkit",
+    "cost-tracking",
+    "budget",
+    "optimization",
+    "analytics"
+  ],
+  "commands": [
+    {
+      "name": "genkit-cost-report",
+      "description": "Generate cost analysis report",
+      "script": "commands/genkit-cost-report.sh"
+    },
+    {
+      "name": "genkit-cost-optimize",
+      "description": "Get cost optimization recommendations",
+      "script": "commands/genkit-cost-optimize.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "cost-optimizer",
+      "description": "AI assistant specialized in optimizing Genkit AI costs",
+      "config": "agents/cost-optimizer.json"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0"
+  }
+}
