@@ -1,0 +1,30 @@
+{
+  "name": "genkit-model-selector",
+  "version": "1.0.0",
+  "description": "Compare and select the best AI models for your use case - analyze cost, speed, quality tradeoffs across Claude, Gemini, GPT, and more",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-model-selector",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "model-selection", "comparison", "benchmarking"],
+  "commands": [
+    {
+      "name": "genkit-model-compare",
+      "description": "Compare AI models for your use case",
+      "script": "commands/genkit-model-compare.sh"
+    },
+    {
+      "name": "genkit-model-recommend",
+      "description": "Get model recommendations",
+      "script": "commands/genkit-model-recommend.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "model-advisor",
+      "description": "AI assistant for model selection and optimization",
+      "config": "agents/model-advisor.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}

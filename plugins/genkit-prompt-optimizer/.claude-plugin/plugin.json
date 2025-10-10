@@ -1,0 +1,30 @@
+{
+  "name": "genkit-prompt-optimizer",
+  "version": "1.0.0",
+  "description": "Optimize prompts for better AI responses - improve quality, reduce tokens, and enhance consistency with AI-powered prompt engineering",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-prompt-optimizer",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "prompt-engineering", "optimization", "quality"],
+  "commands": [
+    {
+      "name": "genkit-prompt-analyze",
+      "description": "Analyze and improve prompts",
+      "script": "commands/genkit-prompt-analyze.sh"
+    },
+    {
+      "name": "genkit-prompt-test",
+      "description": "Test prompts with different models",
+      "script": "commands/genkit-prompt-test.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "prompt-engineer",
+      "description": "Expert prompt engineering assistant",
+      "config": "agents/prompt-engineer.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}

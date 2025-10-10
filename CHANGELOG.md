@@ -5,6 +5,33 @@ All notable changes to the Firebase Genkit plugin for Claude Code will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-10-10
+
+### Added
+- 🎉 **Massive expansion: 10 new specialized plugins** - Now 15 total plugins in marketplace!
+
+#### AI Model Integration (4 plugins)
+- **genkit-ollama** - Local AI models with Llama, Mistral without API costs
+- **genkit-model-selector** - Compare and select best models (Claude/Gemini/GPT)
+- **genkit-prompt-optimizer** - AI-powered prompt engineering and optimization
+- **genkit-embedding-helper** - Simplified embeddings for RAG applications
+
+#### Database & Storage (4 plugins)
+- **genkit-firestore** - Firestore integration with type-safe schemas
+- **genkit-vector-db** - Vector databases (Pinecone, Weaviate, Qdrant, Chroma)
+- **genkit-cache** - Intelligent caching strategies (Redis, in-memory)
+- **genkit-session-manager** - User session and conversation management
+
+#### Development Tools (2 plugins)
+- **genkit-architect** - Expert architecture design and best practices
+- **genkit-debugger** - Interactive flow debugging and troubleshooting
+
+### Statistics
+- **Total Plugins:** 15 (1 core + 14 specialized)
+- **Total Commands:** 35+
+- **Total AI Agents:** 15+
+- **Categories:** Development, Productivity, Security
+
 ## [1.2.0] - 2025-10-10
 
 ### Added

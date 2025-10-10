@@ -1,0 +1,30 @@
+{
+  "name": "genkit-cache",
+  "version": "1.0.0",
+  "description": "Caching strategies for Genkit flows - reduce costs and improve response times with intelligent caching",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-cache",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "caching", "redis", "performance", "optimization"],
+  "commands": [
+    {
+      "name": "genkit-cache-setup",
+      "description": "Setup caching for flows",
+      "script": "commands/genkit-cache-setup.sh"
+    },
+    {
+      "name": "genkit-cache-stats",
+      "description": "View cache statistics",
+      "script": "commands/genkit-cache-stats.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "cache-expert",
+      "description": "Caching strategy specialist",
+      "config": "agents/cache-expert.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}

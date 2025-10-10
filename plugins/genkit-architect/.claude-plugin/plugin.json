@@ -1,0 +1,30 @@
+{
+  "name": "genkit-architect",
+  "version": "1.0.0",
+  "description": "Design Genkit application architecture - get expert guidance on structure, patterns, and best practices for scalable AI apps",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-architect",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "architecture", "design", "patterns", "best-practices"],
+  "commands": [
+    {
+      "name": "genkit-arch-analyze",
+      "description": "Analyze project architecture",
+      "script": "commands/genkit-arch-analyze.sh"
+    },
+    {
+      "name": "genkit-arch-suggest",
+      "description": "Get architecture recommendations",
+      "script": "commands/genkit-arch-suggest.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "genkit-architect",
+      "description": "Expert Genkit architect for application design",
+      "config": "agents/genkit-architect.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}

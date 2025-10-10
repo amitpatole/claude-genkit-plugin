@@ -1,0 +1,30 @@
+{
+  "name": "genkit-firestore",
+  "version": "1.0.0",
+  "description": "Firestore integration helpers for Genkit - easy database operations, real-time updates, and data persistence",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-firestore",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "firestore", "database", "firebase", "persistence"],
+  "commands": [
+    {
+      "name": "genkit-firestore-setup",
+      "description": "Setup Firestore integration",
+      "script": "commands/genkit-firestore-setup.sh"
+    },
+    {
+      "name": "genkit-firestore-schema",
+      "description": "Generate Firestore schemas",
+      "script": "commands/genkit-firestore-schema.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "firestore-expert",
+      "description": "Firestore integration specialist",
+      "config": "agents/firestore-expert.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}

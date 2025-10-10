@@ -1,0 +1,30 @@
+{
+  "name": "genkit-session-manager",
+  "version": "1.0.0",
+  "description": "User session and conversation management for Genkit - maintain context across multiple interactions",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-session-manager",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "session", "conversation", "state-management", "context"],
+  "commands": [
+    {
+      "name": "genkit-session-setup",
+      "description": "Setup session management",
+      "script": "commands/genkit-session-setup.sh"
+    },
+    {
+      "name": "genkit-session-monitor",
+      "description": "Monitor active sessions",
+      "script": "commands/genkit-session-monitor.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "session-expert",
+      "description": "Session management specialist",
+      "config": "agents/session-expert.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}

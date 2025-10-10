@@ -1,0 +1,30 @@
+{
+  "name": "genkit-vector-db",
+  "version": "1.0.0",
+  "description": "Vector database integrations for Genkit RAG applications - Pinecone, Weaviate, Qdrant, Chroma, and more",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-vector-db",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "vector-database", "pinecone", "weaviate", "rag"],
+  "commands": [
+    {
+      "name": "genkit-vectordb-setup",
+      "description": "Setup vector database integration",
+      "script": "commands/genkit-vectordb-setup.sh"
+    },
+    {
+      "name": "genkit-vectordb-index",
+      "description": "Index documents in vector database",
+      "script": "commands/genkit-vectordb-index.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "vectordb-expert",
+      "description": "Vector database specialist",
+      "config": "agents/vectordb-expert.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}

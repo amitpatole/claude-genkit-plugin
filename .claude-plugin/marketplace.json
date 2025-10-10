@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "genkit-marketplace",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Firebase Genkit plugins for Claude Code",
   "owner": {
     "name": "Amit Patole",
@@ -12,7 +12,7 @@
       "name": "genkit",
       "description": "Build production-ready AI applications with Firebase Genkit. Includes project initialization, flow templates, deployment tools, and an AI assistant specialized in Genkit development.",
       "source": "./",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "author": {
         "name": "Amit Patole",
         "email": "support@example.com"
@@ -118,6 +118,126 @@
         "vulnerability",
         "best-practices"
       ]
+    },
+    {
+      "name": "genkit-ollama",
+      "description": "Local AI model integration with Ollama for Genkit - run Llama, Mistral, and other models locally without API costs",
+      "source": "./plugins/genkit-ollama",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-ollama",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "ollama", "local-models", "llama", "mistral", "privacy"]
+    },
+    {
+      "name": "genkit-model-selector",
+      "description": "Compare and select the best AI models for your use case - analyze cost, speed, quality tradeoffs across Claude, Gemini, GPT, and more",
+      "source": "./plugins/genkit-model-selector",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-model-selector",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "model-selection", "comparison", "benchmarking"]
+    },
+    {
+      "name": "genkit-prompt-optimizer",
+      "description": "Optimize prompts for better AI responses - improve quality, reduce tokens, and enhance consistency with AI-powered prompt engineering",
+      "source": "./plugins/genkit-prompt-optimizer",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-prompt-optimizer",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "prompt-engineering", "optimization", "quality"]
+    },
+    {
+      "name": "genkit-embedding-helper",
+      "description": "Simplify embeddings and vector operations for RAG applications - generate, store, and search embeddings with ease",
+      "source": "./plugins/genkit-embedding-helper",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-embedding-helper",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "embeddings", "vectors", "rag", "semantic-search"]
+    },
+    {
+      "name": "genkit-firestore",
+      "description": "Firestore integration helpers for Genkit - easy database operations, real-time updates, and data persistence",
+      "source": "./plugins/genkit-firestore",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-firestore",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "firestore", "database", "firebase", "persistence"]
+    },
+    {
+      "name": "genkit-vector-db",
+      "description": "Vector database integrations for Genkit RAG applications - Pinecone, Weaviate, Qdrant, Chroma, and more",
+      "source": "./plugins/genkit-vector-db",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-vector-db",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "vector-database", "pinecone", "weaviate", "rag"]
+    },
+    {
+      "name": "genkit-cache",
+      "description": "Caching strategies for Genkit flows - reduce costs and improve response times with intelligent caching",
+      "source": "./plugins/genkit-cache",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-cache",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "caching", "redis", "performance", "optimization"]
+    },
+    {
+      "name": "genkit-session-manager",
+      "description": "User session and conversation management for Genkit - maintain context across multiple interactions",
+      "source": "./plugins/genkit-session-manager",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-session-manager",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "session", "conversation", "state-management", "context"]
+    },
+    {
+      "name": "genkit-architect",
+      "description": "Design Genkit application architecture - get expert guidance on structure, patterns, and best practices for scalable AI apps",
+      "source": "./plugins/genkit-architect",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-architect",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "architecture", "design", "patterns", "best-practices"]
+    },
+    {
+      "name": "genkit-debugger",
+      "description": "Interactive flow debugging for Genkit - step through flows, inspect variables, and troubleshoot issues",
+      "source": "./plugins/genkit-debugger",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-debugger",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "debugging", "troubleshooting", "development"]
     }
   ]
 }

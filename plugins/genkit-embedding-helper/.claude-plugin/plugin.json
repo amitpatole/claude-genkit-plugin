@@ -1,0 +1,30 @@
+{
+  "name": "genkit-embedding-helper",
+  "version": "1.0.0",
+  "description": "Simplify embeddings and vector operations for RAG applications - generate, store, and search embeddings with ease",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-embedding-helper",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "embeddings", "vectors", "rag", "semantic-search"],
+  "commands": [
+    {
+      "name": "genkit-embed-setup",
+      "description": "Setup embedding generation",
+      "script": "commands/genkit-embed-setup.sh"
+    },
+    {
+      "name": "genkit-embed-generate",
+      "description": "Generate embeddings for documents",
+      "script": "commands/genkit-embed-generate.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "embedding-expert",
+      "description": "Embeddings and vector search specialist",
+      "config": "agents/embedding-expert.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}

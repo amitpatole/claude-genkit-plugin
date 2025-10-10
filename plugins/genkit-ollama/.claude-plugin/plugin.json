@@ -1,0 +1,30 @@
+{
+  "name": "genkit-ollama",
+  "version": "1.0.0",
+  "description": "Local AI model integration with Ollama for Genkit - run Llama, Mistral, and other models locally without API costs",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-ollama",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "ollama", "local-models", "llama", "mistral", "privacy"],
+  "commands": [
+    {
+      "name": "genkit-ollama-setup",
+      "description": "Setup Ollama integration for Genkit",
+      "script": "commands/genkit-ollama-setup.sh"
+    },
+    {
+      "name": "genkit-ollama-models",
+      "description": "List and manage Ollama models",
+      "script": "commands/genkit-ollama-models.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "ollama-expert",
+      "description": "AI assistant for local model deployment with Ollama",
+      "config": "agents/ollama-expert.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}

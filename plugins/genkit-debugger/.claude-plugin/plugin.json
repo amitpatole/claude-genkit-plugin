@@ -1,0 +1,30 @@
+{
+  "name": "genkit-debugger",
+  "version": "1.0.0",
+  "description": "Interactive flow debugging for Genkit - step through flows, inspect variables, and troubleshoot issues",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-debugger",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "debugging", "troubleshooting", "development"],
+  "commands": [
+    {
+      "name": "genkit-debug-flow",
+      "description": "Debug a specific flow",
+      "script": "commands/genkit-debug-flow.sh"
+    },
+    {
+      "name": "genkit-debug-trace",
+      "description": "Trace flow execution",
+      "script": "commands/genkit-debug-trace.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "debug-expert",
+      "description": "Genkit debugging specialist",
+      "config": "agents/debug-expert.json"
+    }
+  ],
+  "requirements": {"node": ">=18.0.0"}
+}
