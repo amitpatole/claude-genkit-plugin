@@ -1,0 +1,59 @@
+{
+  "name": "genkit",
+  "version": "1.0.0",
+  "description": "Firebase Genkit integration for building AI-powered applications with Claude, Gemini, and other AI models",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amitpatole/claude-genkit-plugin.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "genkit",
+    "firebase",
+    "ai",
+    "claude",
+    "gemini",
+    "llm",
+    "generative-ai"
+  ],
+  "commands": [
+    {
+      "name": "genkit-init",
+      "description": "Initialize a new Firebase Genkit project with templates",
+      "script": "commands/genkit-init.sh"
+    },
+    {
+      "name": "genkit-run",
+      "description": "Start the Genkit development server with UI",
+      "script": "commands/genkit-run.sh"
+    },
+    {
+      "name": "genkit-deploy",
+      "description": "Deploy Genkit flows to production (Firebase/Cloud Run/Custom)",
+      "script": "commands/genkit-deploy.sh"
+    },
+    {
+      "name": "genkit-flow",
+      "description": "Create a new Genkit flow from template",
+      "script": "commands/genkit-flow.sh"
+    },
+    {
+      "name": "genkit-doctor",
+      "description": "Check Genkit installation and project health",
+      "script": "commands/genkit-doctor.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "genkit-assistant",
+      "description": "AI assistant specialized in Firebase Genkit development",
+      "config": "agents/genkit-assistant.json"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
