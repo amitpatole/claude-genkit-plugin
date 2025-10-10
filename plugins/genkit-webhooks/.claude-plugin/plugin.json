@@ -1,0 +1,16 @@
+{
+  "name": "genkit-webhooks",
+  "version": "1.0.0",
+  "description": "Webhook integration for Genkit - receive and process webhooks from external services with validation and retry logic",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-webhooks",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "webhooks", "integrations", "events", "callbacks"],
+  "commands": [
+    {"name": "genkit-webhook-create", "description": "Create webhook endpoint", "script": "commands/genkit-webhook-create.sh"},
+    {"name": "genkit-webhook-test", "description": "Test webhook handling", "script": "commands/genkit-webhook-test.sh"}
+  ],
+  "agents": [{"name": "webhook-expert", "description": "Webhook integration specialist", "config": "agents/webhook-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

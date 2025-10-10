@@ -1,0 +1,16 @@
+{
+  "name": "genkit-migration-helper",
+  "version": "1.0.0",
+  "description": "Migrate from other AI frameworks (LangChain, Semantic Kernel, etc.) to Genkit with automated code conversion and best practices",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-migration-helper",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "migration", "langchain", "semantic-kernel", "conversion"],
+  "commands": [
+    {"name": "genkit-migrate-from", "description": "Migrate from other frameworks", "script": "commands/genkit-migrate-from.sh"},
+    {"name": "genkit-migrate-analyze", "description": "Analyze migration complexity", "script": "commands/genkit-migrate-analyze.sh"}
+  ],
+  "agents": [{"name": "migration-expert", "description": "Framework migration specialist", "config": "agents/migration-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

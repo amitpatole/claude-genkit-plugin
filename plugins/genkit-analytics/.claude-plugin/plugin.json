@@ -1,0 +1,16 @@
+{
+  "name": "genkit-analytics",
+  "version": "1.0.0",
+  "description": "Analytics and insights for Genkit applications - user behavior, flow performance, and business metrics",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-analytics",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "analytics", "metrics", "insights", "google-analytics"],
+  "commands": [
+    {"name": "genkit-analytics-setup", "description": "Setup analytics tracking", "script": "commands/genkit-analytics-setup.sh"},
+    {"name": "genkit-analytics-dashboard", "description": "View analytics dashboard", "script": "commands/genkit-analytics-dashboard.sh"}
+  ],
+  "agents": [{"name": "analytics-expert", "description": "Analytics and metrics specialist", "config": "agents/analytics-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

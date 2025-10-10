@@ -1,0 +1,16 @@
+{
+  "name": "genkit-scheduler",
+  "version": "1.0.0",
+  "description": "Job scheduling for Genkit flows - cron jobs, recurring tasks, and scheduled AI operations with Cloud Scheduler",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-scheduler",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "scheduler", "cron", "jobs", "cloud-scheduler", "tasks"],
+  "commands": [
+    {"name": "genkit-schedule-create", "description": "Create scheduled job", "script": "commands/genkit-schedule-create.sh"},
+    {"name": "genkit-schedule-list", "description": "List scheduled jobs", "script": "commands/genkit-schedule-list.sh"}
+  ],
+  "agents": [{"name": "scheduler-expert", "description": "Job scheduling specialist", "config": "agents/scheduler-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

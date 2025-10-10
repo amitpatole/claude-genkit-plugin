@@ -1,0 +1,16 @@
+{
+  "name": "genkit-documentation",
+  "version": "1.0.0",
+  "description": "Auto-generate comprehensive documentation for Genkit projects - flow diagrams, API docs, and usage examples",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-documentation",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "documentation", "docs", "api-docs", "diagrams"],
+  "commands": [
+    {"name": "genkit-docs-generate", "description": "Generate project documentation", "script": "commands/genkit-docs-generate.sh"},
+    {"name": "genkit-docs-serve", "description": "Serve documentation locally", "script": "commands/genkit-docs-serve.sh"}
+  ],
+  "agents": [{"name": "docs-expert", "description": "Documentation specialist", "config": "agents/docs-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

@@ -1,0 +1,16 @@
+{
+  "name": "genkit-workflow-orchestrator",
+  "version": "1.0.0",
+  "description": "Orchestrate complex multi-step AI workflows with parallel execution, conditional logic, and error handling",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-workflow-orchestrator",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "workflows", "orchestration", "automation", "pipelines"],
+  "commands": [
+    {"name": "genkit-workflow-create", "description": "Create workflow orchestration", "script": "commands/genkit-workflow-create.sh"},
+    {"name": "genkit-workflow-visualize", "description": "Visualize workflow diagram", "script": "commands/genkit-workflow-visualize.sh"}
+  ],
+  "agents": [{"name": "workflow-expert", "description": "Workflow orchestration specialist", "config": "agents/workflow-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

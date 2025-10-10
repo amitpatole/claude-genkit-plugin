@@ -1,0 +1,16 @@
+{
+  "name": "genkit-ui-generator",
+  "version": "1.0.0",
+  "description": "Generate UI components and chat interfaces for Genkit flows - React, Vue, and vanilla JavaScript templates",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-ui-generator",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "ui", "react", "vue", "chat-interface", "frontend"],
+  "commands": [
+    {"name": "genkit-ui-generate", "description": "Generate UI components", "script": "commands/genkit-ui-generate.sh"},
+    {"name": "genkit-ui-preview", "description": "Preview UI components", "script": "commands/genkit-ui-preview.sh"}
+  ],
+  "agents": [{"name": "ui-expert", "description": "UI/UX specialist", "config": "agents/ui-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

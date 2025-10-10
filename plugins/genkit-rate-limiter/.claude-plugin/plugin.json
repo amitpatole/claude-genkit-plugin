@@ -1,0 +1,16 @@
+{
+  "name": "genkit-rate-limiter",
+  "version": "1.0.0",
+  "description": "Rate limiting and quota management for Genkit flows - prevent abuse and control API usage",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-rate-limiter",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "rate-limiting", "quotas", "throttling", "abuse-prevention"],
+  "commands": [
+    {"name": "genkit-ratelimit-setup", "description": "Setup rate limiting", "script": "commands/genkit-ratelimit-setup.sh"},
+    {"name": "genkit-ratelimit-monitor", "description": "Monitor rate limit usage", "script": "commands/genkit-ratelimit-monitor.sh"}
+  ],
+  "agents": [{"name": "ratelimit-expert", "description": "Rate limiting specialist", "config": "agents/ratelimit-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

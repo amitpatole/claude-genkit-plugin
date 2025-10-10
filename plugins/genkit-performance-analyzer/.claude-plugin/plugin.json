@@ -1,0 +1,16 @@
+{
+  "name": "genkit-performance-analyzer",
+  "version": "1.0.0",
+  "description": "Analyze and optimize Genkit flow performance - latency profiling, token usage optimization, and bottleneck detection",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-performance-analyzer",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "performance", "profiling", "optimization", "latency"],
+  "commands": [
+    {"name": "genkit-perf-profile", "description": "Profile flow performance", "script": "commands/genkit-perf-profile.sh"},
+    {"name": "genkit-perf-optimize", "description": "Get optimization recommendations", "script": "commands/genkit-perf-optimize.sh"}
+  ],
+  "agents": [{"name": "performance-expert", "description": "Performance optimization specialist", "config": "agents/performance-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

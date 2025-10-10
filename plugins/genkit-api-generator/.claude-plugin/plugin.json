@@ -1,0 +1,16 @@
+{
+  "name": "genkit-api-generator",
+  "version": "1.0.0",
+  "description": "Generate REST and GraphQL APIs from Genkit flows - automatic endpoint creation with OpenAPI/Swagger documentation",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-api-generator",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "api", "rest", "graphql", "openapi", "swagger"],
+  "commands": [
+    {"name": "genkit-api-generate", "description": "Generate API from flows", "script": "commands/genkit-api-generate.sh"},
+    {"name": "genkit-api-docs", "description": "Generate API documentation", "script": "commands/genkit-api-docs.sh"}
+  ],
+  "agents": [{"name": "api-expert", "description": "API design specialist", "config": "agents/api-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

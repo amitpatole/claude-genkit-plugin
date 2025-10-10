@@ -1,0 +1,16 @@
+{
+  "name": "genkit-logger",
+  "version": "1.0.0",
+  "description": "Enhanced logging and debugging for Genkit with structured logs, log levels, and integration with logging services",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-logger",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "logging", "debugging", "winston", "structured-logs"],
+  "commands": [
+    {"name": "genkit-log-setup", "description": "Setup enhanced logging", "script": "commands/genkit-log-setup.sh"},
+    {"name": "genkit-log-view", "description": "View and filter logs", "script": "commands/genkit-log-view.sh"}
+  ],
+  "agents": [{"name": "logging-expert", "description": "Logging best practices specialist", "config": "agents/logging-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

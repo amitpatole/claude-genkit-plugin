@@ -1,0 +1,16 @@
+{
+  "name": "genkit-secrets-manager",
+  "version": "1.0.0",
+  "description": "Secure API key and secrets management for Genkit - Google Secret Manager, AWS Secrets, HashiCorp Vault integration",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-secrets-manager",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "secrets", "security", "api-keys", "vault"],
+  "commands": [
+    {"name": "genkit-secrets-setup", "description": "Setup secrets management", "script": "commands/genkit-secrets-setup.sh"},
+    {"name": "genkit-secrets-rotate", "description": "Rotate API keys", "script": "commands/genkit-secrets-rotate.sh"}
+  ],
+  "agents": [{"name": "secrets-expert", "description": "Secrets management specialist", "config": "agents/secrets-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

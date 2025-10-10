@@ -5,6 +5,44 @@ All notable changes to the Firebase Genkit plugin for Claude Code will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-10-10
+
+### Added
+- 🚀 **Ultimate expansion: 15 additional specialized plugins** - Now 30 total plugins in marketplace!
+
+#### Integration & Migration (2 plugins)
+- **genkit-migration-helper** - Migrate from LangChain, Semantic Kernel, or LlamaIndex to Genkit
+- **genkit-webhooks** - Receive and process webhooks from external services with validation and retry logic
+
+#### Performance & Operations (3 plugins)
+- **genkit-performance-analyzer** - Profile and optimize flow performance with bottleneck detection
+- **genkit-logger** - Enhanced logging with Winston, structured logs, and log levels
+- **genkit-scheduler** - Job scheduling with cron jobs, recurring tasks, and Cloud Scheduler integration
+
+#### Security & Validation (3 plugins)
+- **genkit-secrets-manager** - Secure API key management with Google Secret Manager, AWS Secrets, Vault
+- **genkit-auth-helper** - Authentication and authorization with Firebase Auth, OAuth 2.0, JWT
+- **genkit-validator** - Input/output validation with Zod schema generation and sanitization
+
+#### API & UI Generation (2 plugins)
+- **genkit-api-generator** - Generate REST/GraphQL APIs with OpenAPI/Swagger documentation
+- **genkit-ui-generator** - Generate React/Vue chat interfaces and AI-powered components
+
+#### Development Tools (3 plugins)
+- **genkit-documentation** - Auto-generate documentation, API specs, and architecture diagrams
+- **genkit-starter-kits** - Production-ready templates (chatbot, RAG pipeline, AI agent)
+- **genkit-workflow-orchestrator** - Complex multi-step workflow orchestration with branching
+
+#### Business Intelligence (2 plugins)
+- **genkit-rate-limiter** - Rate limiting, quota management, and abuse prevention
+- **genkit-analytics** - Analytics and insights (user behavior, model performance, business metrics)
+
+### Statistics
+- **Total Plugins:** 30 (1 core + 29 specialized)
+- **Total Commands:** 65+
+- **Total AI Agents:** 25+
+- **Categories:** Development, Integration, Security, Analytics, Performance, UI/UX
+
 ## [1.3.0] - 2025-10-10
 
 ### Added

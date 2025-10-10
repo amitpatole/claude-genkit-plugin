@@ -1,0 +1,16 @@
+{
+  "name": "genkit-auth-helper",
+  "version": "1.0.0",
+  "description": "Authentication and authorization for Genkit flows - Firebase Auth, OAuth, JWT, and API key management",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-auth-helper",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "authentication", "authorization", "oauth", "jwt", "firebase-auth"],
+  "commands": [
+    {"name": "genkit-auth-setup", "description": "Setup authentication", "script": "commands/genkit-auth-setup.sh"},
+    {"name": "genkit-auth-middleware", "description": "Generate auth middleware", "script": "commands/genkit-auth-middleware.sh"}
+  ],
+  "agents": [{"name": "auth-expert", "description": "Authentication specialist", "config": "agents/auth-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

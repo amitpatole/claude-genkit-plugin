@@ -1,0 +1,16 @@
+{
+  "name": "genkit-starter-kits",
+  "version": "1.0.0",
+  "description": "Complete starter templates for common use cases - chatbots, RAG apps, agents, multi-modal apps, and more",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-starter-kits",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "templates", "starter", "boilerplate", "chatbot"],
+  "commands": [
+    {"name": "genkit-starter-create", "description": "Create from starter template", "script": "commands/genkit-starter-create.sh"},
+    {"name": "genkit-starter-list", "description": "List available templates", "script": "commands/genkit-starter-list.sh"}
+  ],
+  "agents": [{"name": "starter-expert", "description": "Template and boilerplate specialist", "config": "agents/starter-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}

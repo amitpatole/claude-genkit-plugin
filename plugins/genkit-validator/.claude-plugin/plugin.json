@@ -1,0 +1,16 @@
+{
+  "name": "genkit-validator",
+  "version": "1.0.0",
+  "description": "Advanced input/output validation for Genkit flows - Zod schema generation, custom validators, and sanitization",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-validator",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "validation", "zod", "schema", "sanitization"],
+  "commands": [
+    {"name": "genkit-validate-generate", "description": "Generate validation schemas", "script": "commands/genkit-validate-generate.sh"},
+    {"name": "genkit-validate-test", "description": "Test validation logic", "script": "commands/genkit-validate-test.sh"}
+  ],
+  "agents": [{"name": "validation-expert", "description": "Validation and schema specialist", "config": "agents/validation-expert.json"}],
+  "requirements": {"node": ">=18.0.0"}
+}
