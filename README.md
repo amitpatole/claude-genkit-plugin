@@ -60,7 +60,24 @@ A comprehensive Claude Code plugin that streamlines Firebase Genkit development 
 
 ## Installation
 
-### From Claude Code
+### From GitHub (Recommended)
+
+1. **Add the marketplace:**
+   ```
+   /plugin marketplace add amitpatole/claude-genkit-plugin
+   ```
+
+2. **Install the plugin:**
+   ```
+   /plugin install genkit
+   ```
+
+3. **Verify installation:**
+   ```
+   /genkit-doctor
+   ```
+
+### From Local Directory
 
 1. **Install the plugin:**
    ```
@@ -76,11 +93,6 @@ A comprehensive Claude Code plugin that streamlines Firebase Genkit development 
    ```
    /genkit-doctor
    ```
-
-### From GitHub (Coming Soon)
-```
-/plugin install github:amitpatole/claude-genkit-plugin
-```
 
 ## Quick Start
 
