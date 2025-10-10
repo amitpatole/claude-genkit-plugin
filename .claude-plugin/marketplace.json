@@ -1,20 +1,23 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "genkit-marketplace",
+  "version": "1.1.0",
+  "description": "Firebase Genkit plugins for Claude Code",
   "owner": {
     "name": "Amit Patole",
     "email": "support@example.com"
   },
-  "description": "Firebase Genkit plugins for Claude Code",
   "plugins": [
     {
       "name": "genkit",
+      "description": "Build production-ready AI applications with Firebase Genkit. Includes project initialization, flow templates, deployment tools, and an AI assistant specialized in Genkit development.",
       "source": ".",
       "version": "1.1.0",
-      "description": "Build production-ready AI applications with Firebase Genkit. Includes project initialization, flow templates, deployment tools, and an AI assistant specialized in Genkit development.",
       "author": {
         "name": "Amit Patole",
         "email": "support@example.com"
       },
+      "category": "development",
       "homepage": "https://github.com/amitpatole/claude-genkit-plugin#readme",
       "repository": {
         "type": "git",
