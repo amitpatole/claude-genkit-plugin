@@ -5,6 +5,29 @@ All notable changes to the Firebase Genkit plugin for Claude Code will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-10
+
+### Added
+- ✅ GitHub marketplace installation support via `/plugin marketplace add`
+- Proper marketplace.json structure with plugins array for Claude Code plugin system
+- Updated installation documentation with GitHub as recommended method
+
+### Changed
+- **Installation Method:** GitHub installation is now the primary and recommended installation method
+- Restructured marketplace.json from single plugin format to proper marketplace catalog format
+- Updated README.md installation instructions to prioritize GitHub marketplace installation
+- Updated PUBLISH.sh script to show correct marketplace installation commands
+- Local directory installation moved to alternative method
+
+### Fixed
+- Fixed marketplace.json structure to enable `/plugin marketplace add` command
+- Corrected plugin discovery and installation from GitHub repositories
+
+### Documentation
+- Updated README.md with correct GitHub installation steps
+- Removed "Coming Soon" label from GitHub installation
+- Added marketplace.json structure documentation
+
 ## [1.0.0] - 2025-10-10
 
 ### Added
@@ -130,7 +153,8 @@ This is the initial stable release of the Firebase Genkit plugin for Claude Code
 **Getting Started:**
 ```bash
 # Install the plugin
-/plugin install github:amitpatole/claude-genkit-plugin
+/plugin marketplace add amitpatole/claude-genkit-plugin
+/plugin install genkit
 
 # Create your first project
 /genkit-init
