@@ -1,0 +1,126 @@
+{
+  "name": "Firebase Genkit",
+  "displayName": "Firebase Genkit for Claude Code",
+  "description": "Build production-ready AI applications with Firebase Genkit. Includes project initialization, flow templates, deployment tools, and an AI assistant specialized in Genkit development.",
+  "version": "1.0.0",
+  "publisher": "Amit Patole",
+  "categories": [
+    "AI & Machine Learning",
+    "Development Tools",
+    "Productivity"
+  ],
+  "tags": [
+    "genkit",
+    "firebase",
+    "ai",
+    "claude",
+    "gemini",
+    "gpt",
+    "llm",
+    "generative-ai",
+    "rag",
+    "deployment"
+  ],
+  "icon": "https://raw.githubusercontent.com/amitpatole/claude-genkit-plugin/main/assets/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amitpatole/claude-genkit-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/amitpatole/claude-genkit-plugin/issues"
+  },
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#readme",
+  "documentation": "https://github.com/amitpatole/claude-genkit-plugin/blob/main/README.md",
+  "license": "MIT",
+  "pricing": "free",
+  "keywords": [
+    "firebase genkit",
+    "ai development",
+    "llm framework",
+    "claude integration",
+    "genkit flows",
+    "ai deployment",
+    "rag implementation",
+    "tool calling",
+    "streaming ai"
+  ],
+  "features": [
+    {
+      "title": "Quick Project Setup",
+      "description": "Initialize new Genkit projects with TypeScript, JavaScript, Go, or Python in seconds"
+    },
+    {
+      "title": "Flow Templates",
+      "description": "6 production-ready templates including Chat, RAG, Tool Calling, Multi-step, and Streaming"
+    },
+    {
+      "title": "Multi-Platform Deployment",
+      "description": "Deploy to Firebase, Cloud Run, Vercel, Docker, and more with guided wizards"
+    },
+    {
+      "title": "AI Assistant",
+      "description": "Specialized Genkit expert for architecture design, debugging, and optimization"
+    },
+    {
+      "title": "Health Monitoring",
+      "description": "Comprehensive health checks for dependencies, configuration, and project setup"
+    }
+  ],
+  "commands": [
+    {
+      "command": "genkit-init",
+      "title": "Initialize Genkit Project",
+      "description": "Create a new Firebase Genkit project with interactive setup"
+    },
+    {
+      "command": "genkit-run",
+      "title": "Start Development Server",
+      "description": "Launch Genkit dev server with Developer UI"
+    },
+    {
+      "command": "genkit-flow",
+      "title": "Create Flow",
+      "description": "Generate new flows from production-ready templates"
+    },
+    {
+      "command": "genkit-deploy",
+      "title": "Deploy Application",
+      "description": "Deploy to Firebase, Cloud Run, Vercel, or Docker"
+    },
+    {
+      "command": "genkit-doctor",
+      "title": "Health Check",
+      "description": "Validate installation, configuration, and dependencies"
+    }
+  ],
+  "agents": [
+    {
+      "name": "genkit-assistant",
+      "title": "Genkit Expert",
+      "description": "AI assistant specialized in Firebase Genkit development, architecture, and best practices"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0",
+    "platforms": ["linux", "darwin", "win32"]
+  },
+  "support": {
+    "email": "support@example.com",
+    "issues": "https://github.com/amitpatole/claude-genkit-plugin/issues",
+    "documentation": "https://github.com/amitpatole/claude-genkit-plugin/blob/main/README.md"
+  },
+  "screenshots": [
+    "https://raw.githubusercontent.com/amitpatole/claude-genkit-plugin/main/assets/screenshot-init.png",
+    "https://raw.githubusercontent.com/amitpatole/claude-genkit-plugin/main/assets/screenshot-flow.png",
+    "https://raw.githubusercontent.com/amitpatole/claude-genkit-plugin/main/assets/screenshot-deploy.png"
+  ],
+  "changelog": "https://github.com/amitpatole/claude-genkit-plugin/blob/main/CHANGELOG.md",
+  "marketplaceMetadata": {
+    "featured": true,
+    "qualityScore": 5,
+    "installCount": 0,
+    "rating": 0,
+    "reviewCount": 0
+  }
+}
