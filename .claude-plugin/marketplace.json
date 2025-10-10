@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "genkit-marketplace",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Firebase Genkit plugins for Claude Code",
   "owner": {
     "name": "Amit Patole",
@@ -12,7 +12,7 @@
       "name": "genkit",
       "description": "Build production-ready AI applications with Firebase Genkit. Includes project initialization, flow templates, deployment tools, and an AI assistant specialized in Genkit development.",
       "source": "./",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "author": {
         "name": "Amit Patole",
         "email": "support@example.com"
@@ -418,6 +418,54 @@
       "repository": "https://github.com/amitpatole/claude-genkit-plugin",
       "license": "MIT",
       "keywords": ["genkit", "validation", "zod", "schema", "sanitization"]
+    },
+    {
+      "name": "genkit-image",
+      "description": "Comprehensive image processing for Genkit - generation, editing, analysis, optimization with Claude Vision, DALL-E, Stable Diffusion, and Sharp",
+      "source": "./plugins/genkit-image",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "media",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-image",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "image", "vision", "dalle", "stable-diffusion", "claude-vision", "sharp", "image-processing"]
+    },
+    {
+      "name": "genkit-audio",
+      "description": "Comprehensive audio processing for Genkit - generation, transcription, translation, speech synthesis with OpenAI Whisper, ElevenLabs, Google TTS, and FFmpeg",
+      "source": "./plugins/genkit-audio",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "media",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-audio",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "audio", "whisper", "transcription", "tts", "speech", "elevenlabs", "voice"]
+    },
+    {
+      "name": "genkit-video",
+      "description": "Comprehensive video processing for Genkit - generation, editing, analysis, transcription with FFmpeg, Runway ML, and AI video tools",
+      "source": "./plugins/genkit-video",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "media",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-video",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "video", "ffmpeg", "runway", "video-editing", "video-ai", "transcription"]
+    },
+    {
+      "name": "genkit-content-studio",
+      "description": "Complete multi-modal content creation studio for Genkit - Generate blogs, social media, marketing content, videos, and more using Gemini, Claude, GPT, and specialized AI tools",
+      "source": "./plugins/genkit-content-studio",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "support@example.com"},
+      "category": "content",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-content-studio",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "content", "gemini", "marketing", "social-media", "blog", "copywriting", "multimodal"]
     }
   ]
 }

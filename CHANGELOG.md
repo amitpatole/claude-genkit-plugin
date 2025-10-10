@@ -5,6 +5,61 @@ All notable changes to the Firebase Genkit plugin for Claude Code will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-10-10
+
+### Added
+- 🎨 **Multi-modal Media & Content Creation: 4 comprehensive new plugins** - Now 34 total plugins in marketplace!
+
+#### Media Processing (3 plugins)
+- **genkit-image** - Complete image processing suite
+  - Image generation (DALL-E 3, Stable Diffusion XL, Midjourney)
+  - Image analysis (Claude Vision, GPT-4 Vision, Gemini Vision, Cloud Vision)
+  - Image editing (resize, crop, filters, watermarks, background removal with Sharp)
+  - Image optimization (WebP, AVIF conversion, compression, responsive images)
+  - OCR (Tesseract, Google Cloud Vision, AWS Textract, Azure OCR)
+  - Caption and alt text generation for accessibility
+
+- **genkit-audio** - Complete audio processing suite
+  - Audio transcription (Whisper, AssemblyAI, Google Speech-to-Text)
+  - Text-to-speech (ElevenLabs, OpenAI TTS, Google TTS, Amazon Polly)
+  - Audio translation with voice preservation
+  - Audio editing (trim, merge, noise reduction, effects with FFmpeg)
+  - Audio analysis (sentiment, speaker diarization, music detection)
+  - Podcast generation with multi-voice and music
+
+- **genkit-video** - Complete video processing suite
+  - Video generation (Runway Gen-2, Pika, Stable Video Diffusion, Synthesia)
+  - Video editing (trim, merge, transitions, overlays, effects with FFmpeg)
+  - Video transcription and subtitle generation (SRT, VTT)
+  - Video analysis (scene detection, object tracking, OCR)
+  - Video optimization (H.265, HLS/DASH streaming, thumbnails)
+  - Animation and motion graphics creation
+
+#### Content Creation (1 plugin)
+- **genkit-content-studio** - Multi-modal content creation studio
+  - Blog generation (SEO-optimized, long-form, with images)
+  - Social media content (Twitter/X, LinkedIn, Instagram, TikTok, YouTube)
+  - Marketing copy (emails, ads, landing pages, product descriptions)
+  - Video scripts and storyboards
+  - Content translation and localization (100+ languages)
+  - Content repurposing across formats
+  - Content analysis (SEO, readability, engagement prediction)
+  - Content scheduling and publishing automation
+
+### Statistics
+- **Total Plugins:** 34 (1 core + 33 specialized)
+- **Total Commands:** 93+
+- **Total AI Agents:** 29+
+- **Categories:** Development, Integration, Security, Analytics, Performance, UI/UX, Media, Content
+- **New Categories:** Media, Content
+
+### Technologies Integrated
+- **Image AI:** DALL-E 3, Stable Diffusion, Claude Vision, GPT-4 Vision, Gemini Vision
+- **Audio AI:** OpenAI Whisper, ElevenLabs, Google TTS, AssemblyAI
+- **Video AI:** Runway ML, Pika Labs, Stable Video Diffusion, Synthesia, D-ID
+- **Content AI:** Gemini 1.5 Pro, Claude 3.5 Sonnet, GPT-4
+- **Processing Tools:** FFmpeg, Sharp, ImageMagick, Tesseract OCR
+
 ## [1.4.0] - 2025-10-10
 
 ### Added

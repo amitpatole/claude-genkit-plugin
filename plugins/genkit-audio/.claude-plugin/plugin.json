@@ -1,0 +1,52 @@
+{
+  "name": "genkit-audio",
+  "version": "1.0.0",
+  "description": "Comprehensive audio processing for Genkit - generation, transcription, translation, speech synthesis with OpenAI Whisper, ElevenLabs, Google TTS, and FFmpeg",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-audio",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "audio", "whisper", "transcription", "tts", "speech", "elevenlabs", "voice"],
+  "commands": [
+    {
+      "name": "genkit-audio-transcribe",
+      "description": "Transcribe audio to text using Whisper, AssemblyAI, or Google Speech-to-Text",
+      "script": "commands/genkit-audio-transcribe.sh"
+    },
+    {
+      "name": "genkit-audio-generate",
+      "description": "Generate speech from text (TTS) using ElevenLabs, Google TTS, or OpenAI",
+      "script": "commands/genkit-audio-generate.sh"
+    },
+    {
+      "name": "genkit-audio-translate",
+      "description": "Translate audio between languages with speech preservation",
+      "script": "commands/genkit-audio-translate.sh"
+    },
+    {
+      "name": "genkit-audio-edit",
+      "description": "Edit audio (trim, merge, effects, noise reduction, normalization)",
+      "script": "commands/genkit-audio-edit.sh"
+    },
+    {
+      "name": "genkit-audio-analyze",
+      "description": "Analyze audio (sentiment, speaker diarization, music detection)",
+      "script": "commands/genkit-audio-analyze.sh"
+    },
+    {
+      "name": "genkit-audio-podcast",
+      "description": "Generate podcasts with multiple voices and music",
+      "script": "commands/genkit-audio-podcast.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "audio-expert",
+      "description": "Audio processing and speech AI specialist",
+      "config": "agents/audio-expert.json"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0"
+  }
+}

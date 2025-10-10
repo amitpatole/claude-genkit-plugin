@@ -1,0 +1,52 @@
+{
+  "name": "genkit-video",
+  "version": "1.0.0",
+  "description": "Comprehensive video processing for Genkit - generation, editing, analysis, transcription with FFmpeg, Runway ML, and AI video tools",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-video",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "video", "ffmpeg", "runway", "video-editing", "video-ai", "transcription"],
+  "commands": [
+    {
+      "name": "genkit-video-generate",
+      "description": "Generate videos using AI (Runway, Pika, Stable Video Diffusion)",
+      "script": "commands/genkit-video-generate.sh"
+    },
+    {
+      "name": "genkit-video-edit",
+      "description": "Edit videos (trim, merge, effects, transitions, overlays)",
+      "script": "commands/genkit-video-edit.sh"
+    },
+    {
+      "name": "genkit-video-transcribe",
+      "description": "Transcribe videos and generate subtitles (SRT, VTT)",
+      "script": "commands/genkit-video-transcribe.sh"
+    },
+    {
+      "name": "genkit-video-analyze",
+      "description": "Analyze video content (scene detection, object tracking, OCR)",
+      "script": "commands/genkit-video-analyze.sh"
+    },
+    {
+      "name": "genkit-video-optimize",
+      "description": "Optimize videos for web (compression, adaptive streaming, thumbnails)",
+      "script": "commands/genkit-video-optimize.sh"
+    },
+    {
+      "name": "genkit-video-animate",
+      "description": "Create animations and motion graphics from images/text",
+      "script": "commands/genkit-video-animate.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "video-expert",
+      "description": "Video processing and video AI specialist",
+      "config": "agents/video-expert.json"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0"
+  }
+}

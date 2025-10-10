@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Create social media content
+
+echo "📱 Genkit Social Media Generator"
+echo "================================"
+echo ""
+echo "Supported platforms:"
+echo "  1. Twitter/X (threads, single tweets)"
+echo "  2. LinkedIn (posts, articles)"
+echo "  3. Instagram (captions, carousel posts)"
+echo "  4. Facebook (posts, stories)"
+echo "  5. TikTok (video scripts, captions)"
+echo "  6. YouTube (descriptions, community posts)"
+echo ""
+
+# Placeholder for actual implementation
+echo "This command will create a Genkit flow for social media content."
+echo ""
+echo "Features:"
+echo "  - Platform-specific formatting"
+echo "  - Hashtag research and optimization"
+echo "  - Emoji integration"
+echo "  - Call-to-action generation"
+echo "  - Image caption generation"
+echo "  - Engagement prediction"
+echo "  - A/B testing variations"
+echo "  - Multi-platform adaptation"
+echo ""
+echo "Content types:"
+echo "  - Educational posts"
+echo "  - Promotional content"
+echo "  - Storytelling threads"
+echo "  - Memes and viral content"
+echo "  - Customer testimonials"

@@ -1,0 +1,52 @@
+{
+  "name": "genkit-image",
+  "version": "1.0.0",
+  "description": "Comprehensive image processing for Genkit - generation, editing, analysis, optimization with Claude Vision, DALL-E, Stable Diffusion, and Sharp",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-image",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "image", "vision", "dalle", "stable-diffusion", "claude-vision", "sharp", "image-processing"],
+  "commands": [
+    {
+      "name": "genkit-image-generate",
+      "description": "Generate images using DALL-E, Stable Diffusion, or Midjourney",
+      "script": "commands/genkit-image-generate.sh"
+    },
+    {
+      "name": "genkit-image-analyze",
+      "description": "Analyze images with Claude Vision or GPT-4 Vision",
+      "script": "commands/genkit-image-analyze.sh"
+    },
+    {
+      "name": "genkit-image-edit",
+      "description": "Edit images (resize, crop, filter, watermark, background removal)",
+      "script": "commands/genkit-image-edit.sh"
+    },
+    {
+      "name": "genkit-image-optimize",
+      "description": "Optimize images for web (compression, format conversion, responsive)",
+      "script": "commands/genkit-image-optimize.sh"
+    },
+    {
+      "name": "genkit-image-ocr",
+      "description": "Extract text from images using OCR (Tesseract, Cloud Vision)",
+      "script": "commands/genkit-image-ocr.sh"
+    },
+    {
+      "name": "genkit-image-caption",
+      "description": "Generate captions and alt text for accessibility",
+      "script": "commands/genkit-image-caption.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "image-expert",
+      "description": "Image processing and computer vision specialist",
+      "config": "agents/image-expert.json"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "name": "genkit-content-studio",
+  "version": "1.0.0",
+  "description": "Complete multi-modal content creation studio for Genkit - Generate blogs, social media, marketing content, videos, and more using Gemini, Claude, GPT, and specialized AI tools",
+  "author": "Amit Patole",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-content-studio",
+  "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+  "license": "MIT",
+  "keywords": ["genkit", "content", "gemini", "marketing", "social-media", "blog", "copywriting", "multimodal"],
+  "commands": [
+    {
+      "name": "genkit-content-blog",
+      "description": "Generate SEO-optimized blog posts with images and formatting",
+      "script": "commands/genkit-content-blog.sh"
+    },
+    {
+      "name": "genkit-content-social",
+      "description": "Create social media content for multiple platforms (Twitter, LinkedIn, Instagram)",
+      "script": "commands/genkit-content-social.sh"
+    },
+    {
+      "name": "genkit-content-marketing",
+      "description": "Generate marketing copy (emails, ads, landing pages, product descriptions)",
+      "script": "commands/genkit-content-marketing.sh"
+    },
+    {
+      "name": "genkit-content-video-script",
+      "description": "Create video scripts and storyboards for YouTube, TikTok, etc.",
+      "script": "commands/genkit-content-video-script.sh"
+    },
+    {
+      "name": "genkit-content-translate",
+      "description": "Translate and localize content for global audiences",
+      "script": "commands/genkit-content-translate.sh"
+    },
+    {
+      "name": "genkit-content-repurpose",
+      "description": "Repurpose content across formats (blog to video script, article to social posts)",
+      "script": "commands/genkit-content-repurpose.sh"
+    },
+    {
+      "name": "genkit-content-analyze",
+      "description": "Analyze content performance, SEO, readability, and engagement",
+      "script": "commands/genkit-content-analyze.sh"
+    },
+    {
+      "name": "genkit-content-schedule",
+      "description": "Schedule and publish content to multiple platforms",
+      "script": "commands/genkit-content-schedule.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "content-strategist",
+      "description": "Content creation and marketing strategy specialist",
+      "config": "agents/content-strategist.json"
+    }
+  ],
+  "requirements": {
+    "node": ">=18.0.0"
+  }
+}
