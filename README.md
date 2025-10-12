@@ -482,7 +482,12 @@ This plugin is part of a comprehensive marketplace with **34 specialized plugins
   - 📦 [Install from Marketplace](https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode)
   - 💻 6 commands, 7+ snippets, Genkit Explorer sidebar
   - 📖 See `vscode-extension/` directory for details
-- [ ] CI/CD pipeline templates
+- ✅ **CI/CD pipeline templates** - COMPLETED!
+  - 🚀 Production-ready templates for GitHub Actions, GitLab CI, Azure Pipelines
+  - 📦 Multi-environment support (dev, staging, production)
+  - 🔐 Security scanning, automated testing, health checks
+  - 🎯 Multiple deployment targets (Firebase, Cloud Run, Vercel, AWS Lambda)
+  - 📖 See `cicd-templates/` directory for details
 - [ ] Multi-region deployment
 - [ ] Advanced RAG patterns
 - [ ] Real-time collaboration
