@@ -2,7 +2,7 @@
   "name": "genkit-vscode",
   "displayName": "Genkit for VS Code",
   "description": "Firebase Genkit development tools for Visual Studio Code - IntelliSense, snippets, commands, and more",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "amitpatole",
   "engines": {
     "vscode": "^1.80.0"

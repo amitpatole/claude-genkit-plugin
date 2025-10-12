@@ -8,6 +8,15 @@
 
 Streamline your Firebase Genkit development with intelligent code completion, snippets, commands, and integrated tooling.
 
+## Latest Updates
+
+**v1.0.1** - Successfully published to VS Code Marketplace!
+- ✅ Extension live and available for installation
+- ✅ Full command palette integration with 6 Genkit commands
+- ✅ 7+ code snippets for rapid development
+- ✅ Genkit Explorer sidebar for project navigation
+- ✅ Tested and verified on Windows, Linux, and macOS
+
 ## Features
 
 ### 🚀 Quick Commands
