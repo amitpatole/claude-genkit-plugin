@@ -5,6 +5,35 @@ All notable changes to the Firebase Genkit plugin for Claude Code will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-10-10
+
+### Added
+- 📚 **Complete README overhaul with marketplace showcase**
+- Added comprehensive Plugin Marketplace section listing all 34 plugins
+- Organized plugins by category (Development, AI Models, Database, Monitoring, Security, Integration, Media, Content)
+- Updated Roadmap to show all completed features
+
+### Changed
+- ✅ Marked all TODO items as completed:
+  - ✅ Plugin marketplace submission (34 plugins live!)
+  - ✅ Additional flow templates (6 templates available)
+  - ✅ Firebase integration helpers (genkit-firestore plugin)
+  - ✅ Advanced monitoring tools (genkit-monitor, genkit-performance-analyzer, genkit-logger)
+  - ✅ Testing utilities (genkit-test-writer plugin)
+  - ✅ Migration helpers (genkit-migration-helper plugin)
+- Added new Future Plans roadmap items
+
+### Documentation
+- Enhanced README with complete plugin catalog
+- Added installation instructions for specialized plugins
+- Improved plugin discovery and navigation
+
+### Statistics
+- **Total Plugins:** 34 (1 core + 33 specialized)
+- **Total Commands:** 93+
+- **Total AI Agents:** 29+
+- **Categories:** 8 (Development, AI Models, Database, Monitoring, Security, Integration, Media, Content)
+
 ## [1.5.0] - 2025-10-10
 
 ### Added

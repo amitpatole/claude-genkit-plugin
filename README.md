@@ -380,14 +380,87 @@ Contributions are welcome! Please:
 4. Test with `/genkit-doctor`
 5. Submit a pull request
 
+## Plugin Marketplace
+
+This plugin is part of a comprehensive marketplace with **34 specialized plugins** for Genkit development!
+
+### 🎯 Core Plugin
+- **genkit** - Main Genkit integration with initialization, templates, and deployment
+
+### 🛠️ Development & Testing (7 plugins)
+- **genkit-test-writer** - Automatic test generation
+- **genkit-architect** - Architecture design guidance
+- **genkit-debugger** - Interactive debugging
+- **genkit-validator** - Input/output validation
+- **genkit-documentation** - Auto-generate docs
+- **genkit-starter-kits** - Production templates
+- **genkit-api-generator** - REST/GraphQL APIs
+
+### 🤖 AI Models & Optimization (4 plugins)
+- **genkit-ollama** - Local AI models
+- **genkit-model-selector** - Model comparison
+- **genkit-prompt-optimizer** - Prompt engineering
+- **genkit-embedding-helper** - Embeddings for RAG
+
+### 💾 Database & Storage (4 plugins)
+- **genkit-firestore** - Firestore integration
+- **genkit-vector-db** - Vector databases
+- **genkit-cache** - Caching strategies
+- **genkit-session-manager** - Session management
+
+### 📊 Monitoring & Performance (4 plugins)
+- **genkit-monitor** - Real-time monitoring
+- **genkit-cost-tracker** - Cost tracking
+- **genkit-performance-analyzer** - Performance profiling
+- **genkit-logger** - Enhanced logging
+
+### 🔐 Security (3 plugins)
+- **genkit-security-auditor** - Security auditing
+- **genkit-secrets-manager** - Secrets management
+- **genkit-auth-helper** - Authentication
+
+### 🔄 Integration & Automation (5 plugins)
+- **genkit-migration-helper** - Framework migration
+- **genkit-webhooks** - Webhook integration
+- **genkit-scheduler** - Scheduled tasks
+- **genkit-workflow-orchestrator** - Workflows
+- **genkit-rate-limiter** - Rate limiting
+
+### 🎨 Media Processing (3 plugins)
+- **genkit-image** - Image generation, editing, OCR
+- **genkit-audio** - Audio transcription, TTS
+- **genkit-video** - Video generation, editing
+
+### 📝 Content Creation (2 plugins)
+- **genkit-content-studio** - Multi-modal content
+- **genkit-analytics** - Analytics insights
+- **genkit-ui-generator** - UI components
+
+**Install specialized plugins:**
+```bash
+/plugin install genkit-test-writer
+/plugin install genkit-monitor
+/plugin install genkit-image
+# ... and 31 more!
+```
+
 ## Roadmap
 
-- [ ] Plugin marketplace submission
-- [ ] Additional flow templates
-- [ ] Firebase integration helpers
-- [ ] Advanced monitoring tools
-- [ ] Testing utilities
-- [ ] Migration helpers
+### ✅ Completed
+- ✅ Plugin marketplace submission (34 plugins live!)
+- ✅ Additional flow templates (6 templates)
+- ✅ Firebase integration helpers (genkit-firestore)
+- ✅ Advanced monitoring tools (monitor, performance-analyzer, logger)
+- ✅ Testing utilities (genkit-test-writer)
+- ✅ Migration helpers (genkit-migration-helper)
+
+### 🚀 Future Plans
+- [ ] VS Code extension integration
+- [ ] CI/CD pipeline templates
+- [ ] Multi-region deployment
+- [ ] Advanced RAG patterns
+- [ ] Real-time collaboration
+- [ ] Plugin SDK for extensions
 
 ## Resources
 
