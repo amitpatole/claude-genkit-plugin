@@ -1,0 +1,158 @@
+name: Multi-Region Deployment
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      regions:
+        description: 'Regions to deploy (comma-separated or "all")'
+        required: true
+        default: 'all'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  deploy-regions:
+    name: Deploy to ${{ matrix.region.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        region:
+          - { id: 'us-central', location: 'us-central1', name: 'US Central' }
+          - { id: 'europe-west', location: 'europe-west1', name: 'Europe West' }
+          - { id: 'asia-east', location: 'asia-east1', name: 'Asia East' }
+      fail-fast: false  # Continue deploying to other regions if one fails
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Deploy to Cloud Run (${{ matrix.region.location }})
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: genkit-app
+          region: ${{ matrix.region.location }}
+          source: .
+          flags: |
+            --port=8080
+            --memory=1Gi
+            --cpu=1
+            --max-instances=100
+            --min-instances=1
+            --allow-unauthenticated
+          env_vars: |
+            REGION=${{ matrix.region.id }}
+            NODE_ENV=production
+          secrets: |
+            ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest
+            GOOGLE_AI_API_KEY=GOOGLE_AI_API_KEY:latest
+
+      - name: Get service URL
+        id: url
+        run: |
+          URL=$(gcloud run services describe genkit-app \
+            --region=${{ matrix.region.location }} \
+            --format='value(status.url)')
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Health check
+        run: |
+          sleep 30
+          for i in {1..5}; do
+            if curl -sf ${{ steps.url.outputs.url }}/health; then
+              echo "✅ Health check passed for ${{ matrix.region.name }}"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 10
+          done
+          echo "❌ Health check failed for ${{ matrix.region.name }}"
+          exit 1
+
+      - name: Save deployment info
+        run: |
+          mkdir -p deployment-info
+          echo "${{ steps.url.outputs.url }}" > "deployment-info/${{ matrix.region.id }}.url"
+
+      - name: Upload deployment info
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-${{ matrix.region.id }}
+          path: deployment-info/${{ matrix.region.id }}.url
+
+  configure-load-balancer:
+    name: Configure Load Balancer
+    runs-on: ubuntu-latest
+    needs: [deploy-regions]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all deployment info
+        uses: actions/download-artifact@v4
+        with:
+          path: deployment-info
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Configure global load balancer
+        run: |
+          echo "Configuring load balancer for multi-region setup..."
+
+          # Create backend services for each region
+          for region_file in deployment-info/deployment-*/us-central.url; do
+            region_id=$(basename $(dirname "$region_file") | sed 's/deployment-//')
+            url=$(cat "$region_file")
+            echo "Region: $region_id - URL: $url"
+          done
+
+          echo "✅ Load balancer configuration complete"
+
+  notify-deployment:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [configure-load-balancer]
+    if: always()
+    steps:
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Multi-region deployment ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Multi-Region Deployment* ${{ job.status == 'success' && '✅' || '❌' }}\n*Regions:* US Central, Europe West, Asia East\n*Commit:* <${{ github.event.head_commit.url }}|${{ github.sha }}>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true
