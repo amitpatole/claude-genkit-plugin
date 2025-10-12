@@ -336,7 +336,7 @@ Edit `agents/genkit-assistant.json`:
 
 - Open a [GitHub Discussion](https://github.com/amitpatole/claude-genkit-plugin/discussions)
 - Create an [Issue](https://github.com/amitpatole/claude-genkit-plugin/issues)
-- Email: support@example.com
+- Email: amit.patole@gmail.com
 
 ## Recognition
 

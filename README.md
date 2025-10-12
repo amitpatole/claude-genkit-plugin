@@ -477,7 +477,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 - 🐛 **Issues**: [GitHub Issues](https://github.com/amitpatole/claude-genkit-plugin/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/amitpatole/claude-genkit-plugin/discussions)
-- 📧 **Email**: support@example.com
+- 📧 **Email**: amit.patole@gmail.com
 
 ## Acknowledgments
 
