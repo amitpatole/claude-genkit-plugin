@@ -88,25 +88,39 @@ case $choice in
 
     4)
         echo ""
-        echo "🔐 Login to publisher account..."
+        echo "🔐 Setup Personal Access Token (PAT)..."
         echo ""
         echo "You'll need your Personal Access Token (PAT) from Azure DevOps."
         echo "Create one at: https://dev.azure.com/[YOUR_ORG]/_usersSettings/tokens"
         echo "Scope: Marketplace (Manage)"
         echo ""
-        read -p "Press Enter to continue..."
-        vsce login "$PUBLISHER"
+        echo "NOTE: We'll use the --pat flag to avoid keychain issues."
         echo ""
-        echo "✅ Login successful!"
+        read -s -p "Enter your PAT (input hidden): " PAT
+        echo ""
+        echo ""
+        echo "Saving PAT to environment variable..."
+        export VSCE_PAT="$PAT"
+        echo ""
+        echo "✅ PAT configured! You can now publish using options 5-7."
+        echo "💡 To persist this, add to ~/.bashrc: export VSCE_PAT=\"your_token\""
         ;;
 
     5)
         echo ""
         echo "🚀 Publishing PATCH version ($CURRENT_VERSION → patch)..."
         echo ""
+
+        if [ -z "$VSCE_PAT" ]; then
+            echo "⚠️  VSCE_PAT not set. Please run option 4 first or:"
+            read -s -p "Enter your PAT: " PAT
+            echo ""
+            export VSCE_PAT="$PAT"
+        fi
+
         npm install
         npm run compile
-        vsce publish patch
+        vsce publish patch --pat "$VSCE_PAT"
         echo ""
         echo "✅ Published successfully!"
         ;;
@@ -115,9 +129,17 @@ case $choice in
         echo ""
         echo "🚀 Publishing MINOR version ($CURRENT_VERSION → minor)..."
         echo ""
+
+        if [ -z "$VSCE_PAT" ]; then
+            echo "⚠️  VSCE_PAT not set. Please run option 4 first or:"
+            read -s -p "Enter your PAT: " PAT
+            echo ""
+            export VSCE_PAT="$PAT"
+        fi
+
         npm install
         npm run compile
-        vsce publish minor
+        vsce publish minor --pat "$VSCE_PAT"
         echo ""
         echo "✅ Published successfully!"
         ;;
@@ -128,9 +150,16 @@ case $choice in
         echo ""
         read -p "⚠️  This is a breaking change. Are you sure? (y/N): " confirm
         if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+            if [ -z "$VSCE_PAT" ]; then
+                echo "⚠️  VSCE_PAT not set. Please run option 4 first or:"
+                read -s -p "Enter your PAT: " PAT
+                echo ""
+                export VSCE_PAT="$PAT"
+            fi
+
             npm install
             npm run compile
-            vsce publish major
+            vsce publish major --pat "$VSCE_PAT"
             echo ""
             echo "✅ Published successfully!"
         else

@@ -24,26 +24,47 @@ The fastest way to get your Genkit extension published!
    - Name: Amit Patole
 ```
 
-### 3. Install & Login
+### 3. Install vsce
 ```bash
 # Install vsce
 npm install -g @vscode/vsce
 
-# Login (paste your PAT when prompted)
-cd vscode-extension
-vsce login amitpatole
+# DON'T use vsce login (causes keychain errors on Linux)
+# Instead, use --pat flag (see step 4)
 ```
 
 ### 4. Publish!
 ```bash
-# Use the automated script
+# Use the automated script (handles PAT automatically)
 ./publish.sh
 
-# Or manually:
+# Or manually with --pat flag:
 npm install
 npm run compile
+vsce publish --pat YOUR_PERSONAL_ACCESS_TOKEN
+
+# Or use environment variable:
+export VSCE_PAT="YOUR_TOKEN"
 vsce publish
 ```
+
+### 🔴 Fix for "Cannot create an item in a locked collection" Error
+
+**The Fix:** Use `--pat` flag instead of `vsce login`
+
+```bash
+# ❌ DON'T DO THIS (causes keychain error):
+vsce login amitpatole
+
+# ✅ DO THIS INSTEAD:
+vsce publish --pat YOUR_PERSONAL_ACCESS_TOKEN
+
+# Or set environment variable:
+export VSCE_PAT="YOUR_TOKEN"
+vsce publish
+```
+
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed solutions.
 
 ## Using the Automated Script
 
