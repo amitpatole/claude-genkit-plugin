@@ -9,15 +9,17 @@ The CI/CD pipeline automatically publishes the VS Code extension to the marketpl
 ## Features
 
 - ✅ **Automatic Publishing** - Publishes on merge to main (if version changed)
+- ✅ **Semantic Versioning** - Detects and labels patch/minor/major releases
 - ✅ **Version Check** - Skips publish if version already exists on marketplace
+- ✅ **Auto Version Bump** - Optional automatic version bumping (manual trigger)
 - ✅ **Dependency Caching** - Faster builds with npm cache
 - ✅ **Compilation** - TypeScript compilation and validation
 - ✅ **Testing** - Runs tests before publishing (if configured)
 - ✅ **Package Verification** - Validates package structure with `vsce ls`
 - ✅ **Git Tags** - Creates version tags automatically
-- ✅ **GitHub Releases** - Creates releases with VSIX artifacts
+- ✅ **GitHub Releases** - Creates releases with VSIX artifacts and semver info
 - ✅ **Manual Trigger** - Can be triggered manually for hotfixes
-- ✅ **Build Summaries** - Clear success/skip messages in GitHub UI
+- ✅ **Build Summaries** - Clear success/skip messages with semver details in GitHub UI
 
 ## Workflow Triggers
 
@@ -34,7 +36,20 @@ You can manually trigger the workflow from GitHub:
 1. Go to **Actions** tab
 2. Select **"Publish VS Code Extension"** workflow
 3. Click **"Run workflow"**
-4. Choose version bump type: `patch`, `minor`, or `major`
+4. Configure options:
+   - **Version bump type:** `patch`, `minor`, or `major` (semantic versioning)
+   - **Auto-bump version:** Enable to automatically bump version before publishing
+
+**Manual Trigger Options:**
+
+**Option A: Publish existing version**
+- Set `auto_bump` to `false`
+- Publishes current version in `package.json` (if not already published)
+
+**Option B: Auto-bump and publish**
+- Set `auto_bump` to `true`
+- Select version bump type: `patch`, `minor`, or `major`
+- Workflow will automatically bump version and publish
 
 ## Setup Instructions
 
@@ -128,10 +143,22 @@ The workflow performs these steps sequentially (matching `publish.sh`):
 
 ### Semantic Versioning
 
-Follow semantic versioning (semver):
-- **Patch** (1.0.0 → 1.0.1) - Bug fixes, minor changes
-- **Minor** (1.0.0 → 1.1.0) - New features, backwards compatible
-- **Major** (1.0.0 → 2.0.0) - Breaking changes
+The workflow automatically detects and labels version bumps according to semantic versioning (semver):
+
+- 🟢 **Patch** (1.0.0 → 1.0.1) - Bug fixes, minor changes, documentation updates
+- 🟡 **Minor** (1.0.0 → 1.1.0) - New features, backwards compatible additions
+- 🔴 **Major** (1.0.0 → 2.0.0) - Breaking changes, incompatible API changes
+
+**Automatic Detection:**
+The workflow compares the published version with the new version and automatically detects the bump type:
+- If major version changed (1.x.x → 2.x.x): **MAJOR**
+- If minor version changed (1.0.x → 1.1.x): **MINOR**
+- If patch version changed (1.0.0 → 1.0.1): **PATCH**
+
+This information is displayed in:
+- GitHub Actions summary
+- GitHub Release notes
+- Git commit messages (if using auto-bump)
 
 ### Updating Version
 
@@ -139,14 +166,17 @@ Follow semantic versioning (semver):
 ```bash
 cd vscode-extension
 
-# For bug fixes
+# For bug fixes (1.0.0 → 1.0.1)
 npm version patch
 
-# For new features
+# For new features (1.0.0 → 1.1.0)
 npm version minor
 
-# For breaking changes
+# For breaking changes (1.0.0 → 2.0.0)
 npm version major
+
+# Commit and push
+git push origin main
 ```
 
 **Method 2: Manual edit**
@@ -160,7 +190,24 @@ Edit `vscode-extension/package.json`:
 Then run:
 ```bash
 npm install  # Updates package-lock.json
+git add package.json package-lock.json
+git commit -m "chore(release): bump version to 1.0.2"
+git push origin main
 ```
+
+**Method 3: Workflow auto-bump (GitHub Actions)**
+Use the manual workflow trigger with auto-bump enabled:
+1. Go to Actions → "Publish VS Code Extension"
+2. Click "Run workflow"
+3. Set `auto_bump` to `true`
+4. Select version bump type: `patch`, `minor`, or `major`
+5. Click "Run workflow"
+
+The workflow will:
+- Automatically bump the version in `package.json`
+- Commit the change with message: `chore(release): bump version to X.Y.Z [skip ci]`
+- Push to main branch
+- Publish to marketplace
 
 ### Version Check Logic
 

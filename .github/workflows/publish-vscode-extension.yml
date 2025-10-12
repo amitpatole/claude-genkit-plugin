@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       version_bump:
-        description: 'Version bump type'
+        description: 'Version bump type (semantic versioning)'
         required: true
         type: choice
         options:
@@ -18,6 +18,11 @@ on:
           - minor
           - major
         default: 'patch'
+      auto_bump:
+        description: 'Auto-bump version before publishing'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   publish:
@@ -57,7 +62,24 @@ jobs:
       - name: Verify package structure
         run: vsce ls
 
-      - name: Check if version changed
+      - name: Auto-bump version (if manual trigger with auto_bump enabled)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.auto_bump == 'true'
+        run: |
+          BUMP_TYPE="${{ github.event.inputs.version_bump }}"
+          echo "Auto-bumping version: $BUMP_TYPE"
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Bump version using npm
+          npm version $BUMP_TYPE -m "chore(release): bump version to %s [skip ci]"
+
+          # Push changes back to repo
+          git push origin main --follow-tags
+        working-directory: vscode-extension
+
+      - name: Check if version changed and detect bump type
         id: version_check
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
@@ -70,8 +92,24 @@ jobs:
           if [ "$CURRENT_VERSION" != "$PUBLISHED_VERSION" ]; then
             echo "should_publish=true" >> $GITHUB_OUTPUT
             echo "Version changed: $PUBLISHED_VERSION -> $CURRENT_VERSION"
+
+            # Detect semantic version bump type
+            IFS='.' read -ra PREV <<< "$PUBLISHED_VERSION"
+            IFS='.' read -ra CURR <<< "$CURRENT_VERSION"
+
+            if [ "${CURR[0]}" != "${PREV[0]}" ]; then
+              BUMP_TYPE="major"
+            elif [ "${CURR[1]}" != "${PREV[1]}" ]; then
+              BUMP_TYPE="minor"
+            else
+              BUMP_TYPE="patch"
+            fi
+
+            echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+            echo "Detected semantic version bump: $BUMP_TYPE"
           else
             echo "should_publish=false" >> $GITHUB_OUTPUT
+            echo "bump_type=none" >> $GITHUB_OUTPUT
             echo "Version unchanged: $CURRENT_VERSION (skipping publish)"
           fi
 
@@ -110,29 +148,40 @@ jobs:
           tag_name: vscode-v${{ steps.version_check.outputs.current_version }}
           name: VS Code Extension v${{ steps.version_check.outputs.current_version }}
           body: |
-            ## Genkit for VS Code v${{ steps.version_check.outputs.current_version }}
+            ## 🎉 Genkit for VS Code v${{ steps.version_check.outputs.current_version }}
 
-            ### Installation
+            ### 📦 Version Information
+            - **Previous Version:** `${{ steps.version_check.outputs.published_version }}`
+            - **New Version:** `${{ steps.version_check.outputs.current_version }}`
+            - **Release Type:** `${{ steps.version_check.outputs.bump_type }}` (semantic versioning)
+
+            ${{ steps.version_check.outputs.bump_type == 'major' && '🔴 **MAJOR RELEASE** - Contains breaking changes. Please review the changelog before upgrading.' || steps.version_check.outputs.bump_type == 'minor' && '🟡 **MINOR RELEASE** - New features added. Fully backwards compatible.' || '🟢 **PATCH RELEASE** - Bug fixes and minor improvements.' }}
+
+            ### 💻 Installation
 
             **From VS Code Marketplace:**
-            ```
+            ```bash
             ext install amitpatole.genkit-vscode
             ```
 
             **From VSIX file:**
             Download the `.vsix` file below and install:
-            ```
+            ```bash
             code --install-extension genkit-vscode-${{ steps.version_check.outputs.current_version }}.vsix
             ```
 
-            ### Links
-            - [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode)
-            - [Documentation](https://github.com/amitpatole/claude-genkit-plugin/tree/main/vscode-extension)
-            - [Quick Start Guide](https://github.com/amitpatole/claude-genkit-plugin/blob/main/vscode-extension/QUICKSTART.md)
+            ### 🔗 Links
+            - [📦 VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode)
+            - [📖 Documentation](https://github.com/amitpatole/claude-genkit-plugin/tree/main/vscode-extension)
+            - [🚀 Quick Start Guide](https://github.com/amitpatole/claude-genkit-plugin/blob/main/vscode-extension/QUICKSTART.md)
+            - [📝 CHANGELOG](https://github.com/amitpatole/claude-genkit-plugin/blob/main/CHANGELOG.md)
+
+            ### 📊 What's Changed
+            See the [full changelog](https://github.com/amitpatole/claude-genkit-plugin/compare/vscode-v${{ steps.version_check.outputs.published_version }}...vscode-v${{ steps.version_check.outputs.current_version }}) for all changes in this release.
 
             ---
 
-            🤖 Published automatically via GitHub Actions
+            🤖 Published automatically via GitHub Actions with semantic versioning
           files: vscode-extension/*.vsix
           draft: false
           prerelease: false
@@ -142,15 +191,33 @@ jobs:
       - name: Publish summary
         if: steps.version_check.outputs.should_publish == 'true'
         run: |
+          BUMP_TYPE="${{ steps.version_check.outputs.bump_type }}"
+          PREV_VERSION="${{ steps.version_check.outputs.published_version }}"
+          CURR_VERSION="${{ steps.version_check.outputs.current_version }}"
+
           echo "## ✅ VS Code Extension Published Successfully!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** ${{ steps.version_check.outputs.current_version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Marketplace:** https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Version Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Previous Version:** \`$PREV_VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **New Version:** \`$CURR_VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Bump Type:** \`$BUMP_TYPE\` (semantic versioning)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Quick Install" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Marketplace" >> $GITHUB_STEP_SUMMARY
+          echo "https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 💻 Quick Install" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
           echo "ext install amitpatole.genkit-vscode" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Semantic Versioning" >> $GITHUB_STEP_SUMMARY
+          if [ "$BUMP_TYPE" = "major" ]; then
+            echo "🔴 **MAJOR** - Breaking changes introduced" >> $GITHUB_STEP_SUMMARY
+          elif [ "$BUMP_TYPE" = "minor" ]; then
+            echo "🟡 **MINOR** - New features added (backwards compatible)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🟢 **PATCH** - Bug fixes and minor improvements" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Skip summary
         if: steps.version_check.outputs.should_publish == 'false'
