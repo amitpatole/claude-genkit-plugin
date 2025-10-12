@@ -1,0 +1,68 @@
+{
+  "regions": [
+    {
+      "id": "us-central",
+      "name": "US Central",
+      "provider": "gcp",
+      "location": "us-central1",
+      "primary": true,
+      "weight": 40,
+      "geo_targets": ["US", "CA", "MX"],
+      "pricing": {
+        "cpu_per_second": 0.00002400,
+        "memory_per_gb_second": 0.00000250
+      },
+      "endpoints": {
+        "functions": "https://us-central1-PROJECT_ID.cloudfunctions.net",
+        "cloud_run": "https://genkit-app-us-central1.run.app"
+      }
+    },
+    {
+      "id": "europe-west",
+      "name": "Europe West",
+      "provider": "gcp",
+      "location": "europe-west1",
+      "primary": false,
+      "weight": 35,
+      "geo_targets": ["GB", "FR", "DE", "IT", "ES", "NL", "BE", "CH", "AT", "SE", "NO", "DK", "FI"],
+      "pricing": {
+        "cpu_per_second": 0.00002640,
+        "memory_per_gb_second": 0.00000275
+      },
+      "endpoints": {
+        "functions": "https://europe-west1-PROJECT_ID.cloudfunctions.net",
+        "cloud_run": "https://genkit-app-europe-west1.run.app"
+      }
+    },
+    {
+      "id": "asia-east",
+      "name": "Asia East",
+      "provider": "gcp",
+      "location": "asia-east1",
+      "primary": false,
+      "weight": 25,
+      "geo_targets": ["JP", "CN", "KR", "TW", "HK", "SG", "MY", "TH", "VN", "PH", "ID", "IN"],
+      "pricing": {
+        "cpu_per_second": 0.00002760,
+        "memory_per_gb_second": 0.00000290
+      },
+      "endpoints": {
+        "functions": "https://asia-east1-PROJECT_ID.cloudfunctions.net",
+        "cloud_run": "https://genkit-app-asia-east1.run.app"
+      }
+    }
+  ],
+  "failover": {
+    "enabled": true,
+    "health_check_interval_seconds": 30,
+    "unhealthy_threshold": 3,
+    "healthy_threshold": 2,
+    "timeout_seconds": 5,
+    "automatic": true
+  },
+  "load_balancing": {
+    "strategy": "geo-proximity",
+    "session_affinity": true,
+    "session_affinity_ttl_seconds": 3600
+  }
+}
