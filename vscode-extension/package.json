@@ -1,8 +1,8 @@
 {
   "name": "genkit-vscode",
   "displayName": "Genkit for VS Code",
-  "description": "Firebase Genkit development tools for Visual Studio Code - IntelliSense, snippets, commands, and more",
-  "version": "1.0.1",
+  "description": "Complete Firebase Genkit development toolkit - CI/CD, RAG patterns, multi-region deployment, real-time collaboration, and plugin SDK",
+  "version": "1.1.0",
   "publisher": "amitpatole",
   "engines": {
     "vscode": "^1.80.0"
@@ -19,7 +19,12 @@
     "llm",
     "claude",
     "gemini",
-    "openai"
+    "openai",
+    "rag",
+    "cicd",
+    "deployment",
+    "multi-region",
+    "websocket"
   ],
   "activationEvents": [
     "onLanguage:typescript",
@@ -31,33 +36,201 @@
     "commands": [
       {
         "command": "genkit.init",
-        "title": "Genkit: Initialize New Project",
-        "category": "Genkit"
+        "title": "Initialize New Project",
+        "category": "Genkit",
+        "icon": "$(new-folder)"
       },
       {
         "command": "genkit.createFlow",
-        "title": "Genkit: Create New Flow",
-        "category": "Genkit"
+        "title": "Create New Flow",
+        "category": "Genkit",
+        "icon": "$(add)"
       },
       {
         "command": "genkit.startDevServer",
-        "title": "Genkit: Start Dev Server",
-        "category": "Genkit"
+        "title": "Start Dev Server",
+        "category": "Genkit",
+        "icon": "$(play)"
       },
       {
         "command": "genkit.openDevUI",
-        "title": "Genkit: Open Developer UI",
-        "category": "Genkit"
+        "title": "Open Developer UI",
+        "category": "Genkit",
+        "icon": "$(browser)"
       },
       {
         "command": "genkit.deploy",
-        "title": "Genkit: Deploy to Production",
-        "category": "Genkit"
+        "title": "Deploy to Production",
+        "category": "Genkit",
+        "icon": "$(cloud-upload)"
       },
       {
         "command": "genkit.runDoctor",
-        "title": "Genkit: Run Health Check",
-        "category": "Genkit"
+        "title": "Run Health Check",
+        "category": "Genkit",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "genkit.setupCICD",
+        "title": "Setup CI/CD Pipeline",
+        "category": "Genkit",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "genkit.configureSecrets",
+        "title": "Configure Deployment Secrets",
+        "category": "Genkit",
+        "icon": "$(key)"
+      },
+      {
+        "command": "genkit.testPipeline",
+        "title": "Test Pipeline Locally",
+        "category": "Genkit",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "genkit.viewPipelineStatus",
+        "title": "View Pipeline Status",
+        "category": "Genkit",
+        "icon": "$(dashboard)"
+      },
+      {
+        "command": "genkit.createRAGFlow",
+        "title": "Create RAG Flow",
+        "category": "Genkit",
+        "icon": "$(search)"
+      },
+      {
+        "command": "genkit.setupVectorDB",
+        "title": "Setup Vector Database",
+        "category": "Genkit",
+        "icon": "$(database)"
+      },
+      {
+        "command": "genkit.testRAGQuery",
+        "title": "Test RAG Query",
+        "category": "Genkit",
+        "icon": "$(bug)"
+      },
+      {
+        "command": "genkit.evaluateRAG",
+        "title": "Evaluate RAG Performance",
+        "category": "Genkit",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "genkit.configureMultiRegion",
+        "title": "Configure Multi-Region Deployment",
+        "category": "Genkit",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "genkit.deployAllRegions",
+        "title": "Deploy to All Regions",
+        "category": "Genkit",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "genkit.monitorRegionalHealth",
+        "title": "Monitor Regional Health",
+        "category": "Genkit",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "genkit.triggerFailover",
+        "title": "Trigger Region Failover",
+        "category": "Genkit",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "genkit.createRealTimeFlow",
+        "title": "Create Real-Time Flow",
+        "category": "Genkit",
+        "icon": "$(broadcast)"
+      },
+      {
+        "command": "genkit.testWebSocket",
+        "title": "Test WebSocket Connection",
+        "category": "Genkit",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "genkit.monitorConnections",
+        "title": "Monitor Active Connections",
+        "category": "Genkit",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "genkit.createPlugin",
+        "title": "Create Genkit Plugin",
+        "category": "Genkit",
+        "icon": "$(extensions)"
+      },
+      {
+        "command": "genkit.testPlugin",
+        "title": "Test Plugin",
+        "category": "Genkit",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "genkit.packagePlugin",
+        "title": "Package Plugin for NPM",
+        "category": "Genkit",
+        "icon": "$(package)"
+      },
+      {
+        "command": "genkit.publishPlugin",
+        "title": "Publish Plugin to NPM",
+        "category": "Genkit",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "genkit.refreshExplorer",
+        "title": "Refresh Explorer",
+        "category": "Genkit",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "genkit.openDocumentation",
+        "title": "Open Documentation",
+        "category": "Genkit",
+        "icon": "$(book)"
+      },
+      {
+        "command": "genkit.refreshFlows",
+        "title": "Refresh Flows",
+        "category": "Genkit",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "genkit.refreshDeployments",
+        "title": "Refresh Deployments",
+        "category": "Genkit",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "genkit.refreshRegions",
+        "title": "Refresh Regions",
+        "category": "Genkit",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "genkit.refreshRAGPatterns",
+        "title": "Refresh RAG Patterns",
+        "category": "Genkit",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "genkit.refreshRealTime",
+        "title": "Refresh Real-Time",
+        "category": "Genkit",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "genkit.refreshPlugins",
+        "title": "Refresh Plugins",
+        "category": "Genkit",
+        "icon": "$(refresh)"
       }
     ],
     "snippets": [
@@ -87,6 +260,81 @@
           "type": "boolean",
           "default": true,
           "description": "Enable IntelliSense for Genkit APIs"
+        },
+        "genkit.cicd.platform": {
+          "type": "string",
+          "enum": ["github-actions", "gitlab-ci", "azure-pipelines", "circleci"],
+          "default": "github-actions",
+          "description": "Preferred CI/CD platform"
+        },
+        "genkit.cicd.autoSetup": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically setup CI/CD when creating new projects"
+        },
+        "genkit.deployment.defaultTarget": {
+          "type": "string",
+          "enum": ["firebase", "cloud-run", "vercel", "aws-lambda", "docker"],
+          "default": "cloud-run",
+          "description": "Default deployment target"
+        },
+        "genkit.deployment.multiRegion": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable multi-region deployment by default"
+        },
+        "genkit.deployment.regions": {
+          "type": "array",
+          "default": ["us-central1", "europe-west1"],
+          "description": "Default regions for multi-region deployment"
+        },
+        "genkit.rag.defaultPattern": {
+          "type": "string",
+          "enum": ["hybrid-search", "hierarchical", "conversational", "multi-query", "self-querying", "parent-child", "corrective", "adaptive"],
+          "default": "hybrid-search",
+          "description": "Default RAG pattern for new flows"
+        },
+        "genkit.rag.vectorDatabase": {
+          "type": "string",
+          "enum": ["pinecone", "chroma", "weaviate", "qdrant", "milvus"],
+          "default": "pinecone",
+          "description": "Preferred vector database"
+        },
+        "genkit.rag.embeddingModel": {
+          "type": "string",
+          "default": "text-embedding-004",
+          "description": "Default embedding model"
+        },
+        "genkit.realtime.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable real-time features by default"
+        },
+        "genkit.realtime.protocol": {
+          "type": "string",
+          "enum": ["websocket", "sse", "both"],
+          "default": "websocket",
+          "description": "Preferred real-time protocol"
+        },
+        "genkit.plugin.autoDiscovery": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically discover installed Genkit plugins"
+        },
+        "genkit.explorer.showMetrics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show metrics in Genkit Explorer views"
+        },
+        "genkit.explorer.autoRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically refresh Explorer views"
+        },
+        "genkit.explorer.refreshInterval": {
+          "type": "number",
+          "default": 5000,
+          "description": "Explorer auto-refresh interval in milliseconds"
         }
       }
     },
@@ -94,7 +342,8 @@
       "activitybar": [
         {
           "id": "genkit-explorer",
-          "title": "Genkit"
+          "title": "Genkit",
+          "icon": "resources/genkit-icon.svg"
         }
       ]
     },
@@ -102,15 +351,116 @@
       "genkit-explorer": [
         {
           "id": "genkitFlows",
-          "name": "Flows"
+          "name": "Flows",
+          "icon": "$(symbol-method)",
+          "contextualTitle": "Genkit Flows"
         },
         {
           "id": "genkitModels",
-          "name": "AI Models"
+          "name": "AI Models",
+          "icon": "$(hubot)",
+          "contextualTitle": "AI Models"
         },
         {
           "id": "genkitTools",
-          "name": "Tools"
+          "name": "Tools",
+          "icon": "$(tools)",
+          "contextualTitle": "Genkit Tools"
+        },
+        {
+          "id": "genkitDeployments",
+          "name": "Deployments",
+          "icon": "$(rocket)",
+          "contextualTitle": "Deployments",
+          "visibility": "visible"
+        },
+        {
+          "id": "genkitRegions",
+          "name": "Regions",
+          "icon": "$(globe)",
+          "contextualTitle": "Multi-Region Status",
+          "visibility": "collapsed"
+        },
+        {
+          "id": "genkitRAGPatterns",
+          "name": "RAG Patterns",
+          "icon": "$(search)",
+          "contextualTitle": "RAG Patterns",
+          "visibility": "visible"
+        },
+        {
+          "id": "genkitRealTime",
+          "name": "Real-Time",
+          "icon": "$(broadcast)",
+          "contextualTitle": "Real-Time Connections",
+          "visibility": "collapsed"
+        },
+        {
+          "id": "genkitPlugins",
+          "name": "Plugins",
+          "icon": "$(extensions)",
+          "contextualTitle": "Installed Plugins",
+          "visibility": "collapsed"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "genkit.refreshFlows",
+          "when": "view == genkitFlows",
+          "group": "navigation"
+        },
+        {
+          "command": "genkit.refreshDeployments",
+          "when": "view == genkitDeployments",
+          "group": "navigation"
+        },
+        {
+          "command": "genkit.refreshRegions",
+          "when": "view == genkitRegions",
+          "group": "navigation"
+        },
+        {
+          "command": "genkit.refreshRAGPatterns",
+          "when": "view == genkitRAGPatterns",
+          "group": "navigation"
+        },
+        {
+          "command": "genkit.refreshRealTime",
+          "when": "view == genkitRealTime",
+          "group": "navigation"
+        },
+        {
+          "command": "genkit.refreshPlugins",
+          "when": "view == genkitPlugins",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "genkit.refreshFlows",
+          "when": "false"
+        },
+        {
+          "command": "genkit.refreshDeployments",
+          "when": "false"
+        },
+        {
+          "command": "genkit.refreshRegions",
+          "when": "false"
+        },
+        {
+          "command": "genkit.refreshRAGPatterns",
+          "when": "false"
+        },
+        {
+          "command": "genkit.refreshRealTime",
+          "when": "false"
+        },
+        {
+          "command": "genkit.refreshPlugins",
+          "when": "false"
         }
       ]
     }
@@ -136,15 +486,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/amitpatole/claude-genkit-plugin.git"
+    "url": "https://github.com/amitpatole/claude-genkit-plugin.git",
+    "directory": "vscode-extension"
   },
   "bugs": {
     "url": "https://github.com/amitpatole/claude-genkit-plugin/issues"
   },
-  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#readme",
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin/tree/main/vscode-extension#readme",
   "license": "MIT",
   "author": {
     "name": "Amit Patole",
     "email": "amit.patole@gmail.com"
+  },
+  "icon": "resources/genkit-icon.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
   }
 }
