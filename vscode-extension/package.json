@@ -4,7 +4,6 @@
   "description": "Firebase Genkit development tools for Visual Studio Code - IntelliSense, snippets, commands, and more",
   "version": "1.0.0",
   "publisher": "amitpatole",
-  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -95,8 +94,7 @@
       "activitybar": [
         {
           "id": "genkit-explorer",
-          "title": "Genkit",
-          "icon": "images/genkit-icon.svg"
+          "title": "Genkit"
         }
       ]
     },
