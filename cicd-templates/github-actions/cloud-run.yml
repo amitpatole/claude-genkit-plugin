@@ -1,0 +1,274 @@
+name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  GCP_REGION: 'us-central1'
+  SERVICE_NAME: 'genkit-app'
+
+jobs:
+  # Build and test
+  build-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint || npx eslint src/
+        continue-on-error: true
+
+      - name: Run tests
+        run: npm test
+        env:
+          NODE_ENV: test
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            lib/
+            dist/
+            package.json
+            package-lock.json
+          retention-days: 7
+
+  # Build Docker image
+  build-image:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [build-test]
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
+
+      - name: Build and push Docker image
+        id: image
+        run: |
+          IMAGE_TAG=gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          docker build -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
+          echo "image=$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.image.outputs.image }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        continue-on-error: true
+
+      - name: Upload Trivy scan results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
+
+  # Deploy to staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-image]
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
+    environment:
+      name: staging
+      url: https://${{ env.SERVICE_NAME }}-staging-${{ secrets.GCP_PROJECT_ID }}.run.app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Deploy to Cloud Run (Staging)
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}-staging
+          image: ${{ needs.build-image.outputs.image }}
+          region: ${{ env.GCP_REGION }}
+          flags: |
+            --port=8080
+            --memory=1Gi
+            --cpu=1
+            --max-instances=10
+            --min-instances=0
+            --concurrency=80
+            --timeout=300
+            --allow-unauthenticated
+          env_vars: |
+            NODE_ENV=staging
+            LOG_LEVEL=debug
+          secrets: |
+            ANTHROPIC_API_KEY=ANTHROPIC_API_KEY_STAGING:latest
+            GOOGLE_AI_API_KEY=GOOGLE_AI_API_KEY_STAGING:latest
+
+      - name: Health check
+        run: |
+          sleep 30
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }}-staging \
+            --region=${{ env.GCP_REGION }} \
+            --format='value(status.url)')
+          curl -f ${SERVICE_URL}/health || exit 1
+
+  # Deploy to production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-image, deploy-staging]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://${{ env.SERVICE_NAME }}-${{ secrets.GCP_PROJECT_ID }}.run.app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Deploy to Cloud Run (Production) - 25% traffic
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          image: ${{ needs.build-image.outputs.image }}
+          region: ${{ env.GCP_REGION }}
+          flags: |
+            --port=8080
+            --memory=2Gi
+            --cpu=2
+            --max-instances=100
+            --min-instances=1
+            --concurrency=80
+            --timeout=300
+            --allow-unauthenticated
+            --no-traffic
+          env_vars: |
+            NODE_ENV=production
+            LOG_LEVEL=info
+          secrets: |
+            ANTHROPIC_API_KEY=ANTHROPIC_API_KEY_PROD:latest
+            GOOGLE_AI_API_KEY=GOOGLE_AI_API_KEY_PROD:latest
+          tag: canary
+
+      - name: Route 25% traffic to canary
+        run: |
+          LATEST_REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --format='value(status.latestReadyRevisionName)')
+          PREVIOUS_REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --format='value(status.traffic[0].revisionName)')
+
+          gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --to-revisions=${LATEST_REVISION}=25,${PREVIOUS_REVISION}=75
+
+      - name: Monitor canary deployment
+        run: |
+          echo "Monitoring canary for 5 minutes..."
+          sleep 300
+
+          # Check error rate (example)
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --format='value(status.url)')
+
+          # Health check
+          for i in {1..10}; do
+            curl -f ${SERVICE_URL}/health || exit 1
+            sleep 5
+          done
+
+      - name: Route 100% traffic to canary
+        if: success()
+        run: |
+          LATEST_REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --format='value(status.latestReadyRevisionName)')
+
+          gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --to-revisions=${LATEST_REVISION}=100
+
+      - name: Rollback canary on failure
+        if: failure()
+        run: |
+          PREVIOUS_REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --format='value(status.traffic[0].revisionName)')
+
+          gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+            --region=${{ env.GCP_REGION }} \
+            --to-revisions=${PREVIOUS_REVISION}=100
+
+      - name: Create release tag
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ github.run_number }}" -m "Production release v${{ github.run_number }}"
+          git push origin "v${{ github.run_number }}"
+
+      - name: Notify deployment status
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Production deployment ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Cloud Run Production Deployment* ${{ job.status == 'success' && '✅' || '❌' }}\n*Service:* ${{ env.SERVICE_NAME }}\n*Region:* ${{ env.GCP_REGION }}\n*Image:* `${{ needs.build-image.outputs.image }}`\n*Commit:* <${{ github.event.head_commit.url }}|${{ github.sha }}>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true
