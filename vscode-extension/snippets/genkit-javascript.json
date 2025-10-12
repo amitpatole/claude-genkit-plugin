@@ -1,0 +1,42 @@
+{
+  "Genkit Flow": {
+    "prefix": "gflow",
+    "body": [
+      "const { defineFlow } = require('@genkit-ai/flow');",
+      "const { z } = require('zod');",
+      "",
+      "exports.${1:flowName}Flow = defineFlow(",
+      "  {",
+      "    name: '${1:flowName}',",
+      "    inputSchema: z.object({",
+      "      ${2:input}: z.string(),",
+      "    }),",
+      "    outputSchema: z.${3:string}(),",
+      "  },",
+      "  async (input) => {",
+      "    ${4:// Implement flow logic}",
+      "    return ${5:input.${2:input}};",
+      "  }",
+      ");"
+    ],
+    "description": "Create a new Genkit flow (JavaScript)"
+  },
+  "Genkit Config": {
+    "prefix": "gconfig",
+    "body": [
+      "const { configureGenkit } = require('@genkit-ai/core');",
+      "const { ${1:claude} } = require('@genkit-ai/${2:anthropic}');",
+      "",
+      "module.exports = configureGenkit({",
+      "  plugins: [",
+      "    ${1:claude}({",
+      "      apiKey: process.env.${3:ANTHROPIC_API_KEY},",
+      "    }),",
+      "  ],",
+      "  logLevel: '${4:debug}',",
+      "  enableTracingAndMetrics: ${5:true},",
+      "});"
+    ],
+    "description": "Create Genkit configuration (JavaScript)"
+  }
+}

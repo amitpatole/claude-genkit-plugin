@@ -5,6 +5,53 @@ All notable changes to the Firebase Genkit plugin for Claude Code will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2025-10-10
+
+### Added
+- 🎉 **VS Code Extension for Genkit!**
+  - Full-featured Visual Studio Code extension for Genkit development
+  - IntelliSense and code completion for Genkit APIs
+  - 7+ TypeScript/JavaScript snippets (gflow, grag, gstream, gtool, etc.)
+  - 6 integrated commands (init, create flow, start server, deploy, etc.)
+  - Genkit Explorer sidebar with Flows, Models, and Tools views
+  - Auto-start dev server option
+  - One-click access to Genkit Developer UI
+  - Support for all major AI providers (Claude, Gemini, GPT, Ollama)
+
+### Features
+- **Commands:**
+  - Genkit: Initialize New Project
+  - Genkit: Create New Flow
+  - Genkit: Start Dev Server
+  - Genkit: Open Developer UI
+  - Genkit: Deploy to Production
+  - Genkit: Run Health Check
+
+- **Snippets:**
+  - `gflow` - Create Genkit flow
+  - `grag` - RAG flow template
+  - `gstream` - Streaming flow
+  - `gtool` - Define tool
+  - `gconfig` - Genkit configuration
+  - `genclaude` - Claude generation
+  - `gengemini` - Gemini generation
+
+- **Configuration:**
+  - Auto-start dev server
+  - Custom dev server port
+  - IntelliSense toggle
+
+### Installation
+- Extension available in `vscode-extension/` directory
+- Package with: `npm run package`
+- Install: `code --install-extension genkit-vscode-1.0.0.vsix`
+
+### Documentation
+- Complete VS Code extension README
+- Installation and usage guide
+- Snippets reference
+- Troubleshooting section
+
 ## [1.6.0] - 2025-10-10
 
 ### Added

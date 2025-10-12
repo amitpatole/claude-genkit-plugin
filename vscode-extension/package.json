@@ -1,0 +1,150 @@
+{
+  "name": "genkit-vscode",
+  "displayName": "Genkit for VS Code",
+  "description": "Firebase Genkit development tools for Visual Studio Code - IntelliSense, snippets, commands, and more",
+  "version": "1.0.1",
+  "publisher": "amitpatole",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "genkit",
+    "firebase",
+    "ai",
+    "llm",
+    "claude",
+    "gemini",
+    "openai"
+  ],
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "workspaceContains:**/genkit.config.{ts,js}"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "genkit.init",
+        "title": "Genkit: Initialize New Project",
+        "category": "Genkit"
+      },
+      {
+        "command": "genkit.createFlow",
+        "title": "Genkit: Create New Flow",
+        "category": "Genkit"
+      },
+      {
+        "command": "genkit.startDevServer",
+        "title": "Genkit: Start Dev Server",
+        "category": "Genkit"
+      },
+      {
+        "command": "genkit.openDevUI",
+        "title": "Genkit: Open Developer UI",
+        "category": "Genkit"
+      },
+      {
+        "command": "genkit.deploy",
+        "title": "Genkit: Deploy to Production",
+        "category": "Genkit"
+      },
+      {
+        "command": "genkit.runDoctor",
+        "title": "Genkit: Run Health Check",
+        "category": "Genkit"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "typescript",
+        "path": "./snippets/genkit-typescript.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/genkit-javascript.json"
+      }
+    ],
+    "configuration": {
+      "title": "Genkit",
+      "properties": {
+        "genkit.autoStartDevServer": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically start Genkit dev server when opening a Genkit project"
+        },
+        "genkit.devServerPort": {
+          "type": "number",
+          "default": 4000,
+          "description": "Port for Genkit development server"
+        },
+        "genkit.enableIntelliSense": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable IntelliSense for Genkit APIs"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "genkit-explorer",
+          "title": "Genkit"
+        }
+      ]
+    },
+    "views": {
+      "genkit-explorer": [
+        {
+          "id": "genkitFlows",
+          "name": "Flows"
+        },
+        {
+          "id": "genkitModels",
+          "name": "AI Models"
+        },
+        {
+          "id": "genkitTools",
+          "name": "Tools"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/test-electron": "^2.3.0",
+    "typescript": "^5.0.0",
+    "@vscode/vsce": "^2.19.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amitpatole/claude-genkit-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amitpatole/claude-genkit-plugin/issues"
+  },
+  "homepage": "https://github.com/amitpatole/claude-genkit-plugin#readme",
+  "license": "MIT",
+  "author": {
+    "name": "Amit Patole",
+    "email": "amit.patole@gmail.com"
+  }
+}

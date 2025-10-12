@@ -7,6 +7,28 @@
 
 A comprehensive Claude Code plugin that streamlines Genkit development with intelligent commands, templates, and an AI assistant specialized in Genkit best practices.
 
+## 🎉 Now Available: VS Code Extension!
+
+The official **Genkit for VS Code** extension is now live on the VS Code Marketplace!
+
+[![Install from Marketplace](https://img.shields.io/visual-studio-marketplace/v/amitpatole.genkit-vscode?label=VS%20Code%20Extension&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode)
+
+**Quick Install:**
+```
+ext install amitpatole.genkit-vscode
+```
+
+**Features:**
+- ⚡ 6 Genkit commands in Command Palette
+- 📝 7+ code snippets for rapid development
+- 🔍 Genkit Explorer sidebar with project navigation
+- ⚙️ Customizable settings and auto-start dev server
+- 🖥️ Cross-platform: Windows, Linux, macOS
+
+[📖 Extension Documentation](./vscode-extension/README.md) | [🚀 Quick Start Guide](./vscode-extension/QUICKSTART.md)
+
+---
+
 ## Features
 
 ### 🚀 Quick Project Initialization
@@ -455,7 +477,11 @@ This plugin is part of a comprehensive marketplace with **34 specialized plugins
 - ✅ Migration helpers (genkit-migration-helper)
 
 ### 🚀 Future Plans
-- [ ] VS Code extension integration
+- ✅ **VS Code extension integration** - COMPLETED!
+  - 🎉 Published to VS Code Marketplace v1.0.1
+  - 📦 [Install from Marketplace](https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode)
+  - 💻 6 commands, 7+ snippets, Genkit Explorer sidebar
+  - 📖 See `vscode-extension/` directory for details
 - [ ] CI/CD pipeline templates
 - [ ] Multi-region deployment
 - [ ] Advanced RAG patterns
