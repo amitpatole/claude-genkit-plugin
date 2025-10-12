@@ -24,3 +24,15 @@ yarn-error.log*
 # Temporary files
 *.tmp
 .tmp/
+
+# Build artifacts
+*.vsix
+dist/
+build/
+out/
+
+# Publishing/Submission files
+*PUBLISH*.sh
+*PUBLISH*.md
+*SUBMISSION*.md
+*READY-TO-PUBLISH*.md
