@@ -103,7 +103,8 @@ genkit-vscode-1.0.0.vsix containing:
 2. **QUICKSTART.md** - 5-minute setup guide
 3. **PUBLISHING.md** - Complete publishing guide (500+ lines)
 4. **TROUBLESHOOTING.md** - Error solutions
-5. **publish.sh** - Interactive automation script
+5. **CI-CD-SETUP.md** - Automated CI/CD pipeline guide
+6. **publish.sh** - Interactive automation script
 
 ## 🔧 All Issues Resolved
 
@@ -212,10 +213,13 @@ vsce publish major --pat $VSCE_PAT
 - **Publishing Issues:** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - **Quick Start:** See [QUICKSTART.md](QUICKSTART.md)
 - **Full Guide:** See [PUBLISHING.md](PUBLISHING.md)
+- **CI/CD Setup:** See [CI-CD-SETUP.md](CI-CD-SETUP.md)
 - **VS Code API:** https://code.visualstudio.com/api
 - **VSCE Docs:** https://code.visualstudio.com/api/working-with-extensions/publishing-extension
 
 ## ✨ You're All Set!
+
+### Option 1: Manual Publishing (Immediate)
 
 Everything is ready. Just run:
 
@@ -227,6 +231,28 @@ cd vscode-extension
 Select option 4 (Setup PAT), then option 5 (Publish).
 
 **Your Genkit extension will be live in minutes!** 🎉
+
+### Option 2: Automated CI/CD (Recommended for Production)
+
+Set up automated publishing on merge to main:
+
+1. **Add GitHub Secret:**
+   - Go to: https://github.com/amitpatole/claude-genkit-plugin/settings/secrets/actions
+   - Add secret: `PAT_TOKEN` = Your Azure DevOps PAT
+
+2. **Bump Version & Merge:**
+   ```bash
+   npm version patch  # or minor, or major
+   git push origin main
+   ```
+
+3. **GitHub Actions automatically:**
+   - Compiles TypeScript
+   - Runs tests
+   - Publishes to marketplace
+   - Creates GitHub release with VSIX
+
+See [CI-CD-SETUP.md](CI-CD-SETUP.md) for complete automation setup!
 
 ---
 

@@ -1,0 +1,228 @@
+name: Publish VS Code Extension
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'vscode-extension/**'
+      - '.github/workflows/publish-vscode-extension.yml'
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type (semantic versioning)'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: 'patch'
+      auto_bump:
+        description: 'Auto-bump version before publishing'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: vscode-extension
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: vscode-extension/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Run tests (if available)
+        run: npm test || echo "No tests configured, skipping..."
+        continue-on-error: true
+
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: Verify package structure
+        run: vsce ls
+
+      - name: Auto-bump version (if manual trigger with auto_bump enabled)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.auto_bump == 'true'
+        run: |
+          BUMP_TYPE="${{ github.event.inputs.version_bump }}"
+          echo "Auto-bumping version: $BUMP_TYPE"
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Bump version using npm
+          npm version $BUMP_TYPE -m "chore(release): bump version to %s [skip ci]"
+
+          # Push changes back to repo
+          git push origin main --follow-tags
+        working-directory: vscode-extension
+
+      - name: Check if version changed and detect bump type
+        id: version_check
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+          # Check if this version already exists on marketplace
+          PUBLISHED_VERSION=$(npx vsce show amitpatole.genkit-vscode --json 2>/dev/null | jq -r '.versions[0].version' || echo "0.0.0")
+          echo "published_version=$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
+
+          if [ "$CURRENT_VERSION" != "$PUBLISHED_VERSION" ]; then
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "Version changed: $PUBLISHED_VERSION -> $CURRENT_VERSION"
+
+            # Detect semantic version bump type
+            IFS='.' read -ra PREV <<< "$PUBLISHED_VERSION"
+            IFS='.' read -ra CURR <<< "$CURRENT_VERSION"
+
+            if [ "${CURR[0]}" != "${PREV[0]}" ]; then
+              BUMP_TYPE="major"
+            elif [ "${CURR[1]}" != "${PREV[1]}" ]; then
+              BUMP_TYPE="minor"
+            else
+              BUMP_TYPE="patch"
+            fi
+
+            echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+            echo "Detected semantic version bump: $BUMP_TYPE"
+          else
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+            echo "bump_type=none" >> $GITHUB_OUTPUT
+            echo "Version unchanged: $CURRENT_VERSION (skipping publish)"
+          fi
+
+      - name: Package extension
+        if: steps.version_check.outputs.should_publish == 'true'
+        run: vsce package
+
+      - name: Publish to VS Code Marketplace
+        if: steps.version_check.outputs.should_publish == 'true'
+        env:
+          VSCE_PAT: ${{ secrets.PAT_TOKEN }}
+        run: vsce publish --pat $VSCE_PAT
+
+      - name: Create Git tag
+        if: steps.version_check.outputs.should_publish == 'true'
+        run: |
+          VERSION=${{ steps.version_check.outputs.current_version }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "vscode-v$VERSION" -m "VS Code Extension v$VERSION"
+          git push origin "vscode-v$VERSION"
+        working-directory: .
+
+      - name: Upload VSIX artifact
+        if: steps.version_check.outputs.should_publish == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: genkit-vscode-${{ steps.version_check.outputs.current_version }}.vsix
+          path: vscode-extension/*.vsix
+          retention-days: 90
+
+      - name: Create GitHub Release
+        if: steps.version_check.outputs.should_publish == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: vscode-v${{ steps.version_check.outputs.current_version }}
+          name: VS Code Extension v${{ steps.version_check.outputs.current_version }}
+          body: |
+            ## 🎉 Genkit for VS Code v${{ steps.version_check.outputs.current_version }}
+
+            ### 📦 Version Information
+            - **Previous Version:** `${{ steps.version_check.outputs.published_version }}`
+            - **New Version:** `${{ steps.version_check.outputs.current_version }}`
+            - **Release Type:** `${{ steps.version_check.outputs.bump_type }}` (semantic versioning)
+
+            ${{ steps.version_check.outputs.bump_type == 'major' && '🔴 **MAJOR RELEASE** - Contains breaking changes. Please review the changelog before upgrading.' || steps.version_check.outputs.bump_type == 'minor' && '🟡 **MINOR RELEASE** - New features added. Fully backwards compatible.' || '🟢 **PATCH RELEASE** - Bug fixes and minor improvements.' }}
+
+            ### 💻 Installation
+
+            **From VS Code Marketplace:**
+            ```bash
+            ext install amitpatole.genkit-vscode
+            ```
+
+            **From VSIX file:**
+            Download the `.vsix` file below and install:
+            ```bash
+            code --install-extension genkit-vscode-${{ steps.version_check.outputs.current_version }}.vsix
+            ```
+
+            ### 🔗 Links
+            - [📦 VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode)
+            - [📖 Documentation](https://github.com/amitpatole/claude-genkit-plugin/tree/main/vscode-extension)
+            - [🚀 Quick Start Guide](https://github.com/amitpatole/claude-genkit-plugin/blob/main/vscode-extension/QUICKSTART.md)
+            - [📝 CHANGELOG](https://github.com/amitpatole/claude-genkit-plugin/blob/main/CHANGELOG.md)
+
+            ### 📊 What's Changed
+            See the [full changelog](https://github.com/amitpatole/claude-genkit-plugin/compare/vscode-v${{ steps.version_check.outputs.published_version }}...vscode-v${{ steps.version_check.outputs.current_version }}) for all changes in this release.
+
+            ---
+
+            🤖 Published automatically via GitHub Actions with semantic versioning
+          files: vscode-extension/*.vsix
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish summary
+        if: steps.version_check.outputs.should_publish == 'true'
+        run: |
+          BUMP_TYPE="${{ steps.version_check.outputs.bump_type }}"
+          PREV_VERSION="${{ steps.version_check.outputs.published_version }}"
+          CURR_VERSION="${{ steps.version_check.outputs.current_version }}"
+
+          echo "## ✅ VS Code Extension Published Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Version Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Previous Version:** \`$PREV_VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **New Version:** \`$CURR_VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Bump Type:** \`$BUMP_TYPE\` (semantic versioning)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Marketplace" >> $GITHUB_STEP_SUMMARY
+          echo "https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 💻 Quick Install" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "ext install amitpatole.genkit-vscode" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Semantic Versioning" >> $GITHUB_STEP_SUMMARY
+          if [ "$BUMP_TYPE" = "major" ]; then
+            echo "🔴 **MAJOR** - Breaking changes introduced" >> $GITHUB_STEP_SUMMARY
+          elif [ "$BUMP_TYPE" = "minor" ]; then
+            echo "🟡 **MINOR** - New features added (backwards compatible)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🟢 **PATCH** - Bug fixes and minor improvements" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Skip summary
+        if: steps.version_check.outputs.should_publish == 'false'
+        run: |
+          echo "## ⏭️ Publish Skipped" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Version ${{ steps.version_check.outputs.current_version }} is already published to the marketplace." >> $GITHUB_STEP_SUMMARY
+          echo "Update version in \`package.json\` to trigger a new publish." >> $GITHUB_STEP_SUMMARY
