@@ -484,7 +484,12 @@ This plugin is part of a comprehensive marketplace with **34 specialized plugins
   - 📖 See `vscode-extension/` directory for details
 - [ ] CI/CD pipeline templates
 - [ ] Multi-region deployment
-- [ ] Advanced RAG patterns
+- ✅ **Advanced RAG patterns** - COMPLETED!
+  - 🔍 8 production-ready RAG patterns (Hybrid, Hierarchical, Conversational, etc.)
+  - 📊 Pattern comparison and use cases
+  - 💡 Best practices for chunking, embedding, reranking
+  - 📈 Evaluation metrics and optimization strategies
+  - 📖 See `advanced-rag/` directory for details
 - [ ] Real-time collaboration
 - [ ] Plugin SDK for extensions
 
