@@ -82,15 +82,17 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.PAT_TOKEN }}
         run: |
+          echo "Checking for PAT_TOKEN secret..."
           if [ -n "$VSCE_PAT" ]; then
-            echo "Publishing to VS Code Marketplace..."
+            echo "✅ PAT_TOKEN found, publishing to VS Code Marketplace..."
             vsce publish -p $VSCE_PAT
-            echo "✅ Published to marketplace"
+            echo "✅ Successfully published to marketplace"
           else
-            echo "⚠️  PAT_TOKEN secret not set - skipping marketplace publish"
-            echo "To publish to marketplace, add PAT_TOKEN secret to repository settings"
+            echo "❌ PAT_TOKEN secret not found"
+            echo "The secret 'PAT_TOKEN' must be added to repository settings"
+            echo "Go to: Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
           fi
-        continue-on-error: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -139,10 +141,10 @@ jobs:
           echo "- Compiled TypeScript successfully" >> $GITHUB_STEP_SUMMARY
           echo "- Packaged VSIX file" >> $GITHUB_STEP_SUMMARY
           echo "- Created GitHub Release" >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ secrets.VSCE_PAT }}" ]; then
+          if [ -n "${{ secrets.PAT_TOKEN }}" ]; then
             echo "- Published to VS Code Marketplace" >> $GITHUB_STEP_SUMMARY
           else
-            echo "- ⚠️  Skipped Marketplace publish (VSCE_PAT not configured)" >> $GITHUB_STEP_SUMMARY
+            echo "- ⚠️  Skipped Marketplace publish (PAT_TOKEN not configured)" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
@@ -150,6 +152,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
           echo "- [Release Page](https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ secrets.VSCE_PAT }}" ]; then
+          if [ -n "${{ secrets.PAT_TOKEN }}" ]; then
             echo "- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode)" >> $GITHUB_STEP_SUMMARY
           fi
