@@ -1,0 +1,15 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#4285F4"/>
+
+  <!-- Genkit "G" stylized design -->
+  <path d="M64 24C41.9 24 24 41.9 24 64C24 86.1 41.9 104 64 104C75.4 104 85.6 99.2 92.8 91.5L78.2 76.9C74.4 80.7 69.4 83 64 83C53.5 83 45 74.5 45 64C45 53.5 53.5 45 64 45C69.4 45 74.4 47.3 78.2 51.1L92.8 36.5C85.6 28.8 75.4 24 64 24Z" fill="white"/>
+
+  <!-- K letter for Genkit -->
+  <path d="M88 45L72 64L88 83L104 83L88 64L104 45L88 45Z" fill="white"/>
+
+  <!-- Decorative dots -->
+  <circle cx="64" cy="64" r="4" fill="#FBBC04"/>
+  <circle cx="80" cy="64" r="3" fill="#34A853"/>
+  <circle cx="48" cy="64" r="3" fill="#EA4335"/>
+</svg>
