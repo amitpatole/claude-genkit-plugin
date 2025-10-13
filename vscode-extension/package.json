@@ -2,7 +2,7 @@
   "name": "genkit-vscode",
   "displayName": "Genkit for VS Code",
   "description": "Complete Firebase Genkit development toolkit - CI/CD, RAG patterns, multi-region deployment, real-time collaboration, and plugin SDK",
-  "version": "1.1.3",
+  "version": "1.2.0",
   "publisher": "amitpatole",
   "engines": {
     "vscode": "^1.80.0"
