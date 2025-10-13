@@ -1,0 +1,179 @@
+# Autonomous Agents Configuration
+# Version: 1.0.0
+# Last Updated: 2025-10-13
+
+# Global Settings
+global:
+  timezone: "America/New_York"  # EST timezone
+  deployment_window:
+    start_hour: 22  # 10:00 PM
+    end_hour: 8     # 8:00 AM
+  skip_ci_tag: "[skip ci]"
+  agent_version: "1.0.0"
+
+# Schedule Enforcement Agent
+schedule_enforcement:
+  enabled: true
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  workflow: ".github/workflows/schedule-enforcement-agent.yml"
+
+  features:
+    block_deployments: true
+    generate_violations: true
+    heartbeat_monitoring: true
+
+  monitored_workflows:
+    - "publish-vscode-extension.yml"
+    - "vscode-extension-ci.yml"
+    - "vscode-extension-release.yml"
+
+  outputs:
+    status_file: ".github/agent-status/schedule-enforcement.txt"
+    violation_reports: "agent-reports/violation-*.md"
+
+  notifications:
+    on_violation: false  # Set to true to enable notifications
+    channels: []
+
+# Monitoring & Maintenance Agent
+monitoring_maintenance:
+  enabled: true
+  schedule: "*/10 * * * *"  # Every 10 minutes
+  workflow: ".github/workflows/monitoring-maintenance-agent.yml"
+
+  features:
+    health_monitoring: true
+    auto_fix_compilation: true
+    auto_fix_security: true
+    auto_update_dependencies: true
+    issue_auto_response: true
+    feature_research: true
+
+  health_checks:
+    - compilation
+    - package_json_validation
+    - security_audit
+    - marketplace_metrics
+    - issue_tracking
+
+  auto_fix:
+    compilation_errors: true
+    security_vulnerabilities: true
+    outdated_dependencies: "patch"  # patch, minor, or major
+    respect_deployment_window: true
+
+  issue_management:
+    auto_label: true
+    auto_respond: true
+    labels:
+      bugs: ["bug", "needs-triage"]
+      features: ["enhancement", "needs-review"]
+      critical: ["critical", "urgent"]
+
+  outputs:
+    status_file: ".github/agent-status/maintenance-agent.txt"
+    maintenance_reports: "agent-reports/maintenance-*.md"
+
+  notifications:
+    on_critical_issue: false
+    on_security_vulnerability: false
+    channels: []
+
+# Deployment Settings
+deployment:
+  allowed_window:
+    timezone: "America/New_York"
+    start: "22:00"  # 10:00 PM EST
+    end: "08:00"    # 8:00 AM EST
+
+  blocked_window:
+    timezone: "America/New_York"
+    start: "08:00"  # 8:00 AM EST
+    end: "22:00"    # 10:00 PM EST
+
+  exceptions:
+    manual_override: true  # Allow workflow_dispatch
+    emergency_hotfix: false  # Require approval for emergency deploys
+
+# Monitoring Settings
+monitoring:
+  marketplace:
+    check_interval: "daily"
+    metrics:
+      - installs
+      - rating
+      - version
+
+  repository:
+    check_interval: "10min"
+    metrics:
+      - open_issues
+      - critical_issues
+      - open_prs
+      - workflow_status
+
+  security:
+    check_interval: "10min"
+    npm_audit: true
+    dependency_updates: true
+    cve_monitoring: false
+
+# Reporting Settings
+reporting:
+  retention_days: 90
+  formats:
+    - markdown
+
+  schedule_violations:
+    generate: true
+    include_workflow_logs: false
+
+  maintenance:
+    generate: true
+    include_metrics: true
+    include_actions: true
+
+# Performance Settings
+performance:
+  max_concurrent_fixes: 3
+  rate_limit_buffer: 100  # API calls to reserve
+  timeout_minutes: 5
+
+# Safety Settings
+safety:
+  require_tests_before_deploy: false
+  require_manual_approval_for:
+    - major_version_bump
+    - breaking_changes
+
+  auto_rollback:
+    enabled: false
+    on_failure_threshold: 3
+
+# Notifications (Future)
+notifications:
+  enabled: false
+  channels:
+    slack: null
+    discord: null
+    email: null
+
+  triggers:
+    - deployment_blocked
+    - critical_issue_opened
+    - security_vulnerability_found
+    - agent_failure
+
+# Feature Flags
+features:
+  ai_powered_triage: false  # Future: Use AI for issue triage
+  automated_pr_creation: false  # Future: Create PRs for fixes
+  performance_regression_detection: false  # Future: Monitor performance
+  user_feedback_analysis: false  # Future: Analyze user sentiment
+
+# Maintenance Schedule
+maintenance:
+  dependency_updates: "weekly"
+  security_patches: "immediate"
+  feature_research: "daily"
+  report_cleanup: "monthly"

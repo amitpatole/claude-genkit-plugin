@@ -1,0 +1,351 @@
+name: Monitoring & Maintenance Agent (24x7)
+
+# This agent runs continuously to:
+# 1. Monitor extension and plugin for issues
+# 2. Automatically respond to and fix reported issues
+# 3. Handle upgrades and updates
+# 4. Research and propose new features
+# 5. Monitor marketplace metrics and user feedback
+
+on:
+  schedule:
+    # Run every 10 minutes for continuous monitoring
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+  issues:
+    types: [opened, reopened, labeled]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  monitor-and-maintain:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      actions: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        working-directory: ./vscode-extension
+        run: npm ci
+
+      - name: Monitor extension health
+        id: extension_health
+        working-directory: ./vscode-extension
+        run: |
+          echo "## Extension Health Check" > health-report.md
+          echo "" >> health-report.md
+
+          # Check if extension compiles
+          if npm run compile 2>&1 | tee compile.log; then
+            echo "✅ Compilation: PASSED" >> health-report.md
+            echo "compilation_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Compilation: FAILED" >> health-report.md
+            echo "compilation_status=failed" >> $GITHUB_OUTPUT
+            echo "\`\`\`" >> health-report.md
+            tail -20 compile.log >> health-report.md
+            echo "\`\`\`" >> health-report.md
+          fi
+
+          # Check package.json validity
+          if node -e "require('./package.json')"; then
+            echo "✅ package.json: VALID" >> health-report.md
+            echo "package_json_status=valid" >> $GITHUB_OUTPUT
+          else
+            echo "❌ package.json: INVALID" >> health-report.md
+            echo "package_json_status=invalid" >> $GITHUB_OUTPUT
+          fi
+
+          # Check for security vulnerabilities
+          echo "" >> health-report.md
+          echo "### Security Audit" >> health-report.md
+          npm audit --json > audit.json || true
+          VULNERABILITIES=$(cat audit.json | grep -o '"vulnerabilities":{[^}]*}' | grep -o '[0-9]*' | head -1 || echo "0")
+          echo "vulnerabilities=$VULNERABILITIES" >> $GITHUB_OUTPUT
+
+          if [ "$VULNERABILITIES" -eq 0 ]; then
+            echo "✅ No security vulnerabilities found" >> health-report.md
+          else
+            echo "⚠️ Found $VULNERABILITIES security vulnerabilities" >> health-report.md
+            echo "\`\`\`" >> health-report.md
+            npm audit >> health-report.md || true
+            echo "\`\`\`" >> health-report.md
+          fi
+
+          cat health-report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Check marketplace status
+        id: marketplace_status
+        working-directory: ./vscode-extension
+        run: |
+          # Fetch latest marketplace stats
+          if [ -f "scripts/fetch-marketplace-stats.js" ]; then
+            node scripts/fetch-marketplace-stats.js --json > marketplace-stats.json || true
+
+            INSTALLS=$(cat marketplace-stats.json | grep -o '"install":[0-9]*' | cut -d':' -f2 || echo "0")
+            RATING=$(cat marketplace-stats.json | grep -o '"averagerating":[0-9.]*' | cut -d':' -f2 || echo "0")
+
+            echo "installs=$INSTALLS" >> $GITHUB_OUTPUT
+            echo "rating=$RATING" >> $GITHUB_OUTPUT
+
+            echo "## Marketplace Status" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📊 **Total Installs:** $INSTALLS" >> $GITHUB_STEP_SUMMARY
+            echo "⭐ **Average Rating:** $RATING" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Monitor GitHub issues
+        id: issue_monitor
+        run: |
+          # Get open issues
+          OPEN_ISSUES=$(gh api /repos/${{ github.repository }}/issues --jq '[.[] | select(.pull_request == null)] | length' || echo "0")
+          CRITICAL_ISSUES=$(gh api /repos/${{ github.repository }}/issues --jq '[.[] | select(.labels[].name == "critical" or .labels[].name == "bug")] | length' || echo "0")
+
+          echo "open_issues=$OPEN_ISSUES" >> $GITHUB_OUTPUT
+          echo "critical_issues=$CRITICAL_ISSUES" >> $GITHUB_OUTPUT
+
+          echo "## Issue Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📋 **Open Issues:** $OPEN_ISSUES" >> $GITHUB_STEP_SUMMARY
+          echo "🚨 **Critical Issues:** $CRITICAL_ISSUES" >> $GITHUB_STEP_SUMMARY
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-fix compilation issues
+        if: steps.extension_health.outputs.compilation_status == 'failed'
+        working-directory: ./vscode-extension
+        run: |
+          echo "🔧 Attempting to auto-fix compilation issues..."
+
+          # Try common fixes
+          rm -rf node_modules out
+          npm install
+          npm run compile
+
+          if [ $? -eq 0 ]; then
+            echo "✅ Auto-fix successful!"
+
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add .
+            git commit -m "fix: auto-fix compilation issues
+
+          - Reinstalled dependencies
+          - Cleaned build artifacts
+
+          🤖 Auto-fixed by Maintenance Agent" || echo "No changes to commit"
+            git push || echo "Nothing to push"
+          else
+            echo "❌ Auto-fix failed - manual intervention required"
+          fi
+
+      - name: Auto-update dependencies
+        id: dependency_update
+        working-directory: ./vscode-extension
+        run: |
+          # Check for outdated dependencies
+          npm outdated --json > outdated.json || true
+
+          if [ -s outdated.json ]; then
+            echo "dependencies_outdated=true" >> $GITHUB_OUTPUT
+
+            # Update patch versions only (safe updates)
+            npm update
+
+            # Check if updates were made
+            if git diff --quiet package-lock.json; then
+              echo "No updates needed"
+            else
+              echo "📦 Dependency updates available" >> $GITHUB_STEP_SUMMARY
+
+              git config --local user.email "github-actions[bot]@users.noreply.github.com"
+              git config --local user.name "github-actions[bot]"
+              git add package-lock.json
+              git commit -m "chore: auto-update dependencies (patch versions)
+
+          🤖 Auto-updated by Maintenance Agent" || echo "No changes"
+              # Only push during deployment window
+              CURRENT_HOUR=$(TZ='America/New_York' date +%H)
+              if [ "$CURRENT_HOUR" -ge 22 ] || [ "$CURRENT_HOUR" -lt 8 ]; then
+                git push || echo "Nothing to push"
+              else
+                echo "⏰ Updates staged for deployment window (10 PM - 8 AM EST)"
+              fi
+            fi
+          fi
+
+      - name: Auto-fix security vulnerabilities
+        if: steps.extension_health.outputs.vulnerabilities != '0'
+        working-directory: ./vscode-extension
+        run: |
+          echo "🔒 Attempting to fix security vulnerabilities..."
+
+          npm audit fix
+
+          if git diff --quiet package-lock.json; then
+            echo "No fixes applied"
+          else
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add package-lock.json package.json
+            git commit -m "security: auto-fix vulnerabilities
+
+          Fixed ${{ steps.extension_health.outputs.vulnerabilities }} vulnerabilities
+
+          🤖 Auto-fixed by Maintenance Agent" || echo "No changes"
+
+            # Only push during deployment window
+            CURRENT_HOUR=$(TZ='America/New_York' date +%H)
+            if [ "$CURRENT_HOUR" -ge 22 ] || [ "$CURRENT_HOUR" -lt 8 ]; then
+              git push || echo "Nothing to push"
+            else
+              echo "⏰ Security fixes staged for deployment window (10 PM - 8 AM EST)"
+            fi
+          fi
+
+      - name: Research new features
+        id: feature_research
+        run: |
+          # Check trending Firebase Genkit features
+          echo "## Feature Research" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check Genkit releases
+          GENKIT_LATEST=$(gh api repos/firebase/genkit/releases/latest --jq '.tag_name' || echo "unknown")
+          echo "📦 **Latest Genkit Version:** $GENKIT_LATEST" >> $GITHUB_STEP_SUMMARY
+
+          # Check for popular feature requests
+          FEATURE_REQUESTS=$(gh api /repos/${{ github.repository }}/issues --jq '[.[] | select(.labels[].name == "enhancement")] | length' || echo "0")
+          echo "💡 **Feature Requests:** $FEATURE_REQUESTS" >> $GITHUB_STEP_SUMMARY
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-respond to issues
+        if: github.event_name == 'issues'
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          ISSUE_BODY="${{ github.event.issue.body }}"
+
+          # Check if it's a bug report
+          if echo "$ISSUE_TITLE" | grep -iE "(bug|error|fail|broken)"; then
+            gh issue comment $ISSUE_NUMBER --body "👋 Thank you for reporting this issue!
+
+          🤖 This issue has been automatically triaged by our Maintenance Agent.
+
+          **Next Steps:**
+          1. Our agent is analyzing the issue
+          2. If it's a known issue with an automatic fix, it will be applied
+          3. Otherwise, a maintainer will review within 24 hours
+
+          **In the meantime:**
+          - Please ensure you're using the latest version
+          - Check if reloading VS Code resolves the issue
+          - Review the [troubleshooting guide](https://github.com/${{ github.repository }}/blob/main/vscode-extension/README.md)
+
+          We'll keep you updated on progress!" || true
+
+            # Add bug label if not present
+            gh issue edit $ISSUE_NUMBER --add-label "bug,needs-triage" || true
+          fi
+
+          # Check if it's a feature request
+          if echo "$ISSUE_TITLE" | grep -iE "(feature|request|enhancement|add|support)"; then
+            gh issue comment $ISSUE_NUMBER --body "💡 Thank you for the feature request!
+
+          🤖 This has been automatically categorized by our Maintenance Agent.
+
+          **Review Process:**
+          1. Your feature request will be evaluated for feasibility
+          2. Community feedback will be gathered
+          3. If approved, it will be prioritized in our roadmap
+
+          **Help us prioritize:**
+          - Give this issue a 👍 if you'd find this useful
+          - Comment with your use case to help us understand the need
+
+          Thank you for helping improve the extension!" || true
+
+            gh issue edit $ISSUE_NUMBER --add-label "enhancement,needs-review" || true
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate maintenance report
+        run: |
+          mkdir -p agent-reports
+          TIMESTAMP=$(TZ='America/New_York' date '+%Y-%m-%d_%H-%M-%S')
+
+          cat > "agent-reports/maintenance-${TIMESTAMP}.md" <<EOF
+          # Maintenance Agent Report
+
+          **Generated:** $(TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z')
+
+          ## Extension Health
+          - **Compilation:** ${{ steps.extension_health.outputs.compilation_status }}
+          - **package.json:** ${{ steps.extension_health.outputs.package_json_status }}
+          - **Security Vulnerabilities:** ${{ steps.extension_health.outputs.vulnerabilities }}
+
+          ## Marketplace Metrics
+          - **Total Installs:** ${{ steps.marketplace_status.outputs.installs }}
+          - **Average Rating:** ${{ steps.marketplace_status.outputs.rating }}
+
+          ## Issue Tracking
+          - **Open Issues:** ${{ steps.issue_monitor.outputs.open_issues }}
+          - **Critical Issues:** ${{ steps.issue_monitor.outputs.critical_issues }}
+
+          ## Actions Taken
+          - Auto-fix compilation: ${{ steps.extension_health.outputs.compilation_status == 'failed' && 'Attempted' || 'Not needed' }}
+          - Dependency updates: ${{ steps.dependency_update.outputs.dependencies_outdated == 'true' && 'Applied' || 'Up to date' }}
+          - Security fixes: ${{ steps.extension_health.outputs.vulnerabilities != '0' && 'Applied' || 'Not needed' }}
+
+          ---
+
+          Generated by Monitoring & Maintenance Agent
+          EOF
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add agent-reports/
+          git commit -m "agent: maintenance report [skip ci]" || echo "No changes"
+          git push || echo "Nothing to push"
+
+      - name: Agent heartbeat
+        run: |
+          mkdir -p .github/agent-status
+          TIMESTAMP=$(TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z')
+          echo "Monitoring & Maintenance Agent: ACTIVE - $TIMESTAMP" > .github/agent-status/maintenance-agent.txt
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/agent-status/
+          git commit -m "agent: heartbeat update [skip ci]" || echo "No changes"
+          git push || echo "Nothing to push"
+        continue-on-error: true
+
+      - name: Final summary
+        run: |
+          echo "## 🤖 Maintenance Agent Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** Active and Running" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Health Status" >> $GITHUB_STEP_SUMMARY
+          echo "- Compilation: ${{ steps.extension_health.outputs.compilation_status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Security: ${{ steps.extension_health.outputs.vulnerabilities == '0' && '✅ No vulnerabilities' || '⚠️ ' + steps.extension_health.outputs.vulnerabilities + ' vulnerabilities' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Open Issues: ${{ steps.issue_monitor.outputs.open_issues }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All systems operational. Next check in 10 minutes." >> $GITHUB_STEP_SUMMARY

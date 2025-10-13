@@ -1,0 +1,203 @@
+name: Schedule Enforcement Agent (24x7)
+
+# This agent runs every 5 minutes to enforce deployment schedules
+# Deployment window: 10:00 PM - 8:00 AM EST
+# All pushes/deployments outside this window will be blocked
+
+on:
+  schedule:
+    # Run every 5 minutes to check for violations
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  enforce-schedule:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      actions: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Check current time against deployment window
+        id: time_check
+        run: |
+          # Get current time in EST (America/New_York)
+          CURRENT_HOUR=$(TZ='America/New_York' date +%H)
+          CURRENT_MINUTE=$(TZ='America/New_York' date +%M)
+          CURRENT_TIME=$(TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z')
+
+          echo "current_time=$CURRENT_TIME" >> $GITHUB_OUTPUT
+          echo "current_hour=$CURRENT_HOUR" >> $GITHUB_OUTPUT
+
+          # Deployment window: 22:00 (10 PM) to 08:00 (8 AM) EST
+          # Allow deployments from 22:00-23:59 and 00:00-08:00
+          if [ "$CURRENT_HOUR" -ge 22 ] || [ "$CURRENT_HOUR" -lt 8 ]; then
+            echo "in_deployment_window=true" >> $GITHUB_OUTPUT
+            echo "✅ Current time: $CURRENT_TIME - WITHIN deployment window (10 PM - 8 AM EST)"
+          else
+            echo "in_deployment_window=false" >> $GITHUB_OUTPUT
+            echo "🚫 Current time: $CURRENT_TIME - OUTSIDE deployment window (10 PM - 8 AM EST)"
+          fi
+
+      - name: Block deployment outside window
+        if: |
+          steps.time_check.outputs.in_deployment_window == 'false' &&
+          (github.event_name == 'push' || github.event_name == 'pull_request')
+        run: |
+          echo "## 🚫 DEPLOYMENT BLOCKED" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Reason:** Deployment attempted outside allowed window" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Current Time:** ${{ steps.time_check.outputs.current_time }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Allowed Window:** 10:00 PM - 8:00 AM EST" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Action Required" >> $GITHUB_STEP_SUMMARY
+          echo "Please wait until 10:00 PM EST to deploy changes." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Or manually override by running workflow during allowed hours." >> $GITHUB_STEP_SUMMARY
+
+          exit 1
+
+      - name: Monitor recent workflow runs
+        id: monitor
+        run: |
+          # Check for workflows that ran in the last 10 minutes
+          RECENT_RUNS=$(gh api \
+            /repos/${{ github.repository }}/actions/runs \
+            --jq '.workflow_runs[] | select(.created_at > (now - 600 | strftime("%Y-%m-%dT%H:%M:%SZ"))) | .name + " (" + .status + ")"' \
+            | head -10 || echo "No recent runs")
+
+          echo "recent_runs<<EOF" >> $GITHUB_OUTPUT
+          echo "$RECENT_RUNS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for unauthorized deployments
+        id: check_violations
+        run: |
+          # Check if any publish/release workflows ran outside window in last hour
+          VIOLATIONS=$(gh api \
+            /repos/${{ github.repository }}/actions/runs \
+            --jq '.workflow_runs[] | select(.created_at > (now - 3600 | strftime("%Y-%m-%dT%H:%M:%SZ")) and (.name | contains("Publish") or contains("Release"))) | .name + " - " + .created_at' \
+            || echo "No violations")
+
+          if [ "$VIOLATIONS" != "No violations" ]; then
+            echo "violations_found=true" >> $GITHUB_OUTPUT
+            echo "violations<<EOF" >> $GITHUB_OUTPUT
+            echo "$VIOLATIONS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "violations_found=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Create violation report
+        if: steps.check_violations.outputs.violations_found == 'true'
+        run: |
+          mkdir -p agent-reports
+          TIMESTAMP=$(TZ='America/New_York' date '+%Y-%m-%d_%H-%M-%S')
+
+          cat > "agent-reports/violation-${TIMESTAMP}.md" <<EOF
+          # Schedule Violation Report
+
+          **Generated:** $(TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z')
+          **Current Time:** ${{ steps.time_check.outputs.current_time }}
+          **Deployment Window:** 10:00 PM - 8:00 AM EST
+
+          ## Violations Detected
+
+          The following deployments occurred outside the allowed window:
+
+          \`\`\`
+          ${{ steps.check_violations.outputs.violations }}
+          \`\`\`
+
+          ## Action Required
+
+          1. Review the above deployments
+          2. Ensure future deployments occur during 10 PM - 8 AM EST
+          3. Update workflows if necessary to enforce schedule
+
+          ---
+
+          Generated by Schedule Enforcement Agent
+          EOF
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add agent-reports/
+          git commit -m "agent: schedule violation report [skip ci]" || echo "No changes to commit"
+          git push || echo "Nothing to push"
+
+      - name: Generate status report
+        run: |
+          echo "## 🤖 Schedule Enforcement Agent Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** Active and Running" >> $GITHUB_STEP_SUMMARY
+          echo "**Current Time:** ${{ steps.time_check.outputs.current_time }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment Window:** 10:00 PM - 8:00 AM EST" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.time_check.outputs.in_deployment_window }}" == "true" ]; then
+            echo "✅ **Currently WITHIN deployment window**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Deployments are ALLOWED at this time." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🚫 **Currently OUTSIDE deployment window**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Deployments are BLOCKED at this time." >> $GITHUB_STEP_SUMMARY
+            HOURS_UNTIL=$(( (22 - ${{ steps.time_check.outputs.current_hour }}) ))
+            if [ $HOURS_UNTIL -lt 0 ]; then
+              HOURS_UNTIL=$(( 24 + $HOURS_UNTIL ))
+            fi
+            echo "**Next window opens in:** ~$HOURS_UNTIL hours" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Recent Activity" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.monitor.outputs.recent_runs }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.check_violations.outputs.violations_found }}" == "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ⚠️ Violations Detected" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.check_violations.outputs.violations }}" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Agent heartbeat
+        run: |
+          # Create heartbeat file to prove agent is running
+          mkdir -p .github/agent-status
+          TIMESTAMP=$(TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z')
+          echo "Schedule Enforcement Agent: ACTIVE - $TIMESTAMP" > .github/agent-status/schedule-enforcement.txt
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/agent-status/
+          git commit -m "agent: heartbeat update [skip ci]" || echo "No changes"
+          git push || echo "Nothing to push"
+        continue-on-error: true

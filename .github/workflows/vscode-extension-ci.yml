@@ -73,6 +73,25 @@ jobs:
       contents: write
 
     steps:
+      - name: Check deployment schedule (10 PM - 8 AM EST only)
+        run: |
+          CURRENT_HOUR=$(TZ='America/New_York' date +%H)
+          CURRENT_TIME=$(TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z')
+
+          echo "Current time (EST): $CURRENT_TIME"
+
+          # Deployment window: 22:00 (10 PM) to 08:00 (8 AM) EST
+          if [ "$CURRENT_HOUR" -ge 22 ] || [ "$CURRENT_HOUR" -lt 8 ]; then
+            echo "✅ Within deployment window (10 PM - 8 AM EST) - Proceeding"
+          else
+            echo "🚫 BLOCKED: Outside deployment window"
+            echo "Current hour: $CURRENT_HOUR EST"
+            echo "Allowed hours: 22:00-08:00 EST (10 PM - 8 AM)"
+            echo ""
+            echo "Please wait until 10:00 PM EST to deploy."
+            exit 1
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
 

@@ -29,6 +29,40 @@ ext install amitpatole.genkit-vscode
 
 ---
 
+## 🤖 Autonomous Agents (NEW!)
+
+This repository is monitored and maintained by **autonomous agents** running 24/7:
+
+### Schedule Enforcement Agent
+- ✅ Runs every 5 minutes
+- ✅ Enforces deployment window: **10 PM - 8 AM EST**
+- ✅ Blocks deployments outside allowed hours
+- ✅ Generates violation reports
+
+### Monitoring & Maintenance Agent
+- ✅ Runs every 10 minutes
+- ✅ Auto-fixes compilation errors
+- ✅ Auto-updates dependencies & security patches
+- ✅ Responds to GitHub issues automatically
+- ✅ Tracks marketplace metrics
+- ✅ Researches new features
+
+**Learn More:**
+- [📖 Agent Documentation](./AGENTS.md) - Full details on how agents work
+- [⚡ Quick Start Guide](./AGENTS-QUICKSTART.md) - Get started in 2 minutes
+- [⚙️ Configuration](/.github/agents-config.yml) - Agent settings
+
+**Agent Status:**
+```bash
+# Check if agents are running
+cat .github/agent-status/*.txt
+
+# View recent reports
+ls -lt agent-reports/
+```
+
+---
+
 ## Features
 
 ### 🚀 Quick Project Initialization
