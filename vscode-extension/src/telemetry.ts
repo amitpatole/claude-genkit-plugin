@@ -31,16 +31,16 @@ class GenkitTelemetryReporter {
     private extensionId: string = 'amitpatole.genkit-vscode';
     private extensionVersion: string;
 
-    // Application Insights instrumentation key
+    // Application Insights connection string
     // This is NOT a secret - it's a public key for sending telemetry
-    // Replace with your own key from Azure Application Insights
-    private readonly instrumentationKey: string = 'REPLACE_WITH_YOUR_APP_INSIGHTS_KEY';
+    // Connection string for genkit-vscode-telemetry (FREE tier, 0.5 GB daily cap)
+    private readonly instrumentationKey: string = 'InstrumentationKey=7a37ff6a-f972-45cc-b036-3236d3d386ba;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=dd713a38-c647-4f96-88ad-8220db77eecd';
 
     constructor(context: vscode.ExtensionContext) {
         this.extensionVersion = context.extension.packageJSON.version;
 
-        // Only initialize if telemetry is enabled AND we have a valid key
-        if (this.isTelemetryEnabled() && this.instrumentationKey !== 'REPLACE_WITH_YOUR_APP_INSIGHTS_KEY') {
+        // Only initialize if telemetry is enabled
+        if (this.isTelemetryEnabled()) {
             this.reporter = new TelemetryReporter(this.instrumentationKey);
             context.subscriptions.push(this.reporter);
         }
