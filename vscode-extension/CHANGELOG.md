@@ -5,19 +5,6 @@ All notable changes to the "Genkit for VS Code" extension will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.2] - 2025-10-13
-
-### Fixed
-- GitHub Actions release workflow secret name references
-- Corrected conditional checks from VSCE_PAT to PAT_TOKEN
-- Improved marketplace publishing error messages and logging
-- Made publish step fail explicitly when PAT_TOKEN is not configured
-
-### Changed
-- Enhanced workflow summary messages for better debugging
-
----
-
 ## [1.1.1] - 2025-10-13
 
 ### Added
