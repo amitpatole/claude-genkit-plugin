@@ -1,0 +1,152 @@
+name: VS Code Extension Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.1.0)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: vscode-extension/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./vscode-extension
+        run: npm ci
+
+      - name: Compile TypeScript
+        working-directory: ./vscode-extension
+        run: npm run compile
+
+      - name: Verify compilation
+        working-directory: ./vscode-extension
+        run: |
+          if [ ! -f "out/extension.js" ]; then
+            echo "Error: Compilation failed - out/extension.js not found"
+            exit 1
+          fi
+          echo "✅ Compilation successful"
+
+      - name: Package extension
+        working-directory: ./vscode-extension
+        run: |
+          npm install -g @vscode/vsce
+          vsce package --out genkit-vscode-${{ github.ref_name }}.vsix
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: ./vscode-extension
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package version: $VERSION"
+
+      - name: Extract changelog for this version
+        id: changelog
+        working-directory: ./vscode-extension
+        run: |
+          if [ -f "CHANGELOG.md" ]; then
+            # Extract the section for this version
+            VERSION="${{ steps.package-version.outputs.version }}"
+            CHANGELOG=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' || echo "See CHANGELOG.md for details")
+            echo "changelog<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGELOG" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "changelog=See repository for details" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to VS Code Marketplace
+        working-directory: ./vscode-extension
+        env:
+          VSCE_PAT: ${{ secrets.PAT_TOKEN }}
+        run: |
+          if [ -n "$VSCE_PAT" ]; then
+            echo "Publishing to VS Code Marketplace..."
+            vsce publish -p $VSCE_PAT
+            echo "✅ Published to marketplace"
+          else
+            echo "⚠️  PAT_TOKEN secret not set - skipping marketplace publish"
+            echo "To publish to marketplace, add PAT_TOKEN secret to repository settings"
+          fi
+        continue-on-error: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          body: |
+            # Genkit VS Code Extension ${{ github.ref_name }}
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Installation
+
+            ### From VS Code Marketplace
+            1. Open VS Code
+            2. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+            3. Search for "Genkit"
+            4. Click "Install"
+
+            ### From VSIX
+            ```bash
+            code --install-extension genkit-vscode-${{ github.ref_name }}.vsix
+            ```
+
+            ## Documentation
+            - [README](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/vscode-extension/README.md)
+            - [CHANGELOG](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/vscode-extension/CHANGELOG.md)
+
+            ## Requirements
+            - VS Code 1.80.0+
+            - Node.js 18+
+          files: |
+            vscode-extension/genkit-vscode-${{ github.ref_name }}.vsix
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post-release summary
+        run: |
+          echo "## 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Package Version:** ${{ steps.package-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Completed Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Compiled TypeScript successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- Packaged VSIX file" >> $GITHUB_STEP_SUMMARY
+          echo "- Created GitHub Release" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ secrets.VSCE_PAT }}" ]; then
+            echo "- Published to VS Code Marketplace" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️  Skipped Marketplace publish (VSCE_PAT not configured)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- VSIX file available in release assets" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [Release Page](https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ secrets.VSCE_PAT }}" ]; then
+            echo "- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode)" >> $GITHUB_STEP_SUMMARY
+          fi

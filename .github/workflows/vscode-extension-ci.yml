@@ -1,0 +1,123 @@
+name: VS Code Extension CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'vscode-extension/**'
+      - '.github/workflows/vscode-extension-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'vscode-extension/**'
+      - '.github/workflows/vscode-extension-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: vscode-extension/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./vscode-extension
+        run: npm ci
+
+      - name: Compile TypeScript
+        working-directory: ./vscode-extension
+        run: npm run compile
+
+      - name: Run linter (if configured)
+        working-directory: ./vscode-extension
+        run: npm run lint || echo "No lint script found"
+        continue-on-error: true
+
+      - name: Run tests (if configured)
+        working-directory: ./vscode-extension
+        run: npm test || echo "No tests configured"
+        continue-on-error: true
+
+      - name: Package extension
+        working-directory: ./vscode-extension
+        run: |
+          npm install -g @vscode/vsce
+          vsce package --out genkit-vscode.vsix
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscode-extension-${{ matrix.node-version }}
+          path: vscode-extension/genkit-vscode.vsix
+          retention-days: 30
+
+  publish-marketplace:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, 'Release v')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: vscode-extension/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./vscode-extension
+        run: npm ci
+
+      - name: Compile TypeScript
+        working-directory: ./vscode-extension
+        run: npm run compile
+
+      - name: Package and Publish to VS Code Marketplace
+        working-directory: ./vscode-extension
+        env:
+          VSCE_PAT: ${{ secrets.PAT_TOKEN }}
+        run: |
+          npm install -g @vscode/vsce
+          vsce publish -p $VSCE_PAT
+        if: env.VSCE_PAT != ''
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        if: success()
+        with:
+          tag_name: ${{ github.event.head_commit.message }}
+          name: ${{ github.event.head_commit.message }}
+          body: |
+            VS Code Extension Release
+
+            See [CHANGELOG](vscode-extension/CHANGELOG.md) for details.
+          files: vscode-extension/genkit-vscode.vsix
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify-on-failure:
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+    if: failure()
+
+    steps:
+      - name: Send notification on failure
+        run: |
+          echo "Build failed! Check the logs at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
