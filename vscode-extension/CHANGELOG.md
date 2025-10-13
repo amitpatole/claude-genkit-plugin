@@ -5,6 +5,24 @@ All notable changes to the "Genkit for VS Code" extension will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-10-13
+
+### Added
+- Complete visual documentation (SCREENSHOTS.md) with UI mockups
+- Comprehensive feature writeup (FEATURE_WRITEUP.md) with marketing content
+- Extension icon files (PNG and SVG)
+
+### Fixed
+- GitHub Actions workflow permissions for release creation
+- Extension icon file references in package.json
+
+### Documentation
+- Added detailed UI mockups for all features
+- Created professional marketing content
+- Updated technical specifications
+
+---
+
 ## [1.1.0] - 2025-10-12
 
 ### 🎉 Major Feature Release
