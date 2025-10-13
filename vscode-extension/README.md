@@ -456,6 +456,49 @@ Press F5 to launch extension development host.
 
 ---
 
+## Telemetry and Privacy
+
+This extension collects anonymous usage data to help improve the product. **We respect your privacy!**
+
+### What We Collect (Anonymized)
+- Command usage and performance
+- Extension activation/deactivation
+- Error reports (sanitized)
+- VS Code and OS versions
+
+### What We DON'T Collect
+- ❌ No file names, paths, or content
+- ❌ No personal information
+- ❌ No API keys or credentials
+- ❌ No user-generated code
+
+### How to Disable
+
+Telemetry respects VS Code's settings. To disable:
+
+**Option 1**: VS Code Settings UI
+1. Go to `File` → `Preferences` → `Settings`
+2. Search for "telemetry"
+3. Set `telemetry.telemetryLevel` to `"off"`
+
+**Option 2**: settings.json
+```json
+{
+  "telemetry.telemetryLevel": "off"
+}
+```
+
+**Option 3**: Command Line
+```bash
+code --telemetry-level off
+```
+
+📖 **Full details**: [TELEMETRY.md](TELEMETRY.md)
+
+✅ **GDPR & CCPA compliant** | ✅ **Open source** | ✅ **No PII collected**
+
+---
+
 ## Resources
 
 - [Firebase Genkit Documentation](https://firebase.google.com/docs/genkit)
@@ -463,6 +506,7 @@ Press F5 to launch extension development host.
 - [Report Issues](https://github.com/amitpatole/claude-genkit-plugin/issues)
 - [Feature Requests](https://github.com/amitpatole/claude-genkit-plugin/discussions)
 - [VS Code Extension API](https://code.visualstudio.com/api)
+- [Privacy Policy](TELEMETRY.md)
 
 ---
 

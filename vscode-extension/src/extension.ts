@@ -1,12 +1,18 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import GenkitTelemetryReporter from './telemetry';
 
 let devServerTerminal: vscode.Terminal | undefined;
 let outputChannel: vscode.OutputChannel;
+let telemetry: GenkitTelemetryReporter;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Genkit extension is now active!');
+
+    // Initialize telemetry reporter (respects VS Code's telemetry settings)
+    telemetry = new GenkitTelemetryReporter(context);
+    telemetry.trackActivation();
 
     // Create output channel
     outputChannel = vscode.window.createOutputChannel('Genkit');
@@ -21,6 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Auto-start dev server if configured
     const config = vscode.workspace.getConfiguration('genkit');
     if (config.get('autoStartDevServer') && isGenkitProject()) {
+        telemetry.trackFeature('autoStartDevServer');
         startDevServer();
     }
 
@@ -31,50 +38,73 @@ export function activate(context: vscode.ExtensionContext) {
     statusBarItem.command = 'genkit.startDevServer';
     statusBarItem.show();
     context.subscriptions.push(statusBarItem);
+
+    // Track VS Code version and platform for compatibility tracking
+    telemetry.sendEvent('extension.environment', {
+        vscodeVersion: vscode.version,
+        platform: process.platform,
+        isGenkitProject: isGenkitProject().toString()
+    });
+}
+
+// Helper function to wrap commands with telemetry tracking
+function trackCommand<T extends any[]>(commandName: string, handler: (...args: T) => Promise<any> | any) {
+    return async (...args: T) => {
+        const startTime = Date.now();
+        try {
+            const result = await handler(...args);
+            const duration = Date.now() - startTime;
+            telemetry.trackCommand(commandName, duration);
+            return result;
+        } catch (error) {
+            telemetry.sendError(`command.${commandName}.error`, error as Error);
+            throw error;
+        }
+    };
 }
 
 function registerCommands(context: vscode.ExtensionContext) {
     // Original commands
     context.subscriptions.push(
-        vscode.commands.registerCommand('genkit.init', initializeProject),
-        vscode.commands.registerCommand('genkit.createFlow', createFlow),
-        vscode.commands.registerCommand('genkit.startDevServer', startDevServer),
-        vscode.commands.registerCommand('genkit.openDevUI', openDevUI),
-        vscode.commands.registerCommand('genkit.deploy', deploy),
-        vscode.commands.registerCommand('genkit.runDoctor', runDoctor),
+        vscode.commands.registerCommand('genkit.init', trackCommand('init', initializeProject)),
+        vscode.commands.registerCommand('genkit.createFlow', trackCommand('createFlow', createFlow)),
+        vscode.commands.registerCommand('genkit.startDevServer', trackCommand('startDevServer', startDevServer)),
+        vscode.commands.registerCommand('genkit.openDevUI', trackCommand('openDevUI', openDevUI)),
+        vscode.commands.registerCommand('genkit.deploy', trackCommand('deploy', deploy)),
+        vscode.commands.registerCommand('genkit.runDoctor', trackCommand('runDoctor', runDoctor)),
 
         // Phase 1: CI/CD Integration
-        vscode.commands.registerCommand('genkit.setupCICD', setupCICD),
-        vscode.commands.registerCommand('genkit.configureSecrets', configureSecrets),
-        vscode.commands.registerCommand('genkit.testPipeline', testPipeline),
-        vscode.commands.registerCommand('genkit.viewPipelineStatus', viewPipelineStatus),
+        vscode.commands.registerCommand('genkit.setupCICD', trackCommand('setupCICD', setupCICD)),
+        vscode.commands.registerCommand('genkit.configureSecrets', trackCommand('configureSecrets', configureSecrets)),
+        vscode.commands.registerCommand('genkit.testPipeline', trackCommand('testPipeline', testPipeline)),
+        vscode.commands.registerCommand('genkit.viewPipelineStatus', trackCommand('viewPipelineStatus', viewPipelineStatus)),
 
         // Phase 1: Advanced RAG
-        vscode.commands.registerCommand('genkit.createRAGFlow', createRAGFlow),
-        vscode.commands.registerCommand('genkit.setupVectorDB', setupVectorDB),
-        vscode.commands.registerCommand('genkit.testRAGQuery', testRAGQuery),
-        vscode.commands.registerCommand('genkit.evaluateRAG', evaluateRAG),
+        vscode.commands.registerCommand('genkit.createRAGFlow', trackCommand('createRAGFlow', createRAGFlow)),
+        vscode.commands.registerCommand('genkit.setupVectorDB', trackCommand('setupVectorDB', setupVectorDB)),
+        vscode.commands.registerCommand('genkit.testRAGQuery', trackCommand('testRAGQuery', testRAGQuery)),
+        vscode.commands.registerCommand('genkit.evaluateRAG', trackCommand('evaluateRAG', evaluateRAG)),
 
         // Phase 1: Multi-Region
-        vscode.commands.registerCommand('genkit.configureMultiRegion', configureMultiRegion),
-        vscode.commands.registerCommand('genkit.deployAllRegions', deployAllRegions),
-        vscode.commands.registerCommand('genkit.monitorRegionalHealth', monitorRegionalHealth),
-        vscode.commands.registerCommand('genkit.triggerFailover', triggerFailover),
+        vscode.commands.registerCommand('genkit.configureMultiRegion', trackCommand('configureMultiRegion', configureMultiRegion)),
+        vscode.commands.registerCommand('genkit.deployAllRegions', trackCommand('deployAllRegions', deployAllRegions)),
+        vscode.commands.registerCommand('genkit.monitorRegionalHealth', trackCommand('monitorRegionalHealth', monitorRegionalHealth)),
+        vscode.commands.registerCommand('genkit.triggerFailover', trackCommand('triggerFailover', triggerFailover)),
 
         // Phase 2: Real-Time
-        vscode.commands.registerCommand('genkit.createRealTimeFlow', createRealTimeFlow),
-        vscode.commands.registerCommand('genkit.testWebSocket', testWebSocket),
-        vscode.commands.registerCommand('genkit.monitorConnections', monitorConnections),
+        vscode.commands.registerCommand('genkit.createRealTimeFlow', trackCommand('createRealTimeFlow', createRealTimeFlow)),
+        vscode.commands.registerCommand('genkit.testWebSocket', trackCommand('testWebSocket', testWebSocket)),
+        vscode.commands.registerCommand('genkit.monitorConnections', trackCommand('monitorConnections', monitorConnections)),
 
         // Phase 2: Plugin SDK
-        vscode.commands.registerCommand('genkit.createPlugin', createPlugin),
-        vscode.commands.registerCommand('genkit.testPlugin', testPlugin),
-        vscode.commands.registerCommand('genkit.packagePlugin', packagePlugin),
-        vscode.commands.registerCommand('genkit.publishPlugin', publishPlugin),
+        vscode.commands.registerCommand('genkit.createPlugin', trackCommand('createPlugin', createPlugin)),
+        vscode.commands.registerCommand('genkit.testPlugin', trackCommand('testPlugin', testPlugin)),
+        vscode.commands.registerCommand('genkit.packagePlugin', trackCommand('packagePlugin', packagePlugin)),
+        vscode.commands.registerCommand('genkit.publishPlugin', trackCommand('publishPlugin', publishPlugin)),
 
         // Utility commands
-        vscode.commands.registerCommand('genkit.refreshExplorer', refreshExplorer),
-        vscode.commands.registerCommand('genkit.openDocumentation', openDocumentation)
+        vscode.commands.registerCommand('genkit.refreshExplorer', trackCommand('refreshExplorer', refreshExplorer)),
+        vscode.commands.registerCommand('genkit.openDocumentation', trackCommand('openDocumentation', openDocumentation))
     );
 }
 
@@ -1065,5 +1095,10 @@ class PluginsProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 export function deactivate() {
     if (devServerTerminal) {
         devServerTerminal.dispose();
+    }
+
+    // Dispose telemetry reporter
+    if (telemetry) {
+        telemetry.dispose();
     }
 }

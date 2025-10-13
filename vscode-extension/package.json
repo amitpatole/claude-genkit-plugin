@@ -263,7 +263,12 @@
         },
         "genkit.cicd.platform": {
           "type": "string",
-          "enum": ["github-actions", "gitlab-ci", "azure-pipelines", "circleci"],
+          "enum": [
+            "github-actions",
+            "gitlab-ci",
+            "azure-pipelines",
+            "circleci"
+          ],
           "default": "github-actions",
           "description": "Preferred CI/CD platform"
         },
@@ -274,7 +279,13 @@
         },
         "genkit.deployment.defaultTarget": {
           "type": "string",
-          "enum": ["firebase", "cloud-run", "vercel", "aws-lambda", "docker"],
+          "enum": [
+            "firebase",
+            "cloud-run",
+            "vercel",
+            "aws-lambda",
+            "docker"
+          ],
           "default": "cloud-run",
           "description": "Default deployment target"
         },
@@ -285,18 +296,36 @@
         },
         "genkit.deployment.regions": {
           "type": "array",
-          "default": ["us-central1", "europe-west1"],
+          "default": [
+            "us-central1",
+            "europe-west1"
+          ],
           "description": "Default regions for multi-region deployment"
         },
         "genkit.rag.defaultPattern": {
           "type": "string",
-          "enum": ["hybrid-search", "hierarchical", "conversational", "multi-query", "self-querying", "parent-child", "corrective", "adaptive"],
+          "enum": [
+            "hybrid-search",
+            "hierarchical",
+            "conversational",
+            "multi-query",
+            "self-querying",
+            "parent-child",
+            "corrective",
+            "adaptive"
+          ],
           "default": "hybrid-search",
           "description": "Default RAG pattern for new flows"
         },
         "genkit.rag.vectorDatabase": {
           "type": "string",
-          "enum": ["pinecone", "chroma", "weaviate", "qdrant", "milvus"],
+          "enum": [
+            "pinecone",
+            "chroma",
+            "weaviate",
+            "qdrant",
+            "milvus"
+          ],
           "default": "pinecone",
           "description": "Preferred vector database"
         },
@@ -312,7 +341,11 @@
         },
         "genkit.realtime.protocol": {
           "type": "string",
-          "enum": ["websocket", "sse", "both"],
+          "enum": [
+            "websocket",
+            "sse",
+            "both"
+          ],
           "default": "websocket",
           "description": "Preferred real-time protocol"
         },
@@ -478,10 +511,11 @@
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.80.0",
     "@vscode/test-electron": "^2.3.0",
-    "typescript": "^5.0.0",
-    "@vscode/vsce": "^2.19.0"
+    "@vscode/vsce": "^2.19.0",
+    "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@vscode/extension-telemetry": "^1.1.0",
     "axios": "^1.6.0"
   },
   "repository": {
@@ -502,5 +536,22 @@
   "galleryBanner": {
     "color": "#1e1e1e",
     "theme": "dark"
-  }
+  },
+  "qna": "https://github.com/amitpatole/claude-genkit-plugin/discussions",
+  "badges": [
+    {
+      "url": "https://img.shields.io/visual-studio-marketplace/i/amitpatole.genkit-vscode",
+      "href": "https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode",
+      "description": "Installs"
+    },
+    {
+      "url": "https://img.shields.io/visual-studio-marketplace/r/amitpatole.genkit-vscode",
+      "href": "https://marketplace.visualstudio.com/items?itemName=amitpatole.genkit-vscode",
+      "description": "Rating"
+    }
+  ],
+  "sponsor": {
+    "url": "https://github.com/sponsors/amitpatole"
+  },
+  "privacy": "https://github.com/amitpatole/claude-genkit-plugin/blob/main/vscode-extension/TELEMETRY.md"
 }
