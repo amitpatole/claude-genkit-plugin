@@ -5,6 +5,33 @@ All notable changes to the "Genkit for VS Code" extension will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2025-10-13
+
+### Added
+- **Active Telemetry Tracking** - Connected to Azure Application Insights
+  - Real-time usage analytics
+  - Command execution metrics
+  - Error tracking with sanitized messages
+  - Performance monitoring
+- **Marketplace Statistics Tracking** - Automated daily collection
+  - Download trends
+  - Version adoption rates
+  - Geographic distribution
+- **Comprehensive Privacy Documentation** - TELEMETRY.md, TELEMETRY-SETUP.md
+
+### Changed
+- Telemetry now active (respects VS Code settings)
+- FREE tier Azure Application Insights (0.5 GB daily cap)
+- All telemetry respects `telemetry.telemetryLevel` setting
+
+### Privacy
+- ✅ No PII collected
+- ✅ GDPR & CCPA compliant
+- ✅ Easy opt-out via VS Code settings
+- ✅ Open source implementation
+
+---
+
 ## [1.1.1] - 2025-10-13
 
 ### Added
