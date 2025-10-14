@@ -11,7 +11,7 @@
     {
       "name": "genkit",
       "description": "Build production-ready AI applications with Firebase Genkit. Includes project initialization, flow templates, deployment tools, and an AI assistant specialized in Genkit development.",
-      "source": "../",
+      "source": "./",
       "version": "1.7.0",
       "author": {
         "name": "Amit Patole",
@@ -37,7 +37,7 @@
     {
       "name": "genkit-test-writer",
       "description": "Automatically generate comprehensive tests for Genkit flows with support for unit tests, integration tests, and end-to-end testing",
-      "source": "../plugins/genkit-test-writer",
+      "source": "./plugins/genkit-test-writer",
       "version": "1.0.0",
       "author": {
         "name": "Amit Patole",
@@ -58,7 +58,7 @@
     {
       "name": "genkit-monitor",
       "description": "Real-time monitoring, logging, and observability for Genkit applications with metrics, traces, and alerts",
-      "source": "../plugins/genkit-monitor",
+      "source": "./plugins/genkit-monitor",
       "version": "1.0.0",
       "author": {
         "name": "Amit Patole",
@@ -80,7 +80,7 @@
     {
       "name": "genkit-cost-tracker",
       "description": "Track, analyze, and optimize AI API costs for Genkit applications with detailed usage reports and budget alerts",
-      "source": "../plugins/genkit-cost-tracker",
+      "source": "./plugins/genkit-cost-tracker",
       "version": "1.0.0",
       "author": {
         "name": "Amit Patole",
@@ -101,7 +101,7 @@
     {
       "name": "genkit-security-auditor",
       "description": "Security auditing and best practices enforcement for Genkit applications including input validation, prompt injection detection, and secure deployment",
-      "source": "../plugins/genkit-security-auditor",
+      "source": "./plugins/genkit-security-auditor",
       "version": "1.0.0",
       "author": {
         "name": "Amit Patole",
@@ -122,7 +122,7 @@
     {
       "name": "genkit-ollama",
       "description": "Local AI model integration with Ollama for Genkit - run Llama, Mistral, and other models locally without API costs",
-      "source": "../plugins/genkit-ollama",
+      "source": "./plugins/genkit-ollama",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -134,7 +134,7 @@
     {
       "name": "genkit-model-selector",
       "description": "Compare and select the best AI models for your use case - analyze cost, speed, quality tradeoffs across Claude, Gemini, GPT, and more",
-      "source": "../plugins/genkit-model-selector",
+      "source": "./plugins/genkit-model-selector",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "productivity",
@@ -146,7 +146,7 @@
     {
       "name": "genkit-prompt-optimizer",
       "description": "Optimize prompts for better AI responses - improve quality, reduce tokens, and enhance consistency with AI-powered prompt engineering",
-      "source": "../plugins/genkit-prompt-optimizer",
+      "source": "./plugins/genkit-prompt-optimizer",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "productivity",
@@ -158,7 +158,7 @@
     {
       "name": "genkit-embedding-helper",
       "description": "Simplify embeddings and vector operations for RAG applications - generate, store, and search embeddings with ease",
-      "source": "../plugins/genkit-embedding-helper",
+      "source": "./plugins/genkit-embedding-helper",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -170,7 +170,7 @@
     {
       "name": "genkit-firestore",
       "description": "Firestore integration helpers for Genkit - easy database operations, real-time updates, and data persistence",
-      "source": "../plugins/genkit-firestore",
+      "source": "./plugins/genkit-firestore",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -182,7 +182,7 @@
     {
       "name": "genkit-vector-db",
       "description": "Vector database integrations for Genkit RAG applications - Pinecone, Weaviate, Qdrant, Chroma, and more",
-      "source": "../plugins/genkit-vector-db",
+      "source": "./plugins/genkit-vector-db",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -194,7 +194,7 @@
     {
       "name": "genkit-cache",
       "description": "Caching strategies for Genkit flows - reduce costs and improve response times with intelligent caching",
-      "source": "../plugins/genkit-cache",
+      "source": "./plugins/genkit-cache",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "productivity",
@@ -206,7 +206,7 @@
     {
       "name": "genkit-session-manager",
       "description": "User session and conversation management for Genkit - maintain context across multiple interactions",
-      "source": "../plugins/genkit-session-manager",
+      "source": "./plugins/genkit-session-manager",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -218,7 +218,7 @@
     {
       "name": "genkit-architect",
       "description": "Design Genkit application architecture - get expert guidance on structure, patterns, and best practices for scalable AI apps",
-      "source": "../plugins/genkit-architect",
+      "source": "./plugins/genkit-architect",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -230,7 +230,7 @@
     {
       "name": "genkit-debugger",
       "description": "Interactive flow debugging for Genkit - step through flows, inspect variables, and troubleshoot issues",
-      "source": "../plugins/genkit-debugger",
+      "source": "./plugins/genkit-debugger",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -242,7 +242,7 @@
     ,{
       "name": "genkit-migration-helper",
       "description": "Migrate from other AI frameworks (LangChain, Semantic Kernel, etc.) to Genkit with automated code conversion and best practices",
-      "source": "../plugins/genkit-migration-helper",
+      "source": "./plugins/genkit-migration-helper",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -254,7 +254,7 @@
     {
       "name": "genkit-performance-analyzer",
       "description": "Analyze and optimize Genkit flow performance - latency profiling, token usage optimization, and bottleneck detection",
-      "source": "../plugins/genkit-performance-analyzer",
+      "source": "./plugins/genkit-performance-analyzer",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "productivity",
@@ -266,7 +266,7 @@
     {
       "name": "genkit-logger",
       "description": "Enhanced logging and debugging for Genkit with structured logs, log levels, and integration with logging services",
-      "source": "../plugins/genkit-logger",
+      "source": "./plugins/genkit-logger",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "productivity",
@@ -278,7 +278,7 @@
     {
       "name": "genkit-secrets-manager",
       "description": "Secure API key and secrets management for Genkit - Google Secret Manager, AWS Secrets, HashiCorp Vault integration",
-      "source": "../plugins/genkit-secrets-manager",
+      "source": "./plugins/genkit-secrets-manager",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "security",
@@ -290,7 +290,7 @@
     {
       "name": "genkit-api-generator",
       "description": "Generate REST and GraphQL APIs from Genkit flows - automatic endpoint creation with OpenAPI/Swagger documentation",
-      "source": "../plugins/genkit-api-generator",
+      "source": "./plugins/genkit-api-generator",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -302,7 +302,7 @@
     {
       "name": "genkit-ui-generator",
       "description": "Generate UI components and chat interfaces for Genkit flows - React, Vue, and vanilla JavaScript templates",
-      "source": "../plugins/genkit-ui-generator",
+      "source": "./plugins/genkit-ui-generator",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -314,7 +314,7 @@
     {
       "name": "genkit-documentation",
       "description": "Auto-generate comprehensive documentation for Genkit projects - flow diagrams, API docs, and usage examples",
-      "source": "../plugins/genkit-documentation",
+      "source": "./plugins/genkit-documentation",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -326,7 +326,7 @@
     {
       "name": "genkit-starter-kits",
       "description": "Complete starter templates for common use cases - chatbots, RAG apps, agents, multi-modal apps, and more",
-      "source": "../plugins/genkit-starter-kits",
+      "source": "./plugins/genkit-starter-kits",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -338,7 +338,7 @@
     {
       "name": "genkit-workflow-orchestrator",
       "description": "Orchestrate complex multi-step AI workflows with parallel execution, conditional logic, and error handling",
-      "source": "../plugins/genkit-workflow-orchestrator",
+      "source": "./plugins/genkit-workflow-orchestrator",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -350,7 +350,7 @@
     {
       "name": "genkit-auth-helper",
       "description": "Authentication and authorization for Genkit flows - Firebase Auth, OAuth, JWT, and API key management",
-      "source": "../plugins/genkit-auth-helper",
+      "source": "./plugins/genkit-auth-helper",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "security",
@@ -362,7 +362,7 @@
     {
       "name": "genkit-rate-limiter",
       "description": "Rate limiting and quota management for Genkit flows - prevent abuse and control API usage",
-      "source": "../plugins/genkit-rate-limiter",
+      "source": "./plugins/genkit-rate-limiter",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "productivity",
@@ -374,7 +374,7 @@
     {
       "name": "genkit-analytics",
       "description": "Analytics and insights for Genkit applications - user behavior, flow performance, and business metrics",
-      "source": "../plugins/genkit-analytics",
+      "source": "./plugins/genkit-analytics",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "productivity",
@@ -386,7 +386,7 @@
     {
       "name": "genkit-webhooks",
       "description": "Webhook integration for Genkit - receive and process webhooks from external services with validation and retry logic",
-      "source": "../plugins/genkit-webhooks",
+      "source": "./plugins/genkit-webhooks",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -398,7 +398,7 @@
     {
       "name": "genkit-scheduler",
       "description": "Job scheduling for Genkit flows - cron jobs, recurring tasks, and scheduled AI operations with Cloud Scheduler",
-      "source": "../plugins/genkit-scheduler",
+      "source": "./plugins/genkit-scheduler",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "productivity",
@@ -410,7 +410,7 @@
     {
       "name": "genkit-validator",
       "description": "Advanced input/output validation for Genkit flows - Zod schema generation, custom validators, and sanitization",
-      "source": "../plugins/genkit-validator",
+      "source": "./plugins/genkit-validator",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "development",
@@ -422,7 +422,7 @@
     {
       "name": "genkit-image",
       "description": "Comprehensive image processing for Genkit - generation, editing, analysis, optimization with Claude Vision, DALL-E, Stable Diffusion, and Sharp",
-      "source": "../plugins/genkit-image",
+      "source": "./plugins/genkit-image",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "media",
@@ -434,7 +434,7 @@
     {
       "name": "genkit-audio",
       "description": "Comprehensive audio processing for Genkit - generation, transcription, translation, speech synthesis with OpenAI Whisper, ElevenLabs, Google TTS, and FFmpeg",
-      "source": "../plugins/genkit-audio",
+      "source": "./plugins/genkit-audio",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "media",
@@ -446,7 +446,7 @@
     {
       "name": "genkit-video",
       "description": "Comprehensive video processing for Genkit - generation, editing, analysis, transcription with FFmpeg, Runway ML, and AI video tools",
-      "source": "../plugins/genkit-video",
+      "source": "./plugins/genkit-video",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "media",
@@ -458,7 +458,7 @@
     {
       "name": "genkit-content-studio",
       "description": "Complete multi-modal content creation studio for Genkit - Generate blogs, social media, marketing content, videos, and more using Gemini, Claude, GPT, and specialized AI tools",
-      "source": "../plugins/genkit-content-studio",
+      "source": "./plugins/genkit-content-studio",
       "version": "1.0.0",
       "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
       "category": "content",
