@@ -1,0 +1,471 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "genkit-marketplace",
+  "version": "1.7.0",
+  "description": "Firebase Genkit plugins for Claude Code - Now with VS Code extension!",
+  "owner": {
+    "name": "Amit Patole",
+    "email": "amit.patole@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "genkit",
+      "description": "Build production-ready AI applications with Firebase Genkit. Includes project initialization, flow templates, deployment tools, and an AI assistant specialized in Genkit development.",
+      "source": "./",
+      "version": "1.7.0",
+      "author": {
+        "name": "Amit Patole",
+        "email": "amit.patole@gmail.com"
+      },
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#readme",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": [
+        "genkit",
+        "firebase",
+        "ai",
+        "claude",
+        "gemini",
+        "gpt",
+        "llm",
+        "generative-ai",
+        "rag",
+        "deployment"
+      ]
+    },
+    {
+      "name": "genkit-test-writer",
+      "description": "Automatically generate comprehensive tests for Genkit flows with support for unit tests, integration tests, and end-to-end testing",
+      "source": "./plugins/genkit-test-writer",
+      "version": "1.0.0",
+      "author": {
+        "name": "Amit Patole",
+        "email": "amit.patole@gmail.com"
+      },
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-test-writer",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": [
+        "genkit",
+        "testing",
+        "unit-tests",
+        "integration-tests",
+        "test-automation"
+      ]
+    },
+    {
+      "name": "genkit-monitor",
+      "description": "Real-time monitoring, logging, and observability for Genkit applications with metrics, traces, and alerts",
+      "source": "./plugins/genkit-monitor",
+      "version": "1.0.0",
+      "author": {
+        "name": "Amit Patole",
+        "email": "amit.patole@gmail.com"
+      },
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-monitor",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": [
+        "genkit",
+        "monitoring",
+        "observability",
+        "logging",
+        "metrics",
+        "tracing"
+      ]
+    },
+    {
+      "name": "genkit-cost-tracker",
+      "description": "Track, analyze, and optimize AI API costs for Genkit applications with detailed usage reports and budget alerts",
+      "source": "./plugins/genkit-cost-tracker",
+      "version": "1.0.0",
+      "author": {
+        "name": "Amit Patole",
+        "email": "amit.patole@gmail.com"
+      },
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-cost-tracker",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": [
+        "genkit",
+        "cost-tracking",
+        "budget",
+        "optimization",
+        "analytics"
+      ]
+    },
+    {
+      "name": "genkit-security-auditor",
+      "description": "Security auditing and best practices enforcement for Genkit applications including input validation, prompt injection detection, and secure deployment",
+      "source": "./plugins/genkit-security-auditor",
+      "version": "1.0.0",
+      "author": {
+        "name": "Amit Patole",
+        "email": "amit.patole@gmail.com"
+      },
+      "category": "security",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-security-auditor",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": [
+        "genkit",
+        "security",
+        "audit",
+        "vulnerability",
+        "best-practices"
+      ]
+    },
+    {
+      "name": "genkit-ollama",
+      "description": "Local AI model integration with Ollama for Genkit - run Llama, Mistral, and other models locally without API costs",
+      "source": "./plugins/genkit-ollama",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-ollama",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "ollama", "local-models", "llama", "mistral", "privacy"]
+    },
+    {
+      "name": "genkit-model-selector",
+      "description": "Compare and select the best AI models for your use case - analyze cost, speed, quality tradeoffs across Claude, Gemini, GPT, and more",
+      "source": "./plugins/genkit-model-selector",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-model-selector",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "model-selection", "comparison", "benchmarking"]
+    },
+    {
+      "name": "genkit-prompt-optimizer",
+      "description": "Optimize prompts for better AI responses - improve quality, reduce tokens, and enhance consistency with AI-powered prompt engineering",
+      "source": "./plugins/genkit-prompt-optimizer",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-prompt-optimizer",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "prompt-engineering", "optimization", "quality"]
+    },
+    {
+      "name": "genkit-embedding-helper",
+      "description": "Simplify embeddings and vector operations for RAG applications - generate, store, and search embeddings with ease",
+      "source": "./plugins/genkit-embedding-helper",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-embedding-helper",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "embeddings", "vectors", "rag", "semantic-search"]
+    },
+    {
+      "name": "genkit-firestore",
+      "description": "Firestore integration helpers for Genkit - easy database operations, real-time updates, and data persistence",
+      "source": "./plugins/genkit-firestore",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-firestore",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "firestore", "database", "firebase", "persistence"]
+    },
+    {
+      "name": "genkit-vector-db",
+      "description": "Vector database integrations for Genkit RAG applications - Pinecone, Weaviate, Qdrant, Chroma, and more",
+      "source": "./plugins/genkit-vector-db",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-vector-db",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "vector-database", "pinecone", "weaviate", "rag"]
+    },
+    {
+      "name": "genkit-cache",
+      "description": "Caching strategies for Genkit flows - reduce costs and improve response times with intelligent caching",
+      "source": "./plugins/genkit-cache",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-cache",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "caching", "redis", "performance", "optimization"]
+    },
+    {
+      "name": "genkit-session-manager",
+      "description": "User session and conversation management for Genkit - maintain context across multiple interactions",
+      "source": "./plugins/genkit-session-manager",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-session-manager",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "session", "conversation", "state-management", "context"]
+    },
+    {
+      "name": "genkit-architect",
+      "description": "Design Genkit application architecture - get expert guidance on structure, patterns, and best practices for scalable AI apps",
+      "source": "./plugins/genkit-architect",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-architect",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "architecture", "design", "patterns", "best-practices"]
+    },
+    {
+      "name": "genkit-debugger",
+      "description": "Interactive flow debugging for Genkit - step through flows, inspect variables, and troubleshoot issues",
+      "source": "./plugins/genkit-debugger",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-debugger",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "debugging", "troubleshooting", "development"]
+    }
+    ,{
+      "name": "genkit-migration-helper",
+      "description": "Migrate from other AI frameworks (LangChain, Semantic Kernel, etc.) to Genkit with automated code conversion and best practices",
+      "source": "./plugins/genkit-migration-helper",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-migration-helper",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "migration", "langchain", "semantic-kernel", "conversion"]
+    },
+    {
+      "name": "genkit-performance-analyzer",
+      "description": "Analyze and optimize Genkit flow performance - latency profiling, token usage optimization, and bottleneck detection",
+      "source": "./plugins/genkit-performance-analyzer",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-performance-analyzer",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "performance", "profiling", "optimization", "latency"]
+    },
+    {
+      "name": "genkit-logger",
+      "description": "Enhanced logging and debugging for Genkit with structured logs, log levels, and integration with logging services",
+      "source": "./plugins/genkit-logger",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-logger",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "logging", "debugging", "winston", "structured-logs"]
+    },
+    {
+      "name": "genkit-secrets-manager",
+      "description": "Secure API key and secrets management for Genkit - Google Secret Manager, AWS Secrets, HashiCorp Vault integration",
+      "source": "./plugins/genkit-secrets-manager",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "security",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-secrets-manager",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "secrets", "security", "api-keys", "vault"]
+    },
+    {
+      "name": "genkit-api-generator",
+      "description": "Generate REST and GraphQL APIs from Genkit flows - automatic endpoint creation with OpenAPI/Swagger documentation",
+      "source": "./plugins/genkit-api-generator",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-api-generator",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "api", "rest", "graphql", "openapi", "swagger"]
+    },
+    {
+      "name": "genkit-ui-generator",
+      "description": "Generate UI components and chat interfaces for Genkit flows - React, Vue, and vanilla JavaScript templates",
+      "source": "./plugins/genkit-ui-generator",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-ui-generator",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "ui", "react", "vue", "chat-interface", "frontend"]
+    },
+    {
+      "name": "genkit-documentation",
+      "description": "Auto-generate comprehensive documentation for Genkit projects - flow diagrams, API docs, and usage examples",
+      "source": "./plugins/genkit-documentation",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-documentation",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "documentation", "docs", "api-docs", "diagrams"]
+    },
+    {
+      "name": "genkit-starter-kits",
+      "description": "Complete starter templates for common use cases - chatbots, RAG apps, agents, multi-modal apps, and more",
+      "source": "./plugins/genkit-starter-kits",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-starter-kits",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "templates", "starter", "boilerplate", "chatbot"]
+    },
+    {
+      "name": "genkit-workflow-orchestrator",
+      "description": "Orchestrate complex multi-step AI workflows with parallel execution, conditional logic, and error handling",
+      "source": "./plugins/genkit-workflow-orchestrator",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-workflow-orchestrator",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "workflows", "orchestration", "automation", "pipelines"]
+    },
+    {
+      "name": "genkit-auth-helper",
+      "description": "Authentication and authorization for Genkit flows - Firebase Auth, OAuth, JWT, and API key management",
+      "source": "./plugins/genkit-auth-helper",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "security",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-auth-helper",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "authentication", "authorization", "oauth", "jwt", "firebase-auth"]
+    },
+    {
+      "name": "genkit-rate-limiter",
+      "description": "Rate limiting and quota management for Genkit flows - prevent abuse and control API usage",
+      "source": "./plugins/genkit-rate-limiter",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-rate-limiter",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "rate-limiting", "quotas", "throttling", "abuse-prevention"]
+    },
+    {
+      "name": "genkit-analytics",
+      "description": "Analytics and insights for Genkit applications - user behavior, flow performance, and business metrics",
+      "source": "./plugins/genkit-analytics",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-analytics",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "analytics", "metrics", "insights", "google-analytics"]
+    },
+    {
+      "name": "genkit-webhooks",
+      "description": "Webhook integration for Genkit - receive and process webhooks from external services with validation and retry logic",
+      "source": "./plugins/genkit-webhooks",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-webhooks",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "webhooks", "integrations", "events", "callbacks"]
+    },
+    {
+      "name": "genkit-scheduler",
+      "description": "Job scheduling for Genkit flows - cron jobs, recurring tasks, and scheduled AI operations with Cloud Scheduler",
+      "source": "./plugins/genkit-scheduler",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "productivity",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-scheduler",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "scheduler", "cron", "jobs", "cloud-scheduler", "tasks"]
+    },
+    {
+      "name": "genkit-validator",
+      "description": "Advanced input/output validation for Genkit flows - Zod schema generation, custom validators, and sanitization",
+      "source": "./plugins/genkit-validator",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "development",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-validator",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "validation", "zod", "schema", "sanitization"]
+    },
+    {
+      "name": "genkit-image",
+      "description": "Comprehensive image processing for Genkit - generation, editing, analysis, optimization with Claude Vision, DALL-E, Stable Diffusion, and Sharp",
+      "source": "./plugins/genkit-image",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "media",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-image",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "image", "vision", "dalle", "stable-diffusion", "claude-vision", "sharp", "image-processing"]
+    },
+    {
+      "name": "genkit-audio",
+      "description": "Comprehensive audio processing for Genkit - generation, transcription, translation, speech synthesis with OpenAI Whisper, ElevenLabs, Google TTS, and FFmpeg",
+      "source": "./plugins/genkit-audio",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "media",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-audio",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "audio", "whisper", "transcription", "tts", "speech", "elevenlabs", "voice"]
+    },
+    {
+      "name": "genkit-video",
+      "description": "Comprehensive video processing for Genkit - generation, editing, analysis, transcription with FFmpeg, Runway ML, and AI video tools",
+      "source": "./plugins/genkit-video",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "media",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-video",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "video", "ffmpeg", "runway", "video-editing", "video-ai", "transcription"]
+    },
+    {
+      "name": "genkit-content-studio",
+      "description": "Complete multi-modal content creation studio for Genkit - Generate blogs, social media, marketing content, videos, and more using Gemini, Claude, GPT, and specialized AI tools",
+      "source": "./plugins/genkit-content-studio",
+      "version": "1.0.0",
+      "author": {"name": "Amit Patole", "email": "amit.patole@gmail.com"},
+      "category": "content",
+      "homepage": "https://github.com/amitpatole/claude-genkit-plugin#genkit-content-studio",
+      "repository": "https://github.com/amitpatole/claude-genkit-plugin",
+      "license": "MIT",
+      "keywords": ["genkit", "content", "gemini", "marketing", "social-media", "blog", "copywriting", "multimodal"]
+    }
+  ]
+}
