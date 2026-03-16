@@ -1,41 +1,46 @@
-from typing import Any, Dict, List
+from typing import Any
 import sqlite3
-from sqlite3 import Row
 from datetime import datetime
-import logging
-
 from flask import current_app
 
-logger = logging.getLogger(__name__)
+from tickerpulse.utils import get_current_time
 
-def get_non_dev_hours() -> List[Dict[str, Any]]:
-    """Fetch non-development hours from the config."""
-    config = current_app.config.get("NON_DEV_HOURS", [])
-    return config
+logging.basicConfig(level=logging.INFO)
+
+def get_schedule_enforcement_config() -> dict[str, Any]:
+    return current_app.config.get("SCHEDULE_ENFORCEMENT", {})
 
 class ScheduleEnforcementAgent:
     def __init__(self, db_path: str):
         self.db_path = db_path
-        self.conn = sqlite3.connect(self.db_path, isolation_level=None, uri=True)
+        self.conn = sqlite3.connect(self.db_path, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES)
         self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()
 
     async def enforce_schedule(self) -> None:
-        """Enforce the schedule by checking current time against non-dev hours."""
-        non_dev_hours = get_non_dev_hours()
-        current_time = datetime.now().time()
+        try:
+            current_time = await get_current_time()
+            non_dev_hours = get_schedule_enforcement_config().get("non_dev_hours", [])
 
-        for hour_range in non_dev_hours:
-            start_time = datetime.strptime(hour_range["start"], "%H:%M").time()
-            end_time = datetime.strptime(hour_range["end"], "%H:%M").time()
+            if not non_dev_hours:
+                logging.warning("No non-development hours configured for schedule enforcement.")
+                return
 
-            if start_time <= current_time <= end_time:
-                logger.warning("Current time is within non-development hours. Enforcing schedule.")
-                # Add logic to enforce the schedule here
-                break
+            if current_time.hour in non_dev_hours:
+                logging.info("Current time is within non-development hours. Enforcing schedule...")
+                # Logic to enforce schedule goes here
+                pass
+            else:
+                logging.info("Current time is outside non-development hours. No need to enforce schedule.")
+        except Exception as e:
+            logging.error(f"Error enforcing schedule: {e}")
+        finally:
+            self.cursor.close()
+            self.conn.close()
 
-    async def __aenter__(self) -> "ScheduleEnforcementAgent":
+    def __aenter__(self):
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __aexit__(self, exc_type, exc_value, traceback):
+        self.cursor.close()
         self.conn.close()
