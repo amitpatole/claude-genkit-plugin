@@ -1,21 +1,19 @@
-import unittest
 from unittest.mock import patch, MagicMock
-from datetime import datetime
-from backend.tickerpulse.schedule_enforcement_agent import enforce_schedule, get_schedule_enforcement_db
+import pytest
+from tickerpulse.schedule_enforcement_agent import ScheduleEnforcementAgent, NON_DEV_HOURS
 
-class TestScheduleEnforcementAgent(unittest.TestCase):
-    @patch('backend.tickerpulse.schedule_enforcement_agent.datetime')
-    def test_enforce_schedule(self, mock_datetime):
-        mock_datetime.now.return_value = datetime(2023, 10, 10, 15, 0, 0)
-        with patch('backend.tickerpulse.schedule_enforcement_agent.sqlite3.connect') as mock_connect:
-            mock_cursor = MagicMock()
-            mock_connect.return_value.__enter__.return_value.cursor.return_value = mock_cursor
-            mock_cursor.fetchall.return_value = [{"task_id": 123}]
-            enforce_schedule()
-            mock_cursor.execute.assert_called_once_with("SELECT * FROM schedule WHERE time >= ?", (datetime(2023, 10, 10, 15, 0, 0),))
-            mock_cursor.fetchall.assert_called_once()
-            mock_cursor.close.assert_called_once()
-            mock_connect.assert_called_once_with(get_db_path("schedule_enforcement.db"), detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+def test_enforce_schedule(caplog):
+    with patch('tickerpulse.schedule_enforcement_agent.sqlite3.connect') as mock_connect:
+        mock_cursor = MagicMock()
+        mock_connect.return_value = mock_cursor
+        mock_cursor.execute.return_value = mock_cursor
+        mock_cursor.fetchall.return_value = [{'id': 1, 'execution_time': '2023-10-01 18:00:00'}]
 
-if __name__ == '__main__':
-    unittest.main()
+        agent = ScheduleEnforcementAgent()
+        agent.enforce_schedule()
+
+        assert len(caplog.records) == 2
+        assert caplog.records[0].levelname == 'INFO'
+        assert "Task 1 scheduled for non-dev hours, executing now." in caplog.text
+        assert caplog.records[1].levelname == 'INFO'
+        assert "Executing task 1" in caplog.text

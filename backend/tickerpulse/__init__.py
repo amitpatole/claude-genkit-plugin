@@ -1,12 +1,15 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from .schedule_enforcement_agent import init_schedule_enforcement_agent
+from tickerpulse.schedule_enforcement_agent import ScheduleEnforcementAgent
 
-app = Flask(__name__)
-app.config.from_object('config.Config')
+def create_app():
+    app = Flask(__name__)
+    app.config['DB_PATH'] = 'path/to/database.db'
+    app.config['NON_DEV_HOURS'] = ('18:00', '06:00')  # Example non-dev hours
 
-db = SQLAlchemy(app)
+    @app.route('/enforce-schedule', methods=['GET'])
+    async def enforce_schedule():
+        agent = ScheduleEnforcementAgent()
+        await agent.enforce_schedule()
+        return 'Schedule enforced'
 
-@app.before_first_request
-async def setup_db() -> None:
-    await init_schedule_enforcement_agent()
+    return app
