@@ -1,37 +1,59 @@
-from typing import Any, Dict, Optional
+from typing import Any
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import current_app
 from sqlite3 import Row
 from contextlib import asynccontextmanager
-import sqlite3
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.future import select
 
-logging.basicConfig(level=logging.INFO)
+from .models import ScheduleEnforcementRule, ScheduleEnforcementLog
+
+logger = logging.getLogger(__name__)
+
+# Define the database engine and sessionmaker
+DATABASE_URL = current_app.config['DATABASE_URL']
+engine = create_async_engine(DATABASE_URL, echo=True)
+async_session = sessionmaker(
+    engine, expire_on_commit=False, class_=AsyncSession
+)
 
 @asynccontextmanager
-async def get_db_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(current_app.config['DATABASE_PATH'], uri=True, timeout=10, isolation_level=None, check_same_thread=False)
-    conn.row_factory = Row
-    yield conn
-    conn.close()
+async def get_async_session() -> AsyncSession:
+    async with async_session() as session:
+        yield session
 
-async def enforce_schedule() -> None:
-    async with get_db_connection() as conn:
-        cursor = conn.cursor()
-        query = "SELECT user_id, start_time, end_time FROM work_schedule WHERE status = 'active'"
-        cursor.execute(query)
-        active_schedules = cursor.fetchall()
+async def enforce_schedule_rules() -> None:
+    async with get_async_session() as session:
+        now = datetime.now(timezone.utc)
+        query = select(ScheduleEnforcementRule).where(
+            ScheduleEnforcementRule.start_time <= now,
+            ScheduleEnforcementRule.end_time >= now
+        )
+        result = await session.execute(query)
+        rules = result.scalars().all()
 
-        for schedule in active_schedules:
-            user_id, start_time, end_time = schedule
-            current_time = datetime.now()
+        for rule in rules:
+            if rule.schedule_type == 'non_dev_hours':
+                await log_non_dev_hours_enforcement(rule, session, now)
 
-            if not start_time or not end_time:
-                logging.warning(f"Invalid schedule for user {user_id}: start_time or end_time is missing")
-                continue
+async def log_non_dev_hours_enforcement(rule: ScheduleEnforcementRule, session: AsyncSession, now: datetime) -> None:
+    log_entry = ScheduleEnforcementLog(
+        rule_id=rule.id,
+        enforcement_time=now,
+        message=f"Enforced rule {rule.id} during non-development hours"
+    )
+    session.add(log_entry)
+    await session.commit()
 
-            if current_time < start_time or current_time > end_time:
-                logging.info(f"User {user_id} is not working during their scheduled hours")
-                # Implement logic to enforce schedule, e.g., send notifications, log violations, etc.
-                # For now, just log the violation
-                pass
+# Ensure the database is in WAL mode
+async def ensure_wal_mode() -> None:
+    async with get_async_session() as session:
+        await session.execute("PRAGMA journal_mode=WAL")
+        await session.commit()
+
+# Initialize the schedule enforcement agent
+async def init_schedule_enforcement_agent() -> None:
+    await ensure_wal_mode()
+    await enforce_schedule_rules()

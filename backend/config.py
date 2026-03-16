@@ -1,4 +1,4 @@
-class DevelopmentConfig:
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///tickerpulse.db?mode=memory&cache=shared'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ECHO = False
+from os import environ
+
+class Config:
+    DATABASE_URL = environ.get('DATABASE_URL', 'sqlite:///tickerpulse.db')

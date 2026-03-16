@@ -1,14 +1,12 @@
-from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-from flask_migrate import Migrate
-from flask_cors import CORS
-from backend.tickerpulse.schedule_enforcement_agent import main
+from flask_sqlalchemy import SQLAlchemy
+from .schedule_enforcement_agent import init_schedule_enforcement_agent
 
 app = Flask(__name__)
-app.config.from_object('config.DevelopmentConfig')
-CORS(app)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+app.config.from_object('config.Config')
 
-# Initialize the schedule enforcement agent
-main()
+db = SQLAlchemy(app)
+
+@app.before_first_request
+async def setup_db() -> None:
+    await init_schedule_enforcement_agent()
