@@ -1,18 +1,23 @@
 from typing import Any
 import sqlite3
 from contextlib import asynccontextmanager
-
-from . import get_db
+from flask import current_app
 
 @asynccontextmanager
-async def get_async_db() -> sqlite3.Row:
-    conn = await get_db()
+async def get_db_connection() -> sqlite3.Connection:
+    """
+    Get a database connection with WAL mode enabled.
+    """
+    db_path = os.path.join(current_app.root_path, 'data', 'tickerpulse.db')
+    conn = sqlite3.connect(db_path, uri=True, isolation_level=None, check_same_thread=False)
+    conn.execute("PRAGMA journal_mode=WAL")
     try:
-        conn.row_factory = sqlite3.Row
         yield conn
     finally:
         conn.close()
 
-async def get_db() -> sqlite3.Connection:
-    # Assume this function is already implemented and returns a connection to the SQLite database.
-    pass
+# Example usage
+# async def some_function():
+#     async with get_db_connection() as conn:
+#         # Perform database operations
+#         pass
