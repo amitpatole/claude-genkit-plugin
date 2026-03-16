@@ -1,23 +1,20 @@
-from typing import Any
+from typing import Any, Dict, List, Optional
 import sqlite3
 from contextlib import asynccontextmanager
+from sqlite3 import Row
 
-# Define the database connection function
-async def get_db_connection() -> sqlite3.Connection:
-    """Get a database connection with row factory and WAL mode."""
-    conn = sqlite3.connect("tickerpulse.db", isolation_level=None, check_same_thread=False)
+from .config import DB_PATH
+
+@asynccontextmanager
+async def get_db() -> Row:
+    """Async context manager for database connection."""
+    conn = sqlite3.connect(DB_PATH, uri=True, detect_types=sqlite3.PARSE_DECLTYPES, isolation_level=None, check_same_thread=False)
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    return conn
+    try:
+        yield conn
+    finally:
+        conn.close()
 
-# Example usage
-async def example_usage() -> None:
-    conn = await get_db_connection()
-    cursor = conn.execute("SELECT * FROM some_table")
-    rows = cursor.fetchall()
-    print(rows)
-
-# Main entry point for testing
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(example_usage())
+def row_to_dict(row: Row) -> Dict[str, Any]:
+    """Convert SQLite row to dictionary."""
+    return {key: row[key] for key in row.keys()}
