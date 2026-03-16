@@ -1,47 +1,64 @@
-from typing import Any, AsyncIterable, AsyncIterator, Optional, TypeVar, cast
-import logging
+from typing import Any, AsyncIterable, AsyncIterator, Optional
+import sqlite3
+from sqlite3 import Row
 from flask import Blueprint, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import Session
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from datetime import datetime
-
-from .models import FlowTemplate, FlowStep, StepType
-from .config import get_config
+import logging
 
 logger = logging.getLogger(__name__)
 
 genkit_flow_bp = Blueprint('genkit_flow', __name__)
-db = SQLAlchemy()
 
-T = TypeVar('T')
+class GenkitFlow:
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+        self.conn = None
 
-async def get_flow_template_by_id(template_id: int, session: AsyncSession) -> Optional[FlowTemplate]:
-    result = await session.execute(select(FlowTemplate).where(FlowTemplate.id == template_id))
-    return result.scalar_one_or_none()
+    async def __aenter__(self):
+        self.conn = sqlite3.connect(self.db_path, isolation_level=None, check_same_thread=False, factory=Row)
+        self.conn.execute('PRAGMA journal_mode=WAL')
+        return self
 
-async def create_flow_step(step_type: StepType, step_data: Any, session: AsyncSession) -> FlowStep:
-    step = FlowStep(step_type=step_type, step_data=step_data, created_at=datetime.utcnow())
-    session.add(step)
-    await session.commit()
-    await session.refresh(step)
-    return step
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.conn:
+            self.conn.close()
 
-async def run_flow_template(template_id: int, session: AsyncSession) -> AsyncIterable[FlowStep]:
-    template = await get_flow_template_by_id(template_id, session)
-    if not template:
-        raise ValueError(f"Flow template with ID {template_id} not found")
+    async def execute_query(self, query: str, *args) -> AsyncIterable[Row]:
+        async with self.conn.execute(query, args) as cursor:
+            async for row in cursor:
+                yield row
 
-    for step in template.steps:
-        yield await create_flow_step(step.step_type, step.step_data, session)
+    async def get_flow_template(self, template_id: int) -> Optional[Row]:
+        query = "SELECT * FROM flow_templates WHERE id=?"
+        async for row in self.execute_query(query, template_id):
+            return row
 
-@genkit_flow_bp.route('/genkit-flow', methods=['POST'])
-async def genkit_flow() -> Any:
-    template_id = request.json.get('template_id')
-    if not template_id:
-        return jsonify({"error": "Template ID is required"}), 400
+    async def run_flow_template(self, template_id: int) -> AsyncIterable[Row]:
+        template = await self.get_flow_template(template_id)
+        if not template:
+            logger.error(f"Flow template with ID {template_id} not found.")
+            return
 
-    async with db.session() as session:
-        async for step in run_flow_template(int(template_id), session):
-            yield step
+        query = template['query']
+        async for row in self.execute_query(query, *template['args']):
+            yield row
+
+    async def create_flow_template(self, name: str, query: str, args: tuple) -> int:
+        query = "INSERT INTO flow_templates (name, query, args) VALUES (?, ?, ?) RETURNING id"
+        async with self.conn.execute(query, (name, query, args)) as cursor:
+            return cursor.fetchone()[0]
+
+genkit_flow_bp.route('/genkit-flow/<int:template_id>', methods=['GET'])(async def get_flow_template_route(template_id: int) -> AsyncIterable[Row]:
+    async with GenkitFlow('tickerpulse.db') as genkit_flow:
+        return await genkit_flow.run_flow_template(template_id)
+
+genkit_flow_bp.route('/genkit-flow', methods=['POST'])(async def create_flow_template_route() -> int:
+    data = request.json
+    name = data.get('name')
+    query = data.get('query')
+    args = tuple(data.get('args', ()))
+
+    if not name or not query:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    async with GenkitFlow('tickerpulse.db') as genkit_flow:
+        return jsonify({"template_id": await genkit_flow.create_flow_template(name, query, args)})
