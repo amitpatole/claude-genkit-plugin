@@ -1,0 +1,6 @@
+CREATE TABLE flow_templates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    query TEXT NOT NULL,
+    args TEXT NOT NULL
+);
