@@ -1,15 +1,29 @@
 from flask import Flask
-from tickerpulse.schedule_enforcement_agent import ScheduleEnforcementAgent
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_caching import Cache
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from flask_mail import Mail
+from flask_socketio import SocketIO
+from flask_talisman import Talisman
+from flask_talisman import Talisman
+from .schedule_enforcement_agent import ScheduleEnforcementAgent
 
-def create_app():
-    app = Flask(__name__)
-    app.config['DB_PATH'] = 'path/to/database.db'
-    app.config['NON_DEV_HOURS'] = ('18:00', '06:00')  # Example non-dev hours
+app = Flask(__name__)
+app.config.from_object("config.DevelopmentConfig")
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+cache = Cache(app)
+limiter = Limiter(app, key_func=get_remote_address)
+cors = CORS(app)
+jwt = JWTManager(app)
+mail = Mail(app)
+socketio = SocketIO(app)
+talisman = Talisman(app)
+schedule_enforcement_agent = ScheduleEnforcementAgent(db_path=app.config["DB_PATH"])
 
-    @app.route('/enforce-schedule', methods=['GET'])
-    async def enforce_schedule():
-        agent = ScheduleEnforcementAgent()
-        await agent.enforce_schedule()
-        return 'Schedule enforced'
-
-    return app
+# Initialize extensions and blueprints
+from . import auth, api, web  # Import blueprints here
