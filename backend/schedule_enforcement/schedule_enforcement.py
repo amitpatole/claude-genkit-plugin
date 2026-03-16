@@ -2,81 +2,53 @@ from typing import Any
 import logging
 from datetime import datetime, timezone
 from flask import current_app
-from sqlite3 import Row
-
-from .utils import get_current_time, get_db_connection
+import sqlite3
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class ScheduleEnforcementAgent:
-    def __init__(self):
-        self.allowed_hours = (22, 8)  # 10 PM - 8 AM EST
+DATABASE_PATH = "path/to/database.db"
 
-    def is_within_allowed_hours(self, current_time: datetime) -> bool:
-        """
-        Check if the current time is within the allowed deployment hours.
-
-        Args:
-            current_time (datetime): The current time to check.
-
-        Returns:
-            bool: True if within allowed hours, False otherwise.
-        """
-        return self.allowed_hours[0] <= current_time.hour < self.allowed_hours[1]
-
-    async def enforce_schedule(self, deployment_time: datetime) -> bool:
-        """
-        Enforce the schedule by checking if the deployment time is within allowed hours.
-
-        Args:
-            deployment_time (datetime): The time at which the deployment is attempted.
-
-        Returns:
-            bool: True if the deployment is allowed, False if it's a violation.
-        """
-        current_time = await get_current_time()
-        if not self.is_within_allowed_hours(current_time):
-            logger.info(f"Deployment attempt at {deployment_time} is outside allowed hours.")
-            await self.log_violation(deployment_time)
-            await self.notify_user(deployment_time)
-            return False
-        return True
-
-    async def log_violation(self, deployment_time: datetime) -> None:
-        """
-        Log the violation to a file.
-
-        Args:
-            deployment_time (datetime): The time at which the deployment was attempted.
-        """
-        db = await get_db_connection()
-        try:
-            db.row_factory = Row
-            cursor = db.cursor()
-            cursor.execute(
-                "INSERT INTO deployment_violations (time) VALUES (?)",
-                (deployment_time,)
-            )
-            db.commit()
-        finally:
-            db.close()
-
-    async def notify_user(self, deployment_time: datetime) -> None:
-        """
-        Notify the user via the Genkit Explorer sidebar.
-
-        Args:
-            deployment_time (datetime): The time at which the deployment was attempted.
-        """
-        current_app.notify_user(f"Deployment attempt at {deployment_time} is outside allowed hours.")
-
-
-async def get_current_time() -> datetime:
+def is_allowed_time() -> bool:
     """
-    Get the current time in the specified timezone.
-
-    Returns:
-        datetime: The current time.
+    Check if the current time is within the allowed deployment hours (10 PM - 8 AM EST).
     """
-    return datetime.now(timezone.utc).astimezone(timezone(offset=-(5 * 3600)))  # EST is UTC-5
+    now = datetime.now(timezone.utc).astimezone(timezone(offset=-5, name="EST"))
+    return 22 <= now.hour < 8
+
+def log_violation(user_id: str, deployment_time: datetime, message: str) -> None:
+    """
+    Log a deployment violation to the database and a file.
+    """
+    conn = sqlite3.connect(DATABASE_PATH, uri=True, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("INSERT INTO violations (user_id, deployment_time, message) VALUES (?, ?, ?)",
+                       (user_id, deployment_time, message))
+        conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
+
+    with open("logs/deployment_violations.log", "a") as log_file:
+        log_file.write(f"{deployment_time}: User {user_id} attempted deployment during non-development hours. Message: {message}\n")
+
+def notify_user(user_id: str, deployment_time: datetime, message: str) -> None:
+    """
+    Notify the user via the Genkit Explorer sidebar about the deployment violation.
+    """
+    current_app.logger.info(f"Deployment attempt from user {user_id} at {deployment_time} during non-development hours. Message: {message}")
+
+def enforce_schedule(user_id: str, deployment_time: datetime, message: str) -> None:
+    """
+    Enforce the schedule by checking the allowed time and logging/notifications if necessary.
+    """
+    if not is_allowed_time():
+        log_violation(user_id, deployment_time, message)
+        notify_user(user_id, deployment_time, message)
+
+# Example usage
+if __name__ == "__main__":
+    enforce_schedule("user123", datetime(2023, 10, 1, 9, 0, 0, tzinfo=timezone.utc), "Attempted deployment")
