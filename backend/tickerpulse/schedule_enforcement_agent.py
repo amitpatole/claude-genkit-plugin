@@ -1,53 +1,41 @@
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 import sqlite3
 from sqlite3 import Row
-from datetime import datetime, time
+from datetime import datetime, timezone
 from flask import current_app
 
 from backend.utils.db import get_db_connection
+from backend.models.schedule import Schedule
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-class ScheduleEnforcementAgent:
-    def __init__(self):
-        self.db_connection = get_db_connection()
+def enforce_schedule(user_id: int, current_time: datetime) -> Optional[bool]:
+    """
+    Enforces the schedule for a given user based on the current time.
 
-    def enforce_schedule(self, user_id: int) -> Optional[Row]:
-        """
-        Enforce non-development hours for a user.
-        
-        :param user_id: ID of the user to enforce schedule for.
-        :return: Row object with schedule details if user is in development hours, else None.
-        """
-        try:
-            with self.db_connection as conn:
-                conn.row_factory = sqlite3.Row
-                cursor = conn.cursor()
-                current_time = datetime.now().time()
-                development_hours_start = time(9, 0)
-                development_hours_end = time(17, 0)
+    :param user_id: ID of the user to enforce the schedule for.
+    :param current_time: Current datetime to check against the schedule.
+    :return: True if the user is within their non-development hours, False otherwise.
+    """
+    try:
+        with get_db_connection() as conn:
+            conn.row_factory = Row
+            query = "SELECT non_dev_hours FROM user_schedules WHERE user_id = ?"
+            result = conn.execute(query, (user_id,)).fetchone()
+            if result is None:
+                logger.warning(f"No schedule found for user_id: {user_id}")
+                return None
 
-                if development_hours_start <= current_time < development_hours_end:
-                    cursor.execute(
-                        "SELECT * FROM user_schedule WHERE user_id = ?",
-                        (user_id,)
-                    )
-                    return cursor.fetchone()
-                else:
-                    return None
-        except sqlite3.Error as e:
-            logging.error(f"Database error: {e}")
-            return None
-        finally:
-            self.db_connection.close()
+            non_dev_hours = result["non_dev_hours"]
+            start_time, end_time = non_dev_hours.split("-")
+            start_time = datetime.strptime(start_time, "%H:%M").time()
+            end_time = datetime.strptime(end_time, "%H:%M").time()
 
-def main():
-    agent = ScheduleEnforcementAgent()
-    result = agent.enforce_schedule(1)
-    if result:
-        logging.info(f"User schedule: {result}")
-    else:
-        logging.info("User is in non-development hours.")
-
-if __name__ == "__main__":
-    main()
+            current_time = current_time.time()
+            if start_time <= current_time < end_time:
+                return True
+            else:
+                return False
+    except sqlite3.Error as e:
+        logger.error(f"Database error: {e}")
+        return None
