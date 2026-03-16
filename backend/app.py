@@ -1,17 +1,11 @@
-from flask import Flask
-from schedule_enforcement.schedule_enforcement import ScheduleEnforcementAgent
-from schedule_enforcement.deployment_violations import get_all_violations
+from typing import Any
+from flask import Flask, current_app
+from .schedule_enforcement import enforce_schedule
 
 app = Flask(__name__)
-enforcement_agent = ScheduleEnforcementAgent()
 
 @app.before_request
-def before_request():
-    if not enforcement_agent.is_allowed_time():
-        deployment_time = datetime.now(timezone.utc).astimezone(timezone(offset=3600 * 5))
-        enforcement_agent.enforce_schedule(deployment_time)
-
-@app.route('/violations')
-def get_violations():
-    violations = get_all_violations()
-    return {"violations": [dict(v) for v in violations]}
+async def before_request():
+    user_id = current_app.config.get("CURRENT_USER_ID")
+    deployment_time = datetime.now(timezone.utc).astimezone(timezone(offset=-(5, 0)))  # EST is UTC-5
+    await enforce_schedule(user_id, deployment_time)
