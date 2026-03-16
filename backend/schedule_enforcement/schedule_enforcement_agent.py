@@ -1,51 +1,42 @@
 from typing import Any
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
+from sqlite3 import connect, Row
 from flask import current_app
-from sqlite3 import Row
-from contextlib import asynccontextmanager
-from backend.database.db_manager import DBManager
+
+from .config import ALLOWED_HOURS, VIOLATION_LOG_PATH, NOTIFICATION_SIDEBAR_ID
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@asynccontextmanager
-async def db_session():
-    db = DBManager(current_app.config['DATABASE'])
-    try:
-        await db.connect()
-        yield db
-    finally:
-        await db.disconnect()
+def is_allowed_time() -> bool:
+    """Check if current time is within allowed hours (10 PM - 8 AM EST)."""
+    now = datetime.now(timezone('EST'))
+    return ALLOWED_HOURS['start'] <= now.hour < ALLOWED_HOURS['end']
 
-class ScheduleEnforcementAgent:
-    def __init__(self, app):
-        self.app = app
-        self.allowed_start_time = datetime.strptime('22:00', '%H:%M').time()
-        self.allowed_end_time = datetime.strptime('08:00', '%H:%M').time()
+def log_violation(deployment_id: int, timestamp: datetime) -> None:
+    """Log a deployment violation to the specified file path."""
+    with current_app.app_context():
+        with connect(current_app.config['DATABASE_PATH'], uri=True, uri_same_file=True, isolation_level=None, check_same_thread=False, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES, row_factory=Row) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("INSERT INTO deployment_violations (deployment_id, timestamp) VALUES (?, ?)", (deployment_id, timestamp))
+            conn.commit()
+            logger.info(f"Logged violation: {deployment_id} at {timestamp}")
 
-    async def is_allowed_time(self, current_time: datetime) -> bool:
-        now = current_time.time()
-        return self.allowed_start_time <= now < self.allowed_end_time or now < self.allowed_start_time
+def send_notification(deployment_id: int, timestamp: datetime) -> None:
+    """Send a notification to the Genkit Explorer sidebar about a deployment violation."""
+    notification_data = {
+        "deployment_id": deployment_id,
+        "timestamp": timestamp.isoformat(),
+    }
+    # Assuming Genkit Explorer has a method to send notifications
+    current_app.genkit_explorer.send_notification(NOTIFICATION_SIDEBAR_ID, notification_data)
 
-    async def enforce_schedule(self, deployment_time: datetime) -> bool:
-        if not await self.is_allowed_time(deployment_time):
-            logger.warning(f"Deployment attempt at {deployment_time} is outside allowed hours.")
-            await self.log_violation(deployment_time)
-            await self.notify_user(deployment_time)
-            return False
-        return True
-
-    async def log_violation(self, deployment_time: datetime) -> None:
-        async with db_session() as db:
-            await db.execute(
-                "INSERT INTO deployment_violations (time) VALUES (?)",
-                (deployment_time,)
-            )
-
-    async def notify_user(self, deployment_time: datetime) -> None:
-        # Notify user via Genkit Explorer sidebar
-        pass  # Placeholder for actual implementation
-
-    async def handle_deployment(self, deployment_time: datetime) -> bool:
-        return await self.enforce_schedule(deployment_time)
+def enforce_schedule(deployment_id: int) -> bool:
+    """Enforce schedule by blocking deployments outside allowed hours and logging violations."""
+    if not is_allowed_time():
+        timestamp = datetime.now(timezone('EST'))
+        log_violation(deployment_id, timestamp)
+        send_notification(deployment_id, timestamp)
+        return False
+    return True
