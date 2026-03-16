@@ -1,22 +1,21 @@
-from typing import Any, List, Optional
-from sqlite3 import Row, connect, Cursor
-from contextlib import asynccontextmanager
-from datetime import datetime
-import os
+from typing import Any, Dict, List, Optional
+import sqlite3
+from sqlite3 import Row
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'tickerpulse.db')
+def get_db() -> sqlite3.Connection:
+    """Return a connection to the SQLite database."""
+    conn = sqlite3.connect("tickerpulse.db", isolation_level=None, factory=Row)
+    conn.row_factory = Row
+    return conn
 
-@asynccontextmanager
-async def get_db() -> Cursor:
-    conn = connect(DB_PATH, isolation_level=None, journal_mode='wal')
-    cursor: Cursor = conn.cursor()
-    try:
-        yield cursor
-    finally:
-        conn.commit()
-        cursor.close()
-        conn.close()
+def init_db() -> None:
+    """Initialize the database with necessary tables."""
+    with current_app.app_context():
+        db = get_db()
+        with current_app.open_resource("schema.sql", mode="r") as f:
+            db.cursor().executescript(f.read())
+        db.commit()
 
-def get_row_factory() -> Any:
-    """Return a row factory for SQLite."""
-    return Row
+def row_to_dict(row: Row) -> Dict[str, Any]:
+    """Convert a SQLite3 Row object to a dictionary."""
+    return dict(row)
