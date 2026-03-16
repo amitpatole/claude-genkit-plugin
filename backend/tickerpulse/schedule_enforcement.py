@@ -1,54 +1,45 @@
-from typing import Any, AsyncIterable, Optional
+from typing import Any
 import sqlite3
 from sqlite3 import Row
+from datetime import datetime, time
 from flask import current_app
 
-from backend.utils.db import get_db_connection
+from backend.tickerpulse.utils import get_db_connection
 
 logging.basicConfig(level=logging.INFO)
 
-async def enforce_schedule(enforcement_period: int) -> None:
-    """
-    Enforce the schedule during non-development hours.
+def is_non_dev_hour(current_time: time) -> bool:
+    """Check if the current time is outside of regular development hours."""
+    # Define development hours (e.g., 9 AM to 5 PM)
+    dev_start_time = time(9, 0)
+    dev_end_time = time(17, 0)
+    
+    # Check if current time is before start or after end of development hours
+    return current_time < dev_start_time or current_time >= dev_end_time
 
-    :param enforcement_period: Number of hours to enforce the schedule.
-    """
-    conn = await get_db_connection()
+async def enforce_schedule(current_time: time) -> bool:
+    """Enforce schedule by checking if the current time is a non-development hour."""
+    if is_non_dev_hour(current_time):
+        logging.info("Enforcing schedule: Non-development hour detected.")
+        return True
+    return False
+
+async def main() -> None:
+    """Main entry point to enforce the schedule."""
     try:
-        await conn.execute(
-            "SELECT * FROM schedule_enforcement WHERE period = ?", (enforcement_period,)
-        )
-        rows = await conn.fetchall()
-        for row in rows:
-            logging.info(f"Enforcing schedule for period {row['period']}")
+        # Get the current time
+        now = datetime.now().time()
+        
+        # Check if the current time is a non-development hour
+        if await enforce_schedule(now):
+            # Perform necessary actions (e.g., log, send notifications)
+            logging.info("Scheduled actions executed during non-development hour.")
+        else:
+            logging.info("No actions needed as it's within development hours.")
+    except Exception as e:
+        logging.error(f"Error enforcing schedule: {e}")
 
-        # Simulate enforcement logic here
-        # This is a placeholder for actual enforcement logic
-        logging.info("Schedule enforcement logic executed.")
-    finally:
-        conn.close()
-
-async def get_enforcement_periods() -> AsyncIterable[Row]:
-    """
-    Get all enforcement periods from the database.
-
-    :return: An async iterable of rows from the database.
-    """
-    conn = await get_db_connection()
-    try:
-        cursor = await conn.execute("SELECT * FROM schedule_enforcement")
-        rows = await cursor.fetchall()
-        for row in rows:
-            yield row
-    finally:
-        conn.close()
-
-def main() -> None:
-    """
-    Main function to run the enforcement agent.
-    """
-    enforcement_period = 5  # Example enforcement period
-    enforce_schedule(enforcement_period)
-
-if __name__ == "__main__":
-    main()
+# Ensure the database connection is properly managed
+async with get_db_connection() as conn:
+    conn.row_factory = Row
+    await main()
