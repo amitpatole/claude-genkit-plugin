@@ -1,12 +1,11 @@
 from flask import Flask
-import os
 from backend.tickerpulse.enforcement_agent import enforce_schedule
 
 app = Flask(__name__)
-app.config.from_object('config.DevelopmentConfig')
+app.config['DATABASE'] = 'tickerpulse.db'
 
-@app.before_first_request
-async def startup():
-    logger = logging.getLogger(__name__)
-    logger.info("Starting TickerPulse AI with schedule enforcement agent.")
-    await enforce_schedule()
+# Example route to test the enforcement agent
+@app.route('/enforce-schedule/<user_id>/<current_time>', methods=['GET'])
+async def enforce_schedule_route(user_id: int, current_time: str):
+    result = await enforce_schedule(user_id, current_time)
+    return {'result': result}

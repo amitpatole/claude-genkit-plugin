@@ -1,15 +1,19 @@
-import unittest
 from unittest.mock import patch
-from datetime import datetime, time
-from tickerpulse.enforcement_agent import enforce_schedule
+from backend.tickerpulse.enforcement_agent import enforce_schedule
+from datetime import datetime
 
-class TestEnforcementAgent(unittest.TestCase):
-    @patch('tickerpulse.enforcement_agent.datetime')
-    def test_enforce_schedule(self, mock_datetime):
-        mock_datetime.now.return_value.time.return_value = time(17, 30)
-        enforce_schedule()
-        mock_datetime.now.return_value.time.return_value = time(8, 30)
-        enforce_schedule()
+def test_enforce_schedule_non_dev_hours():
+    with patch('backend.tickerpulse.enforcement_agent.get_db_connection') as mock_conn:
+        mock_cursor = mock_conn().__enter__().cursor
+        mock_cursor.fetchone.return_value = {'non_dev_hours': ['17:00-18:00']}
+        
+        result = enforce_schedule(1, '17:30')
+        assert result is True
 
-if __name__ == '__main__':
-    unittest.main()
+def test_enforce_schedule_dev_hours():
+    with patch('backend.tickerpulse.enforcement_agent.get_db_connection') as mock_conn:
+        mock_cursor = mock_conn().__enter__().cursor
+        mock_cursor.fetchone.return_value = {'non_dev_hours': ['18:00-19:00']}
+        
+        result = enforce_schedule(1, '18:00')
+        assert result is False
