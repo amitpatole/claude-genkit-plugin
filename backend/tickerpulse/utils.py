@@ -1,13 +1,8 @@
 from typing import Any
-import sqlite3
-from contextlib import asynccontextmanager
+import os
+import logging
 
-@asynccontextmanager
-async def get_db_connection() -> sqlite3.Row:
-    """Context manager to get a database connection."""
-    conn = sqlite3.connect('tickerpulse.db', uri=True)
-    conn.row_factory = sqlite3.Row
-    try:
-        yield conn
-    finally:
-        conn.close()
+logger = logging.getLogger(__name__)
+
+def get_db_path(db_name: str) -> str:
+    return os.path.join(current_app.root_path, "db", db_name)

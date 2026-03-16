@@ -1,25 +1,21 @@
+import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
-from backend.tickerpulse.schedule_enforcement_agent import enforce_schedule, get_db_connection
-import pytest
+from backend.tickerpulse.schedule_enforcement_agent import enforce_schedule, get_schedule_enforcement_db
 
-@patch('backend.tickerpulse.schedule_enforcement_agent.get_db_connection')
-def test_enforce_schedule(mock_get_db_connection):
-    mock_conn = MagicMock()
-    mock_cursor = MagicMock()
-    mock_conn.cursor.return_value = mock_cursor
-    mock_cursor.fetchall.return_value = [
-        ('user1', datetime(2023, 10, 1, 9, 0), datetime(2023, 10, 1, 17, 0)),
-        ('user2', datetime(2023, 10, 1, 10, 0), datetime(2023, 10, 1, 18, 0))
-    ]
-    mock_get_db_connection.return_value = mock_conn
+class TestScheduleEnforcementAgent(unittest.TestCase):
+    @patch('backend.tickerpulse.schedule_enforcement_agent.datetime')
+    def test_enforce_schedule(self, mock_datetime):
+        mock_datetime.now.return_value = datetime(2023, 10, 10, 15, 0, 0)
+        with patch('backend.tickerpulse.schedule_enforcement_agent.sqlite3.connect') as mock_connect:
+            mock_cursor = MagicMock()
+            mock_connect.return_value.__enter__.return_value.cursor.return_value = mock_cursor
+            mock_cursor.fetchall.return_value = [{"task_id": 123}]
+            enforce_schedule()
+            mock_cursor.execute.assert_called_once_with("SELECT * FROM schedule WHERE time >= ?", (datetime(2023, 10, 10, 15, 0, 0),))
+            mock_cursor.fetchall.assert_called_once()
+            mock_cursor.close.assert_called_once()
+            mock_connect.assert_called_once_with(get_db_path("schedule_enforcement.db"), detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
 
-    with patch('backend.tickerpulse.schedule_enforcement_agent.datetime') as mock_datetime:
-        mock_now = datetime(2023, 10, 1, 11, 0)
-        mock_datetime.now.return_value = mock_now
-
-        enforce_schedule()
-
-        mock_cursor.execute.assert_called_once_with("SELECT user_id, start_time, end_time FROM work_schedule WHERE status = 'active'")
-        mock_cursor.fetchall.assert_called_once()
-        mock_conn.close.assert_called_once()
+if __name__ == '__main__':
+    unittest.main()
