@@ -1,4 +1,6 @@
-from os import environ
+from typing import Dict
+
+SCHEDULE_ENFORCEMENT_DB_PATH = "path/to/schedule_enforcement.db"
 
 class Config:
-    DATABASE_URL = environ.get('DATABASE_URL', 'sqlite:///tickerpulse.db')
+    SCHEDULE_ENFORCEMENT_DB_PATH = SCHEDULE_ENFORCEMENT_DB_PATH
