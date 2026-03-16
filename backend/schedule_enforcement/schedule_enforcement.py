@@ -1,63 +1,51 @@
 from typing import Any
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
+import sqlite3
 from flask import current_app
-from sqlite3 import Row
-
-from .config import ALLOWED_DEPLOYMENT_HOURS, DEPLOYMENT_LOG_FILE, DEPLOYMENT_VIOLATION_EMAIL
-from .db import get_db_connection
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-def is_allowed_deployment_time() -> bool:
-    """
-    Check if the current time is within the allowed deployment hours (10 PM - 8 AM EST).
-    """
-    now = datetime.now(timezone('EST'))
-    return ALLOWED_DEPLOYMENT_HOURS[0] <= now.hour < ALLOWED_DEPLOYMENT_HOURS[1]
+DB_PATH = current_app.config['DB_PATH']
 
-async def log_deployment_violation(deployment_time: datetime, user_id: int) -> None:
-    """
-    Log a deployment violation to the specified file.
-    
-    :param deployment_time: Time of the attempted deployment
-    :param user_id: ID of the user who attempted the deployment
-    """
-    try:
-        conn = await get_db_connection()
-        cursor = conn.cursor(row_factory=Row)
-        cursor.execute("INSERT INTO deployment_violations (user_id, deployment_time) VALUES (?, ?)", (user_id, deployment_time))
-        conn.commit()
-    except Exception as e:
-        logger.error(f"Failed to log deployment violation: {e}")
+class ScheduleEnforcementAgent:
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
-async def notify_user_of_violation(user_id: int) -> None:
-    """
-    Notify the user via the Genkit Explorer sidebar about the deployment violation.
-    
-    :param user_id: ID of the user who attempted the deployment
-    """
-    try:
-        conn = await get_db_connection()
-        cursor = conn.cursor(row_factory=Row)
-        cursor.execute("SELECT email FROM users WHERE id = ?", (user_id,))
-        user_email = cursor.fetchone()["email"]
-        # Assuming Genkit Explorer has a method to notify users
-        current_app.notify_user_of_violation(user_email)
-    except Exception as e:
-        logger.error(f"Failed to notify user of violation: {e}")
+    def is_allowed_time(self) -> bool:
+        current_time = datetime.now().astimezone().hour
+        return 22 <= current_time < 24 or 0 <= current_time < 8
 
-async def enforce_schedule() -> None:
-    """
-    Enforce the deployment schedule by blocking deployments outside the allowed hours and logging violations.
-    """
-    if not is_allowed_deployment_time():
-        logger.warning("Deployment attempted outside allowed hours. Blocking deployment.")
-        user_id = 1  # Placeholder for user ID, should be passed from the caller
-        await log_deployment_violation(datetime.now(timezone('EST')), user_id)
-        await notify_user_of_violation(user_id)
+    async def enforce_schedule(self, deployment_time: datetime) -> None:
+        if not self.is_allowed_time():
+            self.logger.info(f"Deployment blocked at {deployment_time} - outside allowed hours.")
+            await self.log_violation(deployment_time)
+            await self.notify_user(deployment_time)
+            raise ValueError("Deployment outside allowed hours")
+
+    async def log_violation(self, deployment_time: datetime) -> None:
+        conn = sqlite3.connect(DB_PATH, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO deployment_violations (deployment_time) VALUES (?)",
+                (deployment_time,)
+            )
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+
+    async def notify_user(self, deployment_time: datetime) -> None:
+        # Notify user via Genkit Explorer sidebar
+        pass  # Placeholder for actual implementation
 
 # Example usage
 if __name__ == "__main__":
-    enforce_schedule()
+    agent = ScheduleEnforcementAgent()
+    deployment_time = datetime(2023, 10, 1, 23, 0, 0)  # 11 PM EST
+    try:
+        await agent.enforce_schedule(deployment_time)
+    except ValueError as e:
+        print(e)
