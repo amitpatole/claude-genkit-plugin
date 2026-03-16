@@ -1,6 +1,5 @@
-from typing import Any
+class Config:
+    DATABASE_PATH = os.environ['DATABASE_PATH']
 
-def get_db_config() -> dict[str, Any]:
-    return {
-        "db_path": "/path/to/tickerpulse.db",
-    }
+class DevelopmentConfig(Config):
+    pass
