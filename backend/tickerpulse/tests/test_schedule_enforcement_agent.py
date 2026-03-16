@@ -1,22 +1,25 @@
-import unittest
-from unittest.mock import patch
-from tickerpulse.schedule_enforcement_agent import ScheduleEnforcementAgent, get_schedule_enforcement_config
+from unittest.mock import patch, MagicMock
 from datetime import datetime
+from backend.tickerpulse.schedule_enforcement_agent import enforce_schedule, get_db_connection
+import pytest
 
-class TestScheduleEnforcementAgent(unittest.TestCase):
-    @patch('tickerpulse.schedule_enforcement_agent.get_current_time')
-    def test_enforce_schedule(self, mock_get_current_time):
-        mock_get_current_time.return_value = datetime(2023, 10, 1, 15)  # 15:00 is in non-dev hours
-        agent = ScheduleEnforcementAgent(db_path="test.db")
-        agent.enforce_schedule()
-        self.assertTrue(mock_get_current_time.called)
+@patch('backend.tickerpulse.schedule_enforcement_agent.get_db_connection')
+def test_enforce_schedule(mock_get_db_connection):
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_conn.cursor.return_value = mock_cursor
+    mock_cursor.fetchall.return_value = [
+        ('user1', datetime(2023, 10, 1, 9, 0), datetime(2023, 10, 1, 17, 0)),
+        ('user2', datetime(2023, 10, 1, 10, 0), datetime(2023, 10, 1, 18, 0))
+    ]
+    mock_get_db_connection.return_value = mock_conn
 
-    @patch('tickerpulse.schedule_enforcement_agent.get_current_time')
-    def test_no_enforcement_outside_non_dev_hours(self, mock_get_current_time):
-        mock_get_current_time.return_value = datetime(2023, 10, 1, 9)  # 09:00 is not in non-dev hours
-        agent = ScheduleEnforcementAgent(db_path="test.db")
-        agent.enforce_schedule()
-        self.assertTrue(mock_get_current_time.called)
+    with patch('backend.tickerpulse.schedule_enforcement_agent.datetime') as mock_datetime:
+        mock_now = datetime(2023, 10, 1, 11, 0)
+        mock_datetime.now.return_value = mock_now
 
-if __name__ == '__main__':
-    unittest.main()
+        enforce_schedule()
+
+        mock_cursor.execute.assert_called_once_with("SELECT user_id, start_time, end_time FROM work_schedule WHERE status = 'active'")
+        mock_cursor.fetchall.assert_called_once()
+        mock_conn.close.assert_called_once()

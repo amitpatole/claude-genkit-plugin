@@ -1,46 +1,37 @@
-from typing import Any
-import sqlite3
+from typing import Any, Dict, Optional
+import logging
 from datetime import datetime
 from flask import current_app
-
-from tickerpulse.utils import get_current_time
+from sqlite3 import Row
+from contextlib import asynccontextmanager
+import sqlite3
 
 logging.basicConfig(level=logging.INFO)
 
-def get_schedule_enforcement_config() -> dict[str, Any]:
-    return current_app.config.get("SCHEDULE_ENFORCEMENT", {})
+@asynccontextmanager
+async def get_db_connection() -> sqlite3.Connection:
+    conn = sqlite3.connect(current_app.config['DATABASE_PATH'], uri=True, timeout=10, isolation_level=None, check_same_thread=False)
+    conn.row_factory = Row
+    yield conn
+    conn.close()
 
-class ScheduleEnforcementAgent:
-    def __init__(self, db_path: str):
-        self.db_path = db_path
-        self.conn = sqlite3.connect(self.db_path, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES)
-        self.conn.row_factory = sqlite3.Row
-        self.cursor = self.conn.cursor()
+async def enforce_schedule() -> None:
+    async with get_db_connection() as conn:
+        cursor = conn.cursor()
+        query = "SELECT user_id, start_time, end_time FROM work_schedule WHERE status = 'active'"
+        cursor.execute(query)
+        active_schedules = cursor.fetchall()
 
-    async def enforce_schedule(self) -> None:
-        try:
-            current_time = await get_current_time()
-            non_dev_hours = get_schedule_enforcement_config().get("non_dev_hours", [])
+        for schedule in active_schedules:
+            user_id, start_time, end_time = schedule
+            current_time = datetime.now()
 
-            if not non_dev_hours:
-                logging.warning("No non-development hours configured for schedule enforcement.")
-                return
+            if not start_time or not end_time:
+                logging.warning(f"Invalid schedule for user {user_id}: start_time or end_time is missing")
+                continue
 
-            if current_time.hour in non_dev_hours:
-                logging.info("Current time is within non-development hours. Enforcing schedule...")
-                # Logic to enforce schedule goes here
+            if current_time < start_time or current_time > end_time:
+                logging.info(f"User {user_id} is not working during their scheduled hours")
+                # Implement logic to enforce schedule, e.g., send notifications, log violations, etc.
+                # For now, just log the violation
                 pass
-            else:
-                logging.info("Current time is outside non-development hours. No need to enforce schedule.")
-        except Exception as e:
-            logging.error(f"Error enforcing schedule: {e}")
-        finally:
-            self.cursor.close()
-            self.conn.close()
-
-    def __aenter__(self):
-        return self
-
-    def __aexit__(self, exc_type, exc_value, traceback):
-        self.cursor.close()
-        self.conn.close()
