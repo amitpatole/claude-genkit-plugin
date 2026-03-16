@@ -1,42 +1,63 @@
+from datetime import datetime, timezone
 from typing import Any
 import logging
-from datetime import datetime, timezone
 from flask import current_app
-from sqlite3 import Row
-import os
 
-from .db import get_db
+from config import SCHEDULE_ENFORCEMENT_CONFIG
+from utils.db import get_db_connection
+from utils.notifications import send_genkit_explorer_notification
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def is_off_peak_hour() -> bool:
-    """Check if the current hour is outside the allowed deployment window (10 PM - 8 AM EST)."""
-    est_tz = timezone(-5, 'EST')
-    now = datetime.now(est_tz)
-    return now.hour < 20 or now.hour >= 8
+def is_allowed_time() -> bool:
+    """
+    Check if the current time is within the allowed deployment hours (10 PM - 8 AM EST).
 
-def log_violation(deployment_id: int, user_id: int, violation_time: datetime) -> None:
-    """Log a violation to a file."""
-    log_path = os.path.join(current_app.root_path, 'logs', 'violation_logs.txt')
-    with open(log_path, 'a') as log_file:
-        log_file.write(f"Deployment {deployment_id} by user {user_id} violated schedule enforcement at {violation_time}\n")
+    :return: True if within allowed hours, False otherwise.
+    """
+    now = datetime.now(timezone('EST'))
+    return 22 <= now.hour < 24 or 0 <= now.hour < 8
 
-async def notify_user(user_id: int, violation_time: datetime) -> None:
-    """Notify the user via the Genkit Explorer sidebar."""
-    # Assuming Genkit Explorer has a method to send notifications
-    await current_app.notify_user(user_id, f"Your deployment attempt at {violation_time} was blocked due to schedule enforcement.")
+def log_violation(deployment_id: int, reason: str) -> None:
+    """
+    Log a deployment violation to a file.
 
-async def enforce_schedule(deployment_id: int, user_id: int) -> None:
-    """Enforce schedule by checking if the current time is within the allowed deployment window."""
-    if is_off_peak_hour():
-        logger.info(f"Deployment {deployment_id} by user {user_id} is within the allowed schedule window.")
-        return
+    :param deployment_id: ID of the deployment attempt.
+    :param reason: Reason for the violation.
+    """
+    with open("violation_logs.txt", "a") as log_file:
+        log_file.write(f"VIOLATION: Deployment {deployment_id} attempted at {datetime.now().isoformat()} - {reason}\n")
 
-    violation_time = datetime.now(timezone.utc)
-    log_violation(deployment_id, user_id, violation_time)
-    await notify_user(user_id, violation_time)
+def notify_user(deployment_id: int, reason: str) -> None:
+    """
+    Notify the user via the Genkit Explorer sidebar of a deployment violation.
 
-# Example usage in a route
-# async def deploy_application(deployment_id: int, user_id: int) -> None:
-#     await enforce_schedule(deployment_id, user_id)
+    :param deployment_id: ID of the deployment attempt.
+    :param reason: Reason for the violation.
+    """
+    send_genkit_explorer_notification(
+        title="Deployment Violation",
+        message=f"Deployment {deployment_id} attempted outside allowed hours - {reason}",
+        level="warning"
+    )
+
+def enforce_schedule(deployment_id: int) -> None:
+    """
+    Enforce schedule by blocking deployments outside the allowed hours and logging violations.
+
+    :param deployment_id: ID of the deployment attempt.
+    """
+    if not is_allowed_time():
+        reason = "Deployment attempted outside allowed hours (10 PM - 8 AM EST)"
+        log_violation(deployment_id, reason)
+        notify_user(deployment_id, reason)
+
+def main() -> None:
+    """
+    Main entry point for the Schedule Enforcement Agent.
+    """
+    deployment_id = 12345  # Example deployment ID
+    enforce_schedule(deployment_id)
+
+if __name__ == "__main__":
+    main()
