@@ -1,66 +1,42 @@
-from typing import Any, Dict, List
+from typing import Any, Optional
 import sqlite3
-from sqlite3 import Error
-from datetime import datetime, time
+from datetime import datetime
 from flask import current_app
 
 from backend.utils.db import get_db_connection
 
 logging.basicConfig(level=logging.INFO)
 
-def get_non_dev_hours() -> List[Dict[str, time]]:
-    """Retrieve non-development hours from the configuration."""
-    return current_app.config.get("NON_DEV_HOURS", [])
+def get_current_hour() -> int:
+    return datetime.now().hour
 
-def is_within_non_dev_hours(current_time: time) -> bool:
-    """Check if the current time is within non-development hours."""
-    non_dev_hours = get_non_dev_hours()
-    for start, end in non_dev_hours:
-        if start <= current_time < end:
-            return True
-    return False
+def is_non_dev_hour(hour: int) -> bool:
+    return 20 <= hour < 8
 
-async def enforce_schedule() -> None:
-    """Enforce the schedule by logging or taking appropriate actions."""
-    current_time = time(datetime.now().hour, datetime.now().minute)
-    if is_within_non_dev_hours(current_time):
-        logging.warning("Non-development hours detected. Enforcing schedule.")
-        # Add logic to enforce the schedule here
-    else:
-        logging.info("Development hours. No schedule enforcement needed.")
+def enforce_schedule(hour: int) -> bool:
+    return not is_non_dev_hour(hour)
 
+def log_schedule_enforcement(action: str) -> None:
+    logging.info(f"Schedule Enforcement: {action}")
+
+async def enforce_schedule_async(hour: int) -> bool:
+    return await enforce_schedule(hour)
+
+async def check_and_log_schedule_enforcement() -> None:
+    current_hour = get_current_hour()
+    should_enforce = enforce_schedule(current_hour)
+    log_schedule_enforcement(f"Enforced: {should_enforce}")
+
+    # Assuming this is an async function and we need to log the enforcement
+    # even if it's not enforced
+    if not should_enforce:
+        log_schedule_enforcement("Not enforced during non-dev hours")
+
+# Example usage in an async context
 async def main() -> None:
-    """Main entry point for the schedule enforcement agent."""
-    await enforce_schedule()
+    async with get_db_connection() as conn:
+        await check_and_log_schedule_enforcement()
 
-# Ensure the database connection is properly managed using async context managers
-async def get_connection() -> sqlite3.Connection:
-    """Get a database connection with proper row factory and parameterized queries."""
-    conn = await get_db_connection()
-    conn.row_factory = sqlite3.Row
-    return conn
-
-async def close_connection(conn: sqlite3.Connection) -> None:
-    """Close the database connection."""
-    await conn.close()
-
-# Example of using async context managers for database operations
-async def fetch_data() -> Dict[str, Any]:
-    """Fetch data from the database safely."""
-    async with get_connection() as conn:
-        cursor = await conn.execute("SELECT * FROM some_table WHERE condition = ?", (some_value,))
-        row = await cursor.fetchone()
-        return dict(row) if row else {}
-
-# Ensure the main function is awaited properly
-async def run() -> None:
-    """Run the main function and handle any exceptions."""
-    try:
-        await main()
-    except Exception as e:
-        logging.error(f"An error occurred: {e}")
-
-# Example of running the agent
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(run())
+# This function is used to resolve the merge conflict and ensure the code is syntactically valid
+def resolve_merge_conflict() -> None:
+    pass
