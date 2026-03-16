@@ -1,30 +1,24 @@
-from typing import Any, Dict, Optional
+from typing import Any
 import sqlite3
+from sqlite3 import Row
 
-from config import SCHEDULE_ENFORCEMENT_CONFIG
+from flask import current_app
 
 def get_db_connection() -> sqlite3.Connection:
     """
-    Get a connection to the SQLite database.
-
-    :return: SQLite database connection.
+    Get a database connection using SQLite3.
+    
+    :return: SQLite3 database connection.
     """
-    conn = sqlite3.connect(SCHEDULE_ENFORCEMENT_CONFIG['db_path'], uri=True, isolation_level=None, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
+    conn = sqlite3.connect(current_app.config['DATABASE_PATH'], uri=True, check_same_thread=False)
+    conn.row_factory = Row
+    conn.execute("PRAGMA journal_mode=WAL")
     return conn
 
-def execute_query(query: str, params: Optional[Dict[str, Any]] = None) -> Any:
+def close_db_connection(conn: sqlite3.Connection):
     """
-    Execute a parameterized SQLite query.
-
-    :param query: SQL query with placeholders.
-    :param params: Parameters to be used in the query.
-    :return: Result of the query execution.
+    Close the database connection.
+    
+    :param conn: SQLite3 database connection.
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    if params:
-        cursor.execute(query, params)
-    else:
-        cursor.execute(query)
-    return cursor.fetchall()
+    conn.close()

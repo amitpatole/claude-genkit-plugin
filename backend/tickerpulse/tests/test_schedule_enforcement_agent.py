@@ -1,28 +1,32 @@
-from unittest.mock import patch
-from backend.tickerpulse.schedule_enforcement_agent import is_non_dev_hour, enforce_schedule, main
-from datetime import datetime
+from typing import Any
+import unittest
+from unittest.mock import patch, MagicMock
+from backend.tickerpulse.schedule_enforcement_agent import ScheduleEnforcementAgent, get_db_connection
 
-def test_is_non_dev_hour() -> None:
-    """Test is_non_dev_hour function."""
-    with patch('backend.tickerpulse.schedule_enforcement_agent.datetime') as mock_datetime:
-        mock_datetime.now.return_value.time.return_value = time(8, 0)
-        assert is_non_dev_hour() == True
+class TestScheduleEnforcementAgent(unittest.TestCase):
+    @patch('backend.tickerpulse.schedule_enforcement_agent.get_db_connection')
+    def test_enforce_schedule_in_development_hours(self, mock_get_db_connection):
+        mock_cursor = MagicMock()
+        mock_connection = MagicMock()
+        mock_cursor.fetchone.return_value = {'user_id': 1, 'schedule': 'Development'}
+        mock_connection.cursor.return_value = mock_cursor
+        mock_get_db_connection.return_value = mock_connection
 
-        mock_datetime.now.return_value.time.return_value = time(18, 0)
-        assert is_non_dev_hour() == True
+        agent = ScheduleEnforcementAgent()
+        result = agent.enforce_schedule(1)
+        self.assertEqual(result, {'user_id': 1, 'schedule': 'Development'})
 
-        mock_datetime.now.return_value.time.return_value = time(12, 0)
-        assert is_non_dev_hour() == False
+    @patch('backend.tickerpulse.schedule_enforcement_agent.get_db_connection')
+    def test_enforce_schedule_outside_development_hours(self, mock_get_db_connection):
+        mock_cursor = MagicMock()
+        mock_connection = MagicMock()
+        mock_cursor.fetchone.return_value = None
+        mock_connection.cursor.return_value = mock_cursor
+        mock_get_db_connection.return_value = mock_connection
 
-def test_enforce_schedule(caplog) -> None:
-    """Test enforce_schedule function."""
-    with patch('backend.tickerpulse.schedule_enforcement_agent.is_non_dev_hour', return_value=True):
-        with patch('backend.tickerpulse.schedule_enforcement_agent.logging') as mock_logging:
-            enforce_schedule()
-            mock_logging.info.assert_called_once_with("Enforcing schedule: Non-development hour detected.")
+        agent = ScheduleEnforcementAgent()
+        result = agent.enforce_schedule(1)
+        self.assertIsNone(result)
 
-def test_main(caplog) -> None:
-    """Test main function."""
-    with patch('backend.tickerpulse.schedule_enforcement_agent.is_non_dev_hour', return_value=True):
-        main()
-        assert "Enforcing schedule: Non-development hour detected." in caplog.text
+if __name__ == '__main__':
+    unittest.main()
