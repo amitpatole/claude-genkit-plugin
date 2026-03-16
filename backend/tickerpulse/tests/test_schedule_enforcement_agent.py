@@ -1,15 +1,16 @@
-from unittest.mock import patch, MagicMock
-from backend.tickerpulse.schedule_enforcement_agent import enforce_schedule
+from unittest.mock import patch
 from datetime import datetime
+from backend.tickerpulse.schedule_enforcement_agent import ScheduleEnforcementAgent, get_non_dev_hours
 
-def test_enforce_schedule(caplog):
-    with patch('backend.tickerpulse.schedule_enforcement_agent.datetime') as mock_datetime:
-        mock_datetime.now.return_value = datetime(2023, 10, 10, 12, 0, 0)
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.return_value = [1, 2, 3]
-        with patch('backend.tickerpulse.schedule_enforcement_agent.get_db_connection') as mock_get_db_connection:
-            mock_conn = MagicMock()
-            mock_conn.cursor.return_value = mock_cursor
-            mock_get_db_connection.return_value = mock_conn
-            enforce_schedule()
-            assert "Enforcing schedule" in caplog.text
+def test_enforce_schedule():
+    with patch("backend.tickerpulse.schedule_enforcement_agent.datetime") as mock_datetime:
+        mock_datetime.now.return_value.time.return_value = datetime.strptime("15:00", "%H:%M").time()
+        non_dev_hours = [{"start": "14:00", "end": "16:00"}]
+        current_app.config["NON_DEV_HOURS"] = non_dev_hours
+
+        agent = ScheduleEnforcementAgent(db_path="test.db")
+        with agent:
+            agent.enforce_schedule()
+
+        assert mock_datetime.now.return_value.time.call_count == 1
+        assert agent.cursor.execute.call_count == 1
