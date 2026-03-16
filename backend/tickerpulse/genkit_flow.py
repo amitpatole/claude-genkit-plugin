@@ -1,64 +1,99 @@
 from typing import Any, AsyncIterable, AsyncIterator, Optional
-import sqlite3
-from sqlite3 import Row
-from flask import Blueprint, request, jsonify
 import logging
+from flask import Blueprint, request
+from sqlite3 import Row
+from contextlib import asynccontextmanager
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.asyncio import AsyncSession
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-genkit_flow_bp = Blueprint('genkit_flow', __name__)
+# Define the blueprint
+genkit_flow = Blueprint('genkit_flow', __name__)
 
-class GenkitFlow:
-    def __init__(self, db_path: str):
-        self.db_path = db_path
-        self.conn = None
+# Initialize SQLAlchemy
+db = SQLAlchemy()
 
-    async def __aenter__(self):
-        self.conn = sqlite3.connect(self.db_path, isolation_level=None, check_same_thread=False, factory=Row)
-        self.conn.execute('PRAGMA journal_mode=WAL')
-        return self
+# Define the model
+class FlowTemplate(db.Model):
+    __tablename__ = 'flow_templates'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    template = db.Column(db.Text, nullable=False)
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        if self.conn:
-            self.conn.close()
+    @staticmethod
+    async def get_all_templates() -> AsyncIterable[Row]:
+        async with db.session_async() as session:
+            async with session.begin():
+                query = session.execute("SELECT * FROM flow_templates")
+                for row in query.fetchall():
+                    yield Row(row)
 
-    async def execute_query(self, query: str, *args) -> AsyncIterable[Row]:
-        async with self.conn.execute(query, args) as cursor:
-            async for row in cursor:
-                yield row
+# Define the async context manager for database session
+@asynccontextmanager
+async def db_session_async():
+    async with AsyncSession(db.engine) as session:
+        yield session
 
-    async def get_flow_template(self, template_id: int) -> Optional[Row]:
-        query = "SELECT * FROM flow_templates WHERE id=?"
-        async for row in self.execute_query(query, template_id):
-            return row
+# Define the route for generating flows
+@genkit_flow.route('/genkit-flow', methods=['POST'])
+async def generate_flow() -> Any:
+    try:
+        # Get the template ID from the request
+        template_id = request.json.get('template_id')
+        if not template_id:
+            return {"error": "Template ID is required"}, 400
 
-    async def run_flow_template(self, template_id: int) -> AsyncIterable[Row]:
-        template = await self.get_flow_template(template_id)
-        if not template:
-            logger.error(f"Flow template with ID {template_id} not found.")
+        # Fetch the template from the database
+        async with db_session_async() as session:
+            query = session.execute(
+                "SELECT template FROM flow_templates WHERE id = ?", (template_id,)
+            ).scalar()
+            if not query:
+                return {"error": "Template not found"}, 404
+
+            # Generate the flow based on the template
+            flow_template = query
+            # Here you would implement the logic to generate the flow based on the template
+            # For now, we just return the template as a sample response
+            return {"flow": flow_template}, 200
+    except Exception as e:
+        logger.error(f"Error generating flow: {e}")
+        return {"error": str(e)}, 500
+
+# Define the route for streaming responses
+@genkit_flow.route('/genkit-flow/stream', methods=['POST'])
+async def stream_flow() -> AsyncIterable[bytes]:
+    try:
+        # Get the template ID from the request
+        template_id = request.json.get('template_id')
+        if not template_id:
+            yield b'{"error": "Template ID is required"}\n'
             return
 
-        query = template['query']
-        async for row in self.execute_query(query, *template['args']):
-            yield row
+        # Fetch the template from the database
+        async with db_session_async() as session:
+            query = session.execute(
+                "SELECT template FROM flow_templates WHERE id = ?", (template_id,)
+            ).scalar()
+            if not query:
+                yield b'{"error": "Template not found"}\n'
+                return
 
-    async def create_flow_template(self, name: str, query: str, args: tuple) -> int:
-        query = "INSERT INTO flow_templates (name, query, args) VALUES (?, ?, ?) RETURNING id"
-        async with self.conn.execute(query, (name, query, args)) as cursor:
-            return cursor.fetchone()[0]
+            # Generate the flow based on the template and stream the response
+            flow_template = query
+            # Here you would implement the logic to generate and stream the flow
+            # For now, we just yield the template as a sample response
+            yield f'{{"flow": "{flow_template}"}}\n'.encode()
+    except Exception as e:
+        logger.error(f"Error streaming flow: {e}")
+        yield f'{{"error": "{str(e)}"}\n'.encode()
 
-genkit_flow_bp.route('/genkit-flow/<int:template_id>', methods=['GET'])(async def get_flow_template_route(template_id: int) -> AsyncIterable[Row]:
-    async with GenkitFlow('tickerpulse.db') as genkit_flow:
-        return await genkit_flow.run_flow_template(template_id)
+# Ensure SQLite uses WAL mode
+db.engine.execute('PRAGMA journal_mode=WAL')
 
-genkit_flow_bp.route('/genkit-flow', methods=['POST'])(async def create_flow_template_route() -> int:
-    data = request.json
-    name = data.get('name')
-    query = data.get('query')
-    args = tuple(data.get('args', ()))
-
-    if not name or not query:
-        return jsonify({"error": "Missing required fields"}), 400
-
-    async with GenkitFlow('tickerpulse.db') as genkit_flow:
-        return jsonify({"template_id": await genkit_flow.create_flow_template(name, query, args)})
+# Initialize the database
+db.init_app(genkit_flow)
