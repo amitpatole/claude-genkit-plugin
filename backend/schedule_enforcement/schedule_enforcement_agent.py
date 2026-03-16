@@ -1,63 +1,56 @@
-from datetime import datetime, timezone
 from typing import Any
 import logging
+from datetime import datetime, timezone
 from flask import current_app
+from sqlite3 import Row
+from contextlib import asynccontextmanager
+from backend.utils.config import get_config
+from backend.utils.db import get_db_connection
 
-from config import SCHEDULE_ENFORCEMENT_CONFIG
-from utils.db import get_db_connection
-from utils.notifications import send_genkit_explorer_notification
+logging.basicConfig(level=logging.INFO)
 
-logger = logging.getLogger(__name__)
+class ScheduleEnforcementAgent:
+    def __init__(self):
+        self.config = get_config()
+        self.allowed_hours = self.config.get("allowed_hours", [])
+        self.log_file_path = self.config.get("log_file_path", "logs/schedule_violations.log")
 
-def is_allowed_time() -> bool:
-    """
-    Check if the current time is within the allowed deployment hours (10 PM - 8 AM EST).
+    async def check_allowed_hours(self, deployment_time: datetime) -> bool:
+        current_hour = deployment_time.hour
+        if self.allowed_hours:
+            for allowed_hour in self.allowed_hours:
+                if allowed_hour[0] <= current_hour < allowed_hour[1]:
+                    return True
+        return False
 
-    :return: True if within allowed hours, False otherwise.
-    """
-    now = datetime.now(timezone('EST'))
-    return 22 <= now.hour < 24 or 0 <= now.hour < 8
+    async def log_violation(self, deployment_time: datetime, user_id: str, deployment_id: str) -> None:
+        async with get_db_connection() as conn:
+            conn.row_factory = Row
+            cursor = conn.cursor()
+            await cursor.execute(
+                "INSERT INTO schedule_violations (deployment_time, user_id, deployment_id) VALUES (?, ?, ?)",
+                (deployment_time, user_id, deployment_id)
+            )
+            await conn.commit()
 
-def log_violation(deployment_id: int, reason: str) -> None:
-    """
-    Log a deployment violation to a file.
+    async def notify_user(self, deployment_time: datetime, user_id: str, deployment_id: str) -> None:
+        # Simulate notification via Genkit Explorer sidebar
+        logging.info(f"Deployment attempt at {deployment_time} is blocked. User ID: {user_id}, Deployment ID: {deployment_time}")
 
-    :param deployment_id: ID of the deployment attempt.
-    :param reason: Reason for the violation.
-    """
-    with open("violation_logs.txt", "a") as log_file:
-        log_file.write(f"VIOLATION: Deployment {deployment_id} attempted at {datetime.now().isoformat()} - {reason}\n")
+    async def enforce_schedule(self, deployment_time: datetime, user_id: str, deployment_id: str) -> None:
+        if not await self.check_allowed_hours(deployment_time):
+            await self.log_violation(deployment_time, user_id, deployment_id)
+            await self.notify_user(deployment_time, user_id, deployment_id)
 
-def notify_user(deployment_id: int, reason: str) -> None:
-    """
-    Notify the user via the Genkit Explorer sidebar of a deployment violation.
+# Example usage
+async def main():
+    agent = ScheduleEnforcementAgent()
+    deployment_time = datetime.now(timezone.utc)
+    user_id = "user123"
+    deployment_id = "deploy456"
+    await agent.enforce_schedule(deployment_time, user_id, deployment_id)
 
-    :param deployment_id: ID of the deployment attempt.
-    :param reason: Reason for the violation.
-    """
-    send_genkit_explorer_notification(
-        title="Deployment Violation",
-        message=f"Deployment {deployment_id} attempted outside allowed hours - {reason}",
-        level="warning"
-    )
-
-def enforce_schedule(deployment_id: int) -> None:
-    """
-    Enforce schedule by blocking deployments outside the allowed hours and logging violations.
-
-    :param deployment_id: ID of the deployment attempt.
-    """
-    if not is_allowed_time():
-        reason = "Deployment attempted outside allowed hours (10 PM - 8 AM EST)"
-        log_violation(deployment_id, reason)
-        notify_user(deployment_id, reason)
-
-def main() -> None:
-    """
-    Main entry point for the Schedule Enforcement Agent.
-    """
-    deployment_id = 12345  # Example deployment ID
-    enforce_schedule(deployment_id)
-
+# Run the example usage
 if __name__ == "__main__":
-    main()
+    import asyncio
+    asyncio.run(main())

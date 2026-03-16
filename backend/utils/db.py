@@ -1,17 +1,17 @@
 from typing import Any
-import sqlite3
+from sqlite3 import Row
 from contextlib import asynccontextmanager
-
-from flask import current_app
+from backend.utils.config import get_config
 
 @asynccontextmanager
-async def get_db_connection() -> sqlite3.Connection:
-    """
-    Provides a connection to the SQLite database using async context manager.
-    """
-    conn = sqlite3.connect(current_app.config["DATABASE_PATH"], uri=True)
-    conn.row_factory = sqlite3.Row
+async def get_db_connection() -> Row:
+    db_config = get_config().get("db", {})
+    conn = await create_connection(db_config.get("path", "tickerpulse.db"))
     try:
         yield conn
     finally:
-        conn.close()
+        await conn.close()
+
+async def create_connection(db_path: str) -> Row:
+    conn = await aiosqlite.connect(db_path)
+    return conn
