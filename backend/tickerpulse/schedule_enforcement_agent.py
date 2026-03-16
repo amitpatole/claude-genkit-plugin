@@ -1,6 +1,7 @@
-from typing import Any, Optional
+from typing import Any, AsyncContextManager, AsyncGenerator, Optional
 import sqlite3
 from sqlite3 import Row
+from datetime import datetime
 from flask import current_app
 
 from backend.utils.db import get_db_connection
@@ -9,31 +10,28 @@ from backend.utils.logging import setup_logger
 logger = setup_logger(__name__)
 
 class ScheduleEnforcementAgent:
-    def __init__(self):
-        self.db_connection = get_db_connection()
-        self.db_connection.row_factory = sqlite3.Row
+    async def __aenter__(self) -> 'ScheduleEnforcementAgent':
+        self.conn: Optional[AsyncContextManager[sqlite3.Connection]] = await get_db_connection()
+        return self
 
-    async def enforce_schedule(self, user_id: int) -> Optional[bool]:
-        try:
-            async with self.db_connection as conn:
-                cursor = await conn.execute(
-                    "SELECT is_scheduled FROM user_schedule WHERE user_id = ?", (user_id,)
-                )
-                row = await cursor.fetchone()
-                if row is None:
-                    logger.warning(f"No schedule found for user_id: {user_id}")
-                    return None
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.conn:
+            await self.conn.close()
 
-                is_scheduled = row["is_scheduled"]
-                if not is_scheduled:
-                    logger.info(f"User {user_id} is not scheduled during non-dev hours.")
-                    return False
+    async def enforce_schedule(self) -> None:
+        async with self.conn as conn:
+            cursor: AsyncGenerator[Row, None] = conn.execute("SELECT * FROM schedule_enforcement WHERE is_active = ?", (True,))
+            for row in cursor:
+                # Implement logic to enforce schedule based on row data
+                pass
 
-                logger.info(f"User {user_id} is scheduled during non-dev hours.")
-                return True
-        except Exception as e:
-            logger.error(f"Error enforcing schedule for user {user_id}: {e}")
-            return None
+            # Example: Enforce a specific schedule
+            current_time = datetime.now()
+            if current_time.hour < 9 or current_time.hour >= 18:
+                logger.info("Scheduling tasks for non-development hours.")
+                # Schedule tasks for non-development hours
+                pass
 
-    async def close_db_connection(self):
-        await self.db_connection.close()
+async def check_schedule_enforcement() -> None:
+    agent = ScheduleEnforcementAgent()
+    await agent.enforce_schedule()
