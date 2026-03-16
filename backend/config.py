@@ -1,5 +1,4 @@
-from typing import Any
-
-def get_db_path() -> str:
-    """Return the path to the database file."""
-    return "tickerpulse.db"
+class DevelopmentConfig:
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///tickerpulse.db?mode=memory&cache=shared'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ECHO = False

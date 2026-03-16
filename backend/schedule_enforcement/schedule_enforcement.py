@@ -1,46 +1,40 @@
-from typing import Any
+from typing import Any, Dict, Optional
+import sqlite3
 import logging
 from datetime import datetime, timezone
-from flask import current_app
-from sqlite3 import Row
-import os
 
-from .database import get_db, row_to_dict
+from flask import current_app
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-def is_allowed_time() -> bool:
-    """Check if current time is within allowed deployment hours (10 PM - 8 AM EST)."""
-    est = timezone(-5, 'EST')
-    now = datetime.now(est)
-    return 22 <= now.hour < 8
+def get_non_dev_hours() -> Dict[str, Any]:
+    return {
+        "start": "18:00",
+        "end": "08:00",
+        "timezone": "UTC",
+    }
 
-def log_deployment_attempt(deployment_id: int, user_id: int) -> None:
-    """Log deployment attempt details to a file."""
-    log_path = os.path.join(current_app.root_path, 'logs', 'deployment_attempts.log')
-    with open(log_path, 'a') as log_file:
-        log_file.write(f"Deployment attempt ID: {deployment_id}, User ID: {user_id}, Time: {datetime.now().isoformat()}\n")
+def is_within_non_dev_hours(current_time: datetime) -> bool:
+    non_dev_hours = get_non_dev_hours()
+    non_dev_start = datetime.strptime(non_dev_hours["start"], "%H:%M").time()
+    non_dev_end = datetime.strptime(non_dev_hours["end"], "%H:%M").time()
+    non_dev_start_time = datetime.combine(current_time.date(), non_dev_start)
+    non_dev_end_time = datetime.combine(current_time.date(), non_dev_end)
 
-def notify_user_via_genkit(deployment_id: int, user_id: int) -> None:
-    """Notify the user via the Genkit Explorer sidebar about a violation."""
-    notification = f"Deployment attempt {deployment_id} blocked for user {user_id} during off-peak hours."
-    # Assuming Genkit Explorer has a method to send notifications
-    current_app.genkit_explorer.send_notification(notification)
+    if non_dev_start_time > non_dev_end_time:
+        non_dev_end_time += timedelta(days=1)
 
-async def enforce_schedule(deployment_id: int, user_id: int) -> None:
-    """Enforce schedule by checking time and logging or notifying if necessary."""
-    if not is_allowed_time():
-        log_deployment_attempt(deployment_id, user_id)
-        notify_user_via_genkit(deployment_id, user_id)
+    return non_dev_start_time <= current_time.time() < non_dev_end_time
 
-async def main() -> None:
-    """Main entry point for the schedule enforcement agent."""
-    deployment_id = 12345  # Example deployment ID
-    user_id = 67890  # Example user ID
-    await enforce_schedule(deployment_id, user_id)
-
-# Example usage for testing
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+async def enforce_schedule() -> None:
+    async with current_app.app_context():
+        conn = await current_app.db.acquire()
+        try:
+            current_time = datetime.now(timezone.utc)
+            if is_within_non_dev_hours(current_time):
+                logging.info("Enforcing schedule: Non-development hours are active.")
+                # Add logic to enforce schedule here
+            else:
+                logging.info("No schedule enforcement needed: Outside non-development hours.")
+        finally:
+            await current_app.db.release(conn)
