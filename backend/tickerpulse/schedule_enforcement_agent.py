@@ -1,68 +1,39 @@
-from typing import Any, Dict, List
+from typing import Any, Optional
 import sqlite3
-from sqlite3 import Error
-from datetime import datetime, time
+from sqlite3 import Row
 from flask import current_app
 
 from backend.utils.db import get_db_connection
+from backend.utils.logging import setup_logger
 
-logging.basicConfig(level=logging.INFO)
+logger = setup_logger(__name__)
 
-def get_non_dev_hours() -> List[Dict[str, time]]:
-    return [
-        {"start": time(hour=18), "end": time(hour=8)},
-    ]
+class ScheduleEnforcementAgent:
+    def __init__(self):
+        self.db_connection = get_db_connection()
+        self.db_connection.row_factory = sqlite3.Row
 
-def is_within_non_dev_hours(current_time: time) -> bool:
-    non_dev_hours = get_non_dev_hours()
-    for hour_range in non_dev_hours:
-        if hour_range["start"] <= current_time < hour_range["end"]:
-            return True
-    return False
+    async def enforce_schedule(self, user_id: int) -> Optional[bool]:
+        try:
+            async with self.db_connection as conn:
+                cursor = await conn.execute(
+                    "SELECT is_scheduled FROM user_schedule WHERE user_id = ?", (user_id,)
+                )
+                row = await cursor.fetchone()
+                if row is None:
+                    logger.warning(f"No schedule found for user_id: {user_id}")
+                    return None
 
-async def enforce_schedule(current_time: time) -> None:
-    if is_within_non_dev_hours(current_time):
-        logging.info("Enforcing schedule during non-development hours.")
-        # Logic to enforce schedule can go here
-    else:
-        logging.info("Not enforcing schedule during development hours.")
+                is_scheduled = row["is_scheduled"]
+                if not is_scheduled:
+                    logger.info(f"User {user_id} is not scheduled during non-dev hours.")
+                    return False
 
-async def main() -> None:
-    current_time = time(hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second)
-    await enforce_schedule(current_time)
+                logger.info(f"User {user_id} is scheduled during non-dev hours.")
+                return True
+        except Exception as e:
+            logger.error(f"Error enforcing schedule for user {user_id}: {e}")
+            return None
 
-async def setup_db() -> None:
-    conn = await get_db_connection()
-    try:
-        cursor = await conn.execute("PRAGMA journal_mode=WAL")
-        cursor = await conn.execute("PRAGMA foreign_keys=ON")
-        cursor = await conn.execute("CREATE TABLE IF NOT EXISTS schedule_enforcement_log (id INTEGER PRIMARY KEY, timestamp TEXT, message TEXT)")
-        await conn.commit()
-    except Error as e:
-        logging.error(f"Failed to setup database: {e}")
-    finally:
-        await conn.close()
-
-async def log_enforcement(action: str) -> None:
-    conn = await get_db_connection()
-    try:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        await conn.execute("INSERT INTO schedule_enforcement_log (timestamp, message) VALUES (?, ?)", (timestamp, action))
-        await conn.commit()
-    except Error as e:
-        logging.error(f"Failed to log enforcement: {e}")
-    finally:
-        await conn.close()
-
-async def handle_schedule_enforcement() -> None:
-    await setup_db()
-    while True:
-        current_time = time(hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second)
-        await enforce_schedule(current_time)
-        await log_enforcement(f"Enforced schedule at {current_time}")
-        await asyncio.sleep(60)  # Check every minute
-
-# Ensure this script is run as a standalone script
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(handle_schedule_enforcement())
+    async def close_db_connection(self):
+        await self.db_connection.close()

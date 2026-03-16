@@ -1,14 +1,20 @@
 from typing import Any
 import sqlite3
+from sqlite3 import Row
 from contextlib import asynccontextmanager
 
-from backend.config import DB_PATH
+from flask import current_app
+
+async def get_db_connection() -> sqlite3.Connection:
+    if current_app.config.get("TESTING"):
+        return sqlite3.connect(":memory:")
+    return sqlite3.connect(current_app.config["DATABASE"], uri=True, isolation_level=None, check_same_thread=False, factory=Row)
 
 @asynccontextmanager
-async def get_db_connection() -> sqlite3.Connection:
-    """Context manager for getting a database connection."""
-    conn = await sqlite3.connect(DB_PATH, isolation_level=None, check_same_thread=False, factory=sqlite3.Row)
+async def get_db_cursor() -> sqlite3.Cursor:
+    conn = await get_db_connection()
+    cursor = conn.cursor()
     try:
-        yield conn
+        yield cursor
     finally:
-        conn.close()
+        await conn.close()
