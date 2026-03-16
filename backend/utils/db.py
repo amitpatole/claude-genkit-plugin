@@ -1,17 +1,9 @@
-from typing import Any
+from typing import Any, Dict
 import sqlite3
-from contextlib import asynccontextmanager
+from sqlite3 import Error
 
-from backend.config import DB_PATH
-
-@asynccontextmanager
-async def get_db_connection() -> sqlite3.Connection:
-    """
-    Context manager for database connections.
-    """
-    conn = sqlite3.connect(DB_PATH, isolation_level=None, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    try:
-        yield conn
-    finally:
-        conn.close()
+def get_db_connection() -> sqlite3.Connection:
+    """Get a database connection with WAL mode."""
+    conn = sqlite3.connect('tickerpulse.db', uri=True)
+    conn.execute("PRAGMA journal_mode=WAL")
+    return conn
