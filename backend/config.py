@@ -1,2 +1,2 @@
-class Config:
-    DATABASE_PATH = 'sqlite:///tickerpulse.db'
+class DevelopmentConfig:
+    DATABASE = 'sqlite:///tickerpulse.db'

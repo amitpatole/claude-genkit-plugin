@@ -1,15 +1,12 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from backend.tickerpulse.schedule_enforcement_agent import enforce_schedule
+from backend.utils.db import get_db_connection
 
-app = Flask(__name__)
-app.config.from_object('config.Config')
+def create_app() -> Flask:
+    app = Flask(__name__)
+    app.config.from_object('config.DevelopmentConfig')
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+    @app.before_first_request
+    async def initialize_db() -> None:
+        await get_db_connection()
 
-# Initialize the schedule enforcement agent
-@app.before_first_request
-async def init_schedule_enforcement():
-    enforce_schedule()
+    return app

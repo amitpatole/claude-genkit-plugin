@@ -1,37 +1,49 @@
-from typing import Any, Optional
-import logging
-from datetime import datetime
-from flask import current_app
-from sqlite3 import Row
-from contextlib import asynccontextmanager
+from typing import Any
 import sqlite3
+from sqlite3 import Row
+from datetime import datetime, time
+from flask import current_app
+from backend.utils.db import get_db_connection
 
-# Setup logger
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-@asynccontextmanager
-async def get_db_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(current_app.config['DATABASE_PATH'], uri=True, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
-    conn.row_factory = sqlite3.Row
-    try:
-        yield conn
-    finally:
-        conn.close()
+def get_non_dev_hours() -> list[time]:
+    return [
+        time(hour=23, minute=00),
+        time(hour=00, minute=00),
+        time(hour=01, minute=00),
+        time(hour=02, minute=00),
+        time(hour=03, minute=00),
+        time(hour=04, minute=00),
+        time(hour=05, minute=00),
+        time(hour=06, minute=00),
+        time(hour=07, minute=00),
+        time(hour=08, minute=00),
+        time(hour=22, minute=00),
+    ]
+
+def is_within_non_dev_hours(current_time: time) -> bool:
+    non_dev_hours = get_non_dev_hours()
+    return any(hour <= current_time < (hour + time(1)) for hour in non_dev_hours)
 
 async def enforce_schedule() -> None:
-    async with get_db_connection() as conn:
-        cursor = await conn.execute("SELECT * FROM schedules WHERE start_time <= ? AND end_time > ?", (datetime.now(), datetime.now()))
-        schedules = await cursor.fetchall()
-        
-        for schedule in schedules:
-            start_time = schedule['start_time']
-            end_time = schedule['end_time']
-            if start_time <= datetime.now() < end_time:
-                logger.info(f"Enforcing schedule: {schedule['id']} from {start_time} to {end_time}")
-                # Implement logic to enforce the schedule here
-                pass
+    conn = await get_db_connection()
+    cursor = await conn.execute(
+        "SELECT ticker, price FROM tickers WHERE last_update_time IS NULL OR last_update_time < datetime('now', '-1 hour')",
+        (datetime.now().time(),)
+    )
+    rows = await cursor.fetchall()
+    await cursor.close()
+    await conn.close()
 
-# Ensure the function is called at the appropriate times
-if __name__ == "__main__":
-    enforce_schedule()
+    for row in rows:
+        ticker, price = row
+        logging.info(f"Enforcing schedule for {ticker} with price {price}")
+
+        # Simulate update logic here
+        # await update_ticker(ticker, price)
+
+async def main() -> None:
+    current_time = datetime.now().time()
+    if is_within_non_dev_hours(current_time):
+        await enforce_schedule()
