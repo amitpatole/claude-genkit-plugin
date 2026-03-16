@@ -1,39 +1,68 @@
-from typing import Any
+from typing import Any, Dict, List
 import sqlite3
-from sqlite3 import Row
+from sqlite3 import Error
+from datetime import datetime, time
 from flask import current_app
 
-from backend.utils import get_db_connection
+from backend.utils.db import get_db_connection
 
 logging.basicConfig(level=logging.INFO)
 
-def enforce_schedule() -> None:
-    """
-    Enforce the schedule by checking if the current time is outside of non-development hours.
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor(row_factory=Row)
+def get_non_dev_hours() -> List[Dict[str, time]]:
+    return [
+        {"start": time(hour=18), "end": time(hour=8)},
+    ]
+
+def is_within_non_dev_hours(current_time: time) -> bool:
+    non_dev_hours = get_non_dev_hours()
+    for hour_range in non_dev_hours:
+        if hour_range["start"] <= current_time < hour_range["end"]:
+            return True
+    return False
+
+async def enforce_schedule(current_time: time) -> None:
+    if is_within_non_dev_hours(current_time):
+        logging.info("Enforcing schedule during non-development hours.")
+        # Logic to enforce schedule can go here
+    else:
+        logging.info("Not enforcing schedule during development hours.")
+
+async def main() -> None:
+    current_time = time(hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second)
+    await enforce_schedule(current_time)
+
+async def setup_db() -> None:
+    conn = await get_db_connection()
     try:
-        # Get the current time
-        current_time = current_app.config['CURRENT_TIME']
-
-        # Query the database for non-development hours
-        cursor.execute("SELECT start_time, end_time FROM non_dev_hours")
-        non_dev_hours = cursor.fetchall()
-
-        for start_time, end_time in non_dev_hours:
-            if start_time <= current_time < end_time:
-                logging.info("Schedule enforced: Current time is within non-development hours.")
-                return
-
-        logging.info("Schedule enforced: Current time is outside non-development hours.")
+        cursor = await conn.execute("PRAGMA journal_mode=WAL")
+        cursor = await conn.execute("PRAGMA foreign_keys=ON")
+        cursor = await conn.execute("CREATE TABLE IF NOT EXISTS schedule_enforcement_log (id INTEGER PRIMARY KEY, timestamp TEXT, message TEXT)")
+        await conn.commit()
+    except Error as e:
+        logging.error(f"Failed to setup database: {e}")
     finally:
-        conn.close()
+        await conn.close()
 
-def get_db_connection() -> sqlite3.Connection:
-    """
-    Get a database connection using the SQLite database configured in the app.
-    """
-    conn = sqlite3.connect(current_app.config['DATABASE_PATH'], uri=True)
-    conn.row_factory = sqlite3.Row
-    return conn
+async def log_enforcement(action: str) -> None:
+    conn = await get_db_connection()
+    try:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        await conn.execute("INSERT INTO schedule_enforcement_log (timestamp, message) VALUES (?, ?)", (timestamp, action))
+        await conn.commit()
+    except Error as e:
+        logging.error(f"Failed to log enforcement: {e}")
+    finally:
+        await conn.close()
+
+async def handle_schedule_enforcement() -> None:
+    await setup_db()
+    while True:
+        current_time = time(hour=datetime.now().hour, minute=datetime.now().minute, second=datetime.now().second)
+        await enforce_schedule(current_time)
+        await log_enforcement(f"Enforced schedule at {current_time}")
+        await asyncio.sleep(60)  # Check every minute
+
+# Ensure this script is run as a standalone script
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(handle_schedule_enforcement())

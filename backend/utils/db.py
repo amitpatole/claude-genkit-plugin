@@ -1,15 +1,13 @@
-from typing import Any, AsyncContextManager, AsyncIterator
+from typing import Any, AsyncContextManager, AsyncGenerator, Optional
 import sqlite3
 from contextlib import asynccontextmanager
 
-def get_db_connection() -> AsyncContextManager[sqlite3.Connection]:
-    @asynccontextmanager
-    async def connect() -> AsyncIterator[sqlite3.Connection]:
-        conn = sqlite3.connect("path/to/database.db", uri=True, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.row_factory = sqlite3.Row
-        try:
-            yield conn
-        finally:
-            conn.close()
-    return connect
+from backend.config import DB_PATH
+
+@asynccontextmanager
+async def get_db_connection() -> AsyncGenerator[sqlite3.Connection, None]:
+    conn = await sqlite3.connect(DB_PATH, isolation_level=None, check_same_thread=False)
+    try:
+        yield conn
+    finally:
+        await conn.close()
