@@ -3,47 +3,55 @@ import logging
 from datetime import datetime, timezone
 from flask import current_app
 from sqlite3 import Row
-import os
+from contextlib import asynccontextmanager
 
-from .db import get_db, init_db
+# Import necessary modules
+from .database import get_db_connection
 
+# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def is_allowed_time() -> bool:
-    """Check if the current time is within the allowed deployment hours (10 PM - 8 AM EST)."""
-    now = datetime.now(timezone('EST'))
-    return 22 <= now.hour < 8
+# Define allowed hours in EST timezone
+ALLOWED_HOURS = (22, 8)  # 10 PM to 8 AM
 
-async def log_deployment_attempt(user_id: int, time: datetime, success: bool) -> None:
-    """Log deployment attempts to a file."""
-    db = await get_db()
-    await db.execute(
-        "INSERT INTO deployment_attempts (user_id, time, success) VALUES (?, ?, ?)",
-        (user_id, time, success),
-    )
-    await db.commit()
+@asynccontextmanager
+async def db_connection() -> Row:
+    """Async context manager for database connection."""
+    conn = await get_db_connection()
+    try:
+        yield conn
+    finally:
+        conn.close()
 
-async def send_notification(user_id: int, time: datetime, success: bool) -> None:
-    """Send a notification to the user via Genkit Explorer sidebar."""
-    # Assuming Genkit Explorer has a method to send notifications
-    current_app.genkit_explorer.send_notification(
-        user_id=user_id,
-        message=f"Deployment attempt at {time} {'succeeded' if success else 'failed'}",
-    )
+async def is_allowed_time() -> bool:
+    """Check if current time is within allowed deployment hours."""
+    now = datetime.now(timezone.utc).astimezone(timezone(offset=-5))  # EST
+    return ALLOWED_HOURS[0] <= now.hour < ALLOWED_HOURS[1]
 
-async def enforce_schedule(user_id: int) -> None:
-    """Enforce deployment schedule by blocking non-allowed deployments and logging violations."""
-    if not is_allowed_time():
-        logger.info(f"Deployment attempt blocked for user {user_id} at {datetime.now(timezone('EST'))}")
-        await log_deployment_attempt(user_id, datetime.now(timezone('EST')), False)
-        await send_notification(user_id, datetime.now(timezone('EST')), False)
-    else:
-        logger.info(f"Deployment allowed for user {user_id} at {datetime.now(timezone('EST'))}")
+async def log_violation(user_id: int, deployment_time: datetime) -> None:
+    """Log a violation to a file."""
+    with open("violation_logs.txt", "a") as log_file:
+        log_file.write(f"Deployment attempt by user {user_id} at {deployment_time}\n")
 
-async def init_schedule_enforcement() -> None:
-    """Initialize the schedule enforcement agent."""
-    await init_db()
-    while True:
-        await enforce_schedule(current_app.user_id)
-        await asyncio.sleep(60)  # Check every minute
+async def notify_user(user_id: int, deployment_time: datetime) -> None:
+    """Notify the user via the Genkit Explorer sidebar."""
+    # This is a placeholder for actual notification logic
+    logger.info(f"User {user_id} attempted deployment at {deployment_time}. Notifying via Genkit Explorer sidebar.")
+
+async def enforce_schedule(user_id: int, deployment_time: datetime) -> None:
+    """Enforce schedule by checking allowed hours and logging violations."""
+    if not await is_allowed_time():
+        await log_violation(user_id, deployment_time)
+        await notify_user(user_id, deployment_time)
+
+# Example usage
+async def example_usage() -> None:
+    user_id = 12345
+    deployment_time = datetime.now(timezone.utc).astimezone(timezone(offset=-5))
+    await enforce_schedule(user_id, deployment_time)
+
+# Main entry point for testing
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(example_usage())
