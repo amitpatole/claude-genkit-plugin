@@ -1,54 +1,39 @@
-from typing import Any, AsyncContextManager, AsyncIterator, Optional
+from typing import Any
 import sqlite3
-from datetime import datetime, time
+from sqlite3 import Row
 from flask import current_app
 
-from tickerpulse.models import ScheduleEnforcementModel
+from backend.utils import get_db_connection
 
 logging.basicConfig(level=logging.INFO)
 
+def enforce_schedule() -> None:
+    """
+    Enforce the schedule by checking if the current time is outside of non-development hours.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(row_factory=Row)
+    try:
+        # Get the current time
+        current_time = current_app.config['CURRENT_TIME']
 
-class ScheduleEnforcementAgent:
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+        # Query the database for non-development hours
+        cursor.execute("SELECT start_time, end_time FROM non_dev_hours")
+        non_dev_hours = cursor.fetchall()
 
-    async def _get_schedule(self) -> Optional[ScheduleEnforcementModel]:
-        try:
-            conn = await self._get_db_connection()
-            cursor = await conn.execute("SELECT * FROM schedules WHERE is_active = 1 LIMIT 1")
-            row = await cursor.fetchone()
-            if row:
-                return ScheduleEnforcementModel(**row)
-            return None
-        finally:
-            await conn.close()
+        for start_time, end_time in non_dev_hours:
+            if start_time <= current_time < end_time:
+                logging.info("Schedule enforced: Current time is within non-development hours.")
+                return
 
-    async def _get_db_connection(self) -> AsyncContextManager[sqlite3.Connection]:
-        return current_app.async_sqlite_db.connect()
+        logging.info("Schedule enforced: Current time is outside non-development hours.")
+    finally:
+        conn.close()
 
-    async def enforce_schedule(self) -> None:
-        schedule = await self._get_schedule()
-        if not schedule:
-            logging.info("No active schedule found.")
-            return
-
-        current_time = datetime.now().time()
-        if not (schedule.start_time <= current_time < schedule.end_time):
-            logging.info("Current time is outside the active schedule.")
-            return
-
-        logging.info("Enforcing schedule.")
-        # Add your enforcement logic here
-        pass
-
-    async def run(self) -> None:
-        await self.enforce_schedule()
-
-
-def configure_db(app: Any) -> None:
-    app.async_sqlite_db = sqlite3.connect(
-        current_app.config["DB_PATH"], isolation_level=None, check_same_thread=False, factory=sqlite3.Row
-    )
-    app.async_sqlite_db.execute("PRAGMA journal_mode=WAL")
-    app.async_sqlite_db.row_factory = sqlite3.Row
-    app.async_sqlite_db.execute("CREATE TABLE IF NOT EXISTS schedules (id INTEGER PRIMARY KEY, start_time TIME, end_time TIME, is_active BOOLEAN)")
+def get_db_connection() -> sqlite3.Connection:
+    """
+    Get a database connection using the SQLite database configured in the app.
+    """
+    conn = sqlite3.connect(current_app.config['DATABASE_PATH'], uri=True)
+    conn.row_factory = sqlite3.Row
+    return conn
