@@ -1,51 +1,39 @@
 from typing import Any
 import logging
-from datetime import datetime
-import sqlite3
+from datetime import datetime, timezone
 from flask import current_app
+from sqlite3 import Row
+from contextlib import asynccontextmanager
+from .config import ALLOWED_DEPLOYMENT_HOURS, DEPLOYMENT_VIOLATION_LOG_PATH
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-DB_PATH = current_app.config['DB_PATH']
+@asynccontextmanager
+async def get_db_connection() -> Row:
+    conn = current_app.extensions['sqlite'].get_db()
+    conn.row_factory = Row
+    yield conn
 
-class ScheduleEnforcementAgent:
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
+async def is_within_allowed_hours() -> bool:
+    now = datetime.now(timezone('EST'))
+    return ALLOWED_DEPLOYMENT_HOURS[0] <= now.hour < ALLOWED_DEPLOYMENT_HOURS[1]
 
-    def is_allowed_time(self) -> bool:
-        current_time = datetime.now().astimezone().hour
-        return 22 <= current_time < 24 or 0 <= current_time < 8
+async def log_deployment_violation(user_id: str, deployment_time: datetime) -> None:
+    with open(DEPLOYMENT_VIOLATION_LOG_PATH, 'a') as log_file:
+        log_file.write(f"Deployment violation detected at {deployment_time}. User ID: {user_id}\n")
 
-    async def enforce_schedule(self, deployment_time: datetime) -> None:
-        if not self.is_allowed_time():
-            self.logger.info(f"Deployment blocked at {deployment_time} - outside allowed hours.")
-            await self.log_violation(deployment_time)
-            await self.notify_user(deployment_time)
-            raise ValueError("Deployment outside allowed hours")
+async def notify_user_via_genkit_explorer(user_id: str, deployment_time: datetime) -> None:
+    # Simulate notification via Genkit Explorer sidebar
+    logger.info(f"Deployment attempt at {deployment_time} blocked for user {user_id}. Notifying via Genkit Explorer sidebar.")
 
-    async def log_violation(self, deployment_time: datetime) -> None:
-        conn = sqlite3.connect(DB_PATH, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES)
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        try:
-            cursor.execute(
-                "INSERT INTO deployment_violations (deployment_time) VALUES (?)",
-                (deployment_time,)
-            )
-            conn.commit()
-        finally:
-            cursor.close()
-            conn.close()
-
-    async def notify_user(self, deployment_time: datetime) -> None:
-        # Notify user via Genkit Explorer sidebar
-        pass  # Placeholder for actual implementation
-
-# Example usage
-if __name__ == "__main__":
-    agent = ScheduleEnforcementAgent()
-    deployment_time = datetime(2023, 10, 1, 23, 0, 0)  # 11 PM EST
+async def enforce_schedule(user_id: str) -> None:
     try:
-        await agent.enforce_schedule(deployment_time)
-    except ValueError as e:
-        print(e)
+        if not await is_within_allowed_hours():
+            logger.warning("Deployment attempt detected outside allowed hours.")
+            await log_deployment_violation(user_id, datetime.now(timezone('EST')))
+            await notify_user_via_genkit_explorer(user_id, datetime.now(timezone('EST')))
+        else:
+            logger.info("Deployment attempt within allowed hours.")
+    except Exception as e:
+        logger.error(f"Error enforcing schedule: {e}")

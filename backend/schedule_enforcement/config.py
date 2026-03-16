@@ -1,0 +1,2 @@
+ALLOWED_DEPLOYMENT_HOURS = (22, 8)
+DEPLOYMENT_VIOLATION_LOG_PATH = 'logs/deployment_violations.log'
