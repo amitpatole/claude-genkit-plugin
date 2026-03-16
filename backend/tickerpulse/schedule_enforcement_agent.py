@@ -1,41 +1,37 @@
-from typing import Any, Dict, Optional
-import sqlite3
-from sqlite3 import Row
-from datetime import datetime, timezone
+from typing import Any, Optional
+import logging
+from datetime import datetime
 from flask import current_app
+from sqlite3 import Row
+from contextlib import asynccontextmanager
+import sqlite3
 
-from backend.utils.db import get_db_connection
-from backend.models.schedule import Schedule
-
+# Setup logger
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def enforce_schedule(user_id: int, current_time: datetime) -> Optional[bool]:
-    """
-    Enforces the schedule for a given user based on the current time.
-
-    :param user_id: ID of the user to enforce the schedule for.
-    :param current_time: Current datetime to check against the schedule.
-    :return: True if the user is within their non-development hours, False otherwise.
-    """
+@asynccontextmanager
+async def get_db_connection() -> sqlite3.Connection:
+    conn = sqlite3.connect(current_app.config['DATABASE_PATH'], uri=True, isolation_level=None, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+    conn.row_factory = sqlite3.Row
     try:
-        with get_db_connection() as conn:
-            conn.row_factory = Row
-            query = "SELECT non_dev_hours FROM user_schedules WHERE user_id = ?"
-            result = conn.execute(query, (user_id,)).fetchone()
-            if result is None:
-                logger.warning(f"No schedule found for user_id: {user_id}")
-                return None
+        yield conn
+    finally:
+        conn.close()
 
-            non_dev_hours = result["non_dev_hours"]
-            start_time, end_time = non_dev_hours.split("-")
-            start_time = datetime.strptime(start_time, "%H:%M").time()
-            end_time = datetime.strptime(end_time, "%H:%M").time()
+async def enforce_schedule() -> None:
+    async with get_db_connection() as conn:
+        cursor = await conn.execute("SELECT * FROM schedules WHERE start_time <= ? AND end_time > ?", (datetime.now(), datetime.now()))
+        schedules = await cursor.fetchall()
+        
+        for schedule in schedules:
+            start_time = schedule['start_time']
+            end_time = schedule['end_time']
+            if start_time <= datetime.now() < end_time:
+                logger.info(f"Enforcing schedule: {schedule['id']} from {start_time} to {end_time}")
+                # Implement logic to enforce the schedule here
+                pass
 
-            current_time = current_time.time()
-            if start_time <= current_time < end_time:
-                return True
-            else:
-                return False
-    except sqlite3.Error as e:
-        logger.error(f"Database error: {e}")
-        return None
+# Ensure the function is called at the appropriate times
+if __name__ == "__main__":
+    enforce_schedule()
