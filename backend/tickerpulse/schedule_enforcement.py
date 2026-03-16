@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, AsyncIterable, Optional
 import sqlite3
 from sqlite3 import Row
 from flask import current_app
@@ -7,59 +7,48 @@ from backend.utils.db import get_db_connection
 
 logging.basicConfig(level=logging.INFO)
 
-def enforce_schedule(schedule: Dict[str, Any]) -> None:
+async def enforce_schedule(enforcement_period: int) -> None:
     """
-    Enforce the given schedule during non-development hours.
+    Enforce the schedule during non-development hours.
 
-    :param schedule: A dictionary containing the schedule details.
-    :type schedule: Dict[str, Any]
+    :param enforcement_period: Number of hours to enforce the schedule.
     """
-    conn = get_db_connection()
+    conn = await get_db_connection()
     try:
-        with conn:
-            cursor = conn.cursor(row_factory=sqlite3.Row)
-            cursor.execute(
-                "SELECT * FROM schedule WHERE active = ?",
-                (True,)
-            )
-            active_schedules = cursor.fetchall()
-            for active_schedule in active_schedules:
-                # Implement logic to enforce schedule
-                pass
-    except sqlite3.Error as e:
-        logging.error(f"Failed to enforce schedule: {e}")
+        await conn.execute(
+            "SELECT * FROM schedule_enforcement WHERE period = ?", (enforcement_period,)
+        )
+        rows = await conn.fetchall()
+        for row in rows:
+            logging.info(f"Enforcing schedule for period {row['period']}")
+
+        # Simulate enforcement logic here
+        # This is a placeholder for actual enforcement logic
+        logging.info("Schedule enforcement logic executed.")
     finally:
         conn.close()
 
-def get_current_time() -> Optional[str]:
+async def get_enforcement_periods() -> AsyncIterable[Row]:
     """
-    Get the current time in a specific format.
+    Get all enforcement periods from the database.
 
-    :return: The current time as a string or None if an error occurs.
-    :rtype: Optional[str]
+    :return: An async iterable of rows from the database.
     """
-    return "2023-10-01 15:00:00"  # Mocked current time for demonstration
-
-def is_non_dev_hour(current_time: str) -> bool:
-    """
-    Determine if the current time is during non-development hours.
-
-    :param current_time: The current time in a specific format.
-    :type current_time: str
-    :return: True if it's a non-development hour, False otherwise.
-    :rtype: bool
-    """
-    # Implement logic to determine non-development hours
-    return True  # Mocked logic for demonstration
+    conn = await get_db_connection()
+    try:
+        cursor = await conn.execute("SELECT * FROM schedule_enforcement")
+        rows = await cursor.fetchall()
+        for row in rows:
+            yield row
+    finally:
+        conn.close()
 
 def main() -> None:
     """
-    Main function to enforce the schedule during non-development hours.
+    Main function to run the enforcement agent.
     """
-    current_time = get_current_time()
-    if is_non_dev_hour(current_time):
-        schedule = {"key": "value"}  # Mocked schedule for demonstration
-        enforce_schedule(schedule)
+    enforcement_period = 5  # Example enforcement period
+    enforce_schedule(enforcement_period)
 
 if __name__ == "__main__":
     main()
