@@ -1,45 +1,48 @@
-from typing import Any
+from typing import Any, Optional
 import sqlite3
-from sqlite3 import Row
-from datetime import datetime, time
+from datetime import datetime
 from flask import current_app
 
-from backend.tickerpulse.utils import get_db_connection
+from backend.utils.db import get_db_connection
 
 logging.basicConfig(level=logging.INFO)
 
-def is_non_dev_hour(current_time: time) -> bool:
-    """Check if the current time is outside of regular development hours."""
-    # Define development hours (e.g., 9 AM to 5 PM)
-    dev_start_time = time(9, 0)
-    dev_end_time = time(17, 0)
-    
-    # Check if current time is before start or after end of development hours
-    return current_time < dev_start_time or current_time >= dev_end_time
+def get_schedule_enforcement_config() -> dict[str, Any]:
+    """Fetches the schedule enforcement config from the environment."""
+    return {
+        "non_dev_hours": (17, 9),  # 5 PM to 9 AM (local time)
+        "timezone": "America/New_York",  # Example timezone
+    }
 
-async def enforce_schedule(current_time: time) -> bool:
-    """Enforce schedule by checking if the current time is a non-development hour."""
-    if is_non_dev_hour(current_time):
-        logging.info("Enforcing schedule: Non-development hour detected.")
-        return True
-    return False
+def is_within_non_dev_hours() -> bool:
+    """Checks if the current time is within non-development hours."""
+    config = get_schedule_enforcement_config()
+    non_dev_start, non_dev_end = config["non_dev_hours"]
+    timezone = config["timezone"]
+    
+    now = datetime.now()
+    now_local = now.astimezone(timezone)
+    current_hour = now_local.hour
+    
+    return non_dev_start <= current_hour < non_dev_end
+
+async def enforce_schedule() -> None:
+    """Enforces the schedule by logging if the current time is within non-dev hours."""
+    if is_within_non_dev_hours():
+        logging.info("Current time is within non-development hours. Schedule enforcement active.")
+    else:
+        logging.info("Current time is outside non-development hours. Schedule enforcement inactive.")
 
 async def main() -> None:
-    """Main entry point to enforce the schedule."""
+    """Main entry point for the schedule enforcement agent."""
     try:
-        # Get the current time
-        now = datetime.now().time()
+        conn = await get_db_connection()
+        cursor = await conn.execute("SELECT * FROM some_table", [])
+        rows = await cursor.fetchall()
+        logging.info(f"Fetched {len(rows)} rows from some_table.")
         
-        # Check if the current time is a non-development hour
-        if await enforce_schedule(now):
-            # Perform necessary actions (e.g., log, send notifications)
-            logging.info("Scheduled actions executed during non-development hour.")
-        else:
-            logging.info("No actions needed as it's within development hours.")
-    except Exception as e:
-        logging.error(f"Error enforcing schedule: {e}")
-
-# Ensure the database connection is properly managed
-async with get_db_connection() as conn:
-    conn.row_factory = Row
-    await main()
+        await enforce_schedule()
+    except sqlite3.Error as e:
+        logging.error(f"Database error: {e}")
+    finally:
+        await conn.close()
