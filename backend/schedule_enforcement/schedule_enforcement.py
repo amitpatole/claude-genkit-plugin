@@ -1,48 +1,58 @@
 from typing import Any
+from datetime import datetime, time
 import logging
-from datetime import datetime, timezone
 from flask import current_app
 from sqlite3 import Row
 from contextlib import asynccontextmanager
-from backend.database.db import get_db_connection
 
+# Setup logging
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Define allowed hours
+ALLOWED_START_HOUR = time(22)  # 10 PM EST
+ALLOWED_END_HOUR = time(8)    # 8 AM EST
+
+# Database configuration
+DATABASE_PATH = current_app.config['DATABASE_PATH']
 
 @asynccontextmanager
-async def db_connection():
-    conn = await get_db_connection()
+async def get_db_connection() -> Row:
+    conn = current_app.db_pool.get_connection()
     try:
+        yield conn.execute('PRAGMA journal_mode=WAL;')
         yield conn
     finally:
-        await conn.close()
+        conn.close()
 
-async def is_allowed_time() -> bool:
-    """Check if the current time is within the allowed deployment hours."""
-    now = datetime.now(timezone.utc)
-    allowed_start = datetime.combine(now.date(), datetime.min.time()) + timezone(
-        "EST"
-    ).utcoffset(now)
-    allowed_end = allowed_start + 10  # 10 hours window
-    return allowed_start <= now < allowed_end
+async def is_within_allowed_hours() -> bool:
+    current_hour = datetime.now().time()
+    return ALLOWED_START_HOUR <= current_hour < ALLOWED_END_HOUR
 
-async def log_violation(user_id: str, deployment_time: datetime) -> None:
-    """Log a deployment violation to a file."""
-    with (await db_connection()) as conn:
-        conn.row_factory = Row
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO deployment_violations (user_id, deployment_time) VALUES (?, ?)",
-            (user_id, deployment_time),
+async def log_violation(deployment_id: int, user_id: int) -> None:
+    async with get_db_connection() as conn:
+        cursor = await conn.cursor()
+        await cursor.execute(
+            'INSERT INTO deployment_violations (deployment_id, user_id, timestamp) VALUES (?, ?, ?)',
+            (deployment_id, user_id, datetime.now())
         )
-        conn.commit()
+        await conn.commit()
 
-async def notify_user(user_id: str, deployment_time: datetime) -> None:
-    """Notify the user via Genkit Explorer sidebar."""
-    # Assuming Genkit Explorer has a method to send notifications
-    await current_app.notify_user(user_id, f"Deployment attempt at {deployment_time} was blocked.")
+async def notify_user(deployment_id: int, user_id: int) -> None:
+    # Notify user via Genkit Explorer sidebar
+    pass  # Placeholder for actual implementation
 
-async def enforce_schedule(user_id: str, deployment_time: datetime) -> None:
-    """Enforce schedule by checking allowed time and logging violations."""
-    if not await is_allowed_time():
-        await log_violation(user_id, deployment_time)
-        await notify_user(user_id, deployment_time)
+async def enforce_schedule(deployment_id: int, user_id: int) -> None:
+    if not await is_within_allowed_hours():
+        await log_violation(deployment_id, user_id)
+        await notify_user(deployment_id, user_id)
+        logger.info(f"Deployment violation logged for deployment ID: {deployment_id} and user ID: {user_id}")
+
+# Example usage (for testing purposes)
+async def test_enforcement() -> None:
+    await enforce_schedule(12345, 67890)
+
+# Ensure the function is called in the correct context
+if __name__ == '__main__':
+    import asyncio
+    asyncio.run(test_enforcement())
