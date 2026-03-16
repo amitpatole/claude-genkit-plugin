@@ -1,61 +1,64 @@
 from typing import Any
-import logging
-from datetime import datetime, timezone
-from flask import current_app
 import sqlite3
 from sqlite3 import Error
+from datetime import datetime, time
+from flask import current_app
+
+from .config import get_db_path
 
 logging.basicConfig(level=logging.INFO)
 
-def get_allowed_hours() -> tuple[datetime, datetime]:
-    """Returns the start and end of allowed hours in EST timezone."""
-    start_time = datetime(1, 1, 1, 22, 0, 0, tzinfo=timezone(-5, 'EST'))
-    end_time = datetime(1, 1, 1, 8, 0, 0, tzinfo=timezone(-5, 'EST'))
-    return start_time, end_time
+def get_non_dev_hours() -> tuple[time, time]:
+    """Return the start and end times for non-development hours."""
+    return time(18, 0), time(8, 0)
 
-def is_within_allowed_hours(current_time: datetime) -> bool:
-    """Checks if the current time is within the allowed deployment hours."""
-    allowed_start, allowed_end = get_allowed_hours()
-    return allowed_start <= current_time <= allowed_end
+def is_within_non_dev_hours(current_time: time) -> bool:
+    """Check if the current time is within non-development hours."""
+    start_time, end_time = get_non_dev_hours()
+    return start_time <= current_time < end_time
 
-def log_deployment_attempt(deployment_time: datetime, is_scheduled: bool) -> None:
-    """Logs the deployment attempt with the given time and whether it was scheduled."""
-    log_message = f"Deployment attempt at {deployment_time} {'scheduled' if is_scheduled else 'blocked'}"
-    logging.info(log_message)
+def enforce_schedule(user_id: int) -> None:
+    """Enforce schedule by logging or taking action if within non-development hours."""
+    current_time = datetime.now().time()
+    if is_within_non_dev_hours(current_time):
+        logging.warning(f"User {user_id} is active during non-development hours.")
+        # Add logic to take appropriate action here, e.g., send alert, log more details, etc.
 
-def notify_user(deployment_time: datetime, is_scheduled: bool) -> None:
-    """Notifies the user via the Genkit Explorer sidebar about the deployment attempt."""
-    message = f"Deployment at {deployment_time} {'scheduled' if is_scheduled else 'blocked'}"
-    current_app.genkit_explorer.notify(message)
-
-def block_deployment(deployment_time: datetime) -> None:
-    """Blocks the deployment if it's outside the allowed hours and logs the violation."""
-    if not is_within_allowed_hours(deployment_time):
-        log_deployment_attempt(deployment_time, is_scheduled=False)
-        notify_user(deployment_time, is_scheduled=False)
-
-def log_deployment_result(deployment_time: datetime, is_scheduled: bool) -> None:
-    """Logs the result of the deployment attempt."""
-    log_deployment_attempt(deployment_time, is_scheduled)
-    if not is_scheduled:
-        notify_user(deployment_time, is_scheduled=False)
-
-def handle_deployment(deployment_time: datetime) -> None:
-    """Handles the deployment attempt, blocking it if necessary."""
-    block_deployment(deployment_time)
-    log_deployment_result(deployment_time, is_scheduled=False)
+def init_db() -> None:
+    """Initialize the database with necessary tables and constraints."""
+    db_path = get_db_path()
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL,
+                is_active BOOLEAN DEFAULT FALSE
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS activities (
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER,
+                activity TEXT NOT NULL,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
+        conn.commit()
+    except Error as e:
+        logging.error(f"Database initialization error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 def main() -> None:
-    """Main function to simulate deployment attempts and handle them."""
-    deployment_times = [
-        datetime(2023, 10, 10, 23, 59, 59, tzinfo=timezone(-5, 'EST')),  # Scheduled
-        datetime(2023, 10, 10, 9, 0, 0, tzinfo=timezone(-5, 'EST')),     # Blocked
-        datetime(2023, 10, 10, 22, 0, 0, tzinfo=timezone(-5, 'EST')),   # Scheduled
-        datetime(2023, 10, 10, 7, 59, 59, tzinfo=timezone(-5, 'EST')),  # Blocked
-    ]
-
-    for deployment_time in deployment_times:
-        handle_deployment(deployment_time)
+    """Main entry point to run the schedule enforcement agent."""
+    init_db()
+    enforce_schedule(1)  # Example user ID, replace with actual logic
 
 if __name__ == "__main__":
     main()
