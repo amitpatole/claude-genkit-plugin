@@ -1,18 +1,17 @@
-from typing import Any, AsyncContextManager, AsyncGenerator, Optional
+from typing import Any
 import sqlite3
-from sqlite3 import Row
-
 from contextlib import asynccontextmanager
 
-def get_db_connection() -> AsyncContextManager[sqlite3.Connection]:
-    @asynccontextmanager
-    async def _get_db_connection() -> AsyncGenerator[sqlite3.Connection, None]:
-        conn = sqlite3.connect("tickerpulse.db", uri=True, detect_types=sqlite3.PARSE_DECLTYPES)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.row_factory = Row
-        try:
-            yield conn
-        finally:
-            conn.close()
+from backend.config import DB_PATH
 
-    return _get_db_connection()
+@asynccontextmanager
+async def get_db_connection() -> sqlite3.Connection:
+    """
+    Context manager for database connections.
+    """
+    conn = sqlite3.connect(DB_PATH, isolation_level=None, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    try:
+        yield conn
+    finally:
+        conn.close()
