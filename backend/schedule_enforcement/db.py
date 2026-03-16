@@ -1,25 +1,35 @@
 from typing import Any
-from sqlite3 import connect, Row
-from contextlib import closing
+import sqlite3
+from contextlib import asynccontextmanager
+from sqlite3 import Row
 
-class AsyncDB:
-    """Async SQLite database context manager."""
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+from . import init_db
 
-    async def __aenter__(self) -> 'AsyncDB':
-        self.conn = connect(self.db_path, uri=True, check_same_thread=False)
-        self.conn.row_factory = Row
-        return self
+@asynccontextmanager
+async def get_db() -> Row:
+    """Context manager for database access."""
+    db = await init_db()
+    try:
+        yield db
+    finally:
+        db.close()
 
-    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        self.conn.close()
-
-    async def execute(self, query: str, params: tuple = ()) -> None:
-        """Execute a query with parameterized placeholders."""
-        with closing(self.conn.cursor()) as cursor:
-            await cursor.execute(query, params)
-
-    async def commit(self) -> None:
-        """Commit the transaction."""
-        self.conn.commit()
+async def init_db() -> sqlite3.Connection:
+    """Initialize the database connection."""
+    db = sqlite3.connect(
+        os.path.join(current_app.root_path, "tickerpulse.db"),
+        detect_types=sqlite3.PARSE_DECLTYPES,
+    )
+    db.row_factory = sqlite3.Row
+    db.execute("PRAGMA journal_mode=WAL")
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS deployment_attempts (
+            id INTEGER PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            time TIMESTAMP NOT NULL,
+            success BOOLEAN NOT NULL
+        )
+        """
+    )
+    return db
