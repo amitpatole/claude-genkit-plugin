@@ -1,11 +1,14 @@
+from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-from backend.tickerpulse.enforcement_agent import enforce_schedule
+from flask_migrate import Migrate
+from flask_cors import CORS
+from backend.tickerpulse.schedule_enforcement_agent import main
 
 app = Flask(__name__)
-app.config['DATABASE'] = 'tickerpulse.db'
+app.config.from_object('config.DevelopmentConfig')
+CORS(app)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
-# Example route to test the enforcement agent
-@app.route('/enforce-schedule/<user_id>/<current_time>', methods=['GET'])
-async def enforce_schedule_route(user_id: int, current_time: str):
-    result = await enforce_schedule(user_id, current_time)
-    return {'result': result}
+# Initialize the schedule enforcement agent
+main()

@@ -1,45 +1,33 @@
-from typing import Any, Dict, List
+from typing import Any, Optional
 import logging
-from datetime import datetime, time
+from datetime import datetime
 from flask import current_app
-from sqlite3 import Row
+from sqlite3 import Connection, Row
 from contextlib import asynccontextmanager
 
-from .database import get_db_connection
-
-logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
 
 @asynccontextmanager
-async def db_connection() -> Row:
-    conn = await get_db_connection()
+async def get_db_connection() -> Connection:
+    conn = current_app.extensions['db'].get_connection()
     try:
         yield conn
     finally:
-        await conn.close()
+        conn.close()
 
-async def enforce_schedule(user_id: int, current_time: time) -> None:
-    async with db_connection() as conn:
-        query = """
-            SELECT * FROM user_preferences
-            WHERE user_id = ?
-        """
-        user_preferences = await conn.execute(query, (user_id,))
-        user_preferences = await user_preferences.fetchone()
-
-        if not user_preferences:
-            logging.warning(f"No user preferences found for user_id: {user_id}")
-            return
-
-        preferred_start_time = time.fromisoformat(user_preferences['start_time'])
-        preferred_end_time = time.fromisoformat(user_preferences['end_time'])
-
-        if not (preferred_start_time <= current_time < preferred_end_time):
-            logging.info(f"User {user_id} is not allowed to access during current time: {current_time}")
-            raise Exception("Access denied during non-development hours")
-
-        logging.info(f"User {user_id} is allowed to access during current time: {current_time}")
+async def enforce_schedule() -> None:
+    async with get_db_connection() as conn:
+        conn.row_factory = Row
+        cursor = conn.cursor()
+        await cursor.execute("SELECT * FROM schedules WHERE start_time < ? AND end_time > ?", (datetime.now(), datetime.now()))
+        schedules = cursor.fetchall()
+        
+        for schedule in schedules:
+            log.info(f"Enforcing schedule: {schedule}")
+            # Logic to enforce the schedule goes here
 
 async def main() -> None:
-    user_id = 1  # Example user ID, should be passed as a parameter
-    current_time = time(15, 30)  # Example current time, should be passed as a parameter
-    await enforce_schedule(user_id, current_time)
+    log.info("Starting Schedule Enforcement Agent")
+    while True:
+        await enforce_schedule()
+        await asyncio.sleep(3600)  # Check every hour
